@@ -4,7 +4,7 @@ require_once "framework/Model.php";
 require_once "utils/AppTime.php";
 
 class Item_pictures extends Model {
-    public function __construct(int $item, int $priority, string $picture_path){
+    public function __construct(int $owner, int $priority, string $picture_path){
 
     }
 

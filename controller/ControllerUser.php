@@ -25,7 +25,7 @@ class ControllerUser extends Controller {
     public function login() : void {
          // Login en tant que guest
         if (isset($_POST['guest_login'])) {
-            $guest_user = User::get_users_by_pseudo("Boris"); 
+            $guest_user = User::get_users_by_pseudo("Quentin"); 
             $this->log_user($guest_user);
             return;
         }

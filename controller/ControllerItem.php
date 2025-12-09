@@ -12,8 +12,11 @@ class ControllerItem extends Controller {
     }
 
     public function browse() : void {
-        $items = Item::get_active_items();          
-        (new View("browse"))->show(["items" => $items]);
+        $items = Item::get_active_items();     
+        $items_user = Item::get_all_bids_item_from_user($this->get_user_or_false()); 
+        // print_r( $_SESSION['user']);
+        // die();
+        (new View("browse"))->show(["items" => $items, "items_user" => $items_user]);
     }
 
     public static function get_time_left(string $end_date): array{
@@ -25,7 +28,10 @@ class ControllerItem extends Controller {
 
         $days = floor($diff / 86400);
         $hours = floor(($diff % 86400) / 3600);
-        return [$days, $hours];
+        $minutes = floor(($diff % 3600) / 60);      // reste → minutes
+        $seconds = $diff % 60;                      // reste → secondes
+
+        return [$days, $hours, $minutes, $seconds];
     }
 
 

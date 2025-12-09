@@ -11,27 +11,6 @@ require_once 'utils/AppTime.php';
     </div>
 
     <div class="menu-right">
-
-    <!-- for tests need to be deleted after-->
-    <form method="post" action="time/withdraw">
-        <input type="hidden" name="amount" value="1">
-        <input type="hidden" name="unit" value="hour">
-        <button type="submit">-1h</button>
-    </form>
-
-    <form method="post" action="time/withdraw">
-        <input type="hidden" name="amount" value="1">
-        <input type="hidden" name="unit" value="day">
-        <button type="submit">-1d</button>
-    </form>
-
-    <form method="post" action="time/withdraw">
-        <input type="hidden" name="amount" value="7">
-        <input type="hidden" name="unit" value="day">
-        <button type="submit">-1w</button>
-    </form>
-    <!-- for tests need to be deleted after-->
-
         <form method="post" action="time/advance">
             <input type="hidden" name="amount" value="1">
             <input type="hidden" name="unit" value="hour">
