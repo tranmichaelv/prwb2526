@@ -1,0 +1,108 @@
+body{
+    font-family: "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+    color: white;
+    background: rgb(4, 14, 41);
+    padding-bottom: 60px;
+    margin-left: 90px;
+    margin-right: 90px;
+}
+
+.login{
+    margin: auto;
+    width: 50%;
+    text-align: center;
+    border: 1px solid white;
+}
+
+thead th{
+    border-bottom: 1px solid white;
+}
+
+tfoot td{
+    border-top: 1px solid white;
+}
+
+.title{
+    margin: auto;
+    width: 50%;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    text-align: center;
+}
+    
+/* Menu fixé en bas */
+.menu {
+    position: fixed;   /* toujours visible */
+    bottom: 0;
+    left: 0;
+    width: 100%;       /* prend toute la largeur */
+    background-color: #222;
+    color: white;
+    padding: 5px 15px;
+    display: flex;
+    justify-content: space-between; /* gauche/droite */
+    align-items: center;
+    box-sizing: border-box;
+    /* z-index: 1000; */
+}
+
+/* Partie gauche et droite */
+.menu-left {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.menu-right form {
+    display: inline-block;
+}
+
+.menu-right button {
+    padding: 8px 12px;
+    background-color: #555;
+    border: none;
+    color: #fff;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.menu-right button:hover {
+    background-color: #777;
+}
+
+
+
+
+.other_items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    size: 50%;
+}
+
+img{
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.item-title{
+    size: 120%
+}
+
+.item-info{
+    padding: 5px 20px 5px 20px;
+    background-color: #222;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.labels-number-of-pictures{
+    position: absolute;
+    bottom: 8px;
+    right: 16px;
+}
+
+.image-container{
+    position: relative;
+    text-align: center;
+}
