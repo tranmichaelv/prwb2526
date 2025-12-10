@@ -5,115 +5,143 @@ require_once "utils/AppTime.php";
 require_once "Bids.php";
 
 class Item extends Model {
-    public function __construct(public int $id, public string $title, public string $description, public int $owner, public string $created_at,  public int  $duration_days, public string $end_date, public ?float $buy_now_price = null, public ?float $starting_bid = null, public ?string $picture_path = null, public ?string $priority = null, public ?int $number_of_pictures = null) {
-        
-    }
+    // -------- Constructeur --------
+    public function __construct(
+        private int $id,
+        private string $title,
+        private string $description,
+        private int $owner,
+        private string $created_at,
+        private int $duration_days,
+        private ?string $buy_now_price = null,
+        private ?string $starting_bid = null,
+        private array $pictures = [],
+    ) {}
 
+    // -------- Getters --------
+    public function getId(): int { return $this->id; }
+
+    public function getTitle(): string { return $this->title; }
+
+    public function getDescription(): string { return $this->description; }
+
+    public function getOwner(): int { return $this->owner; }
+
+    public function getCreatedAt(): string { return $this->created_at; }
+
+    public function getDurationDays(): int { return $this->duration_days; }
+
+    public function getBuyNowPrice(): ?string { return $this->buy_now_price; }
+
+    public function getStartingBid(): ?string { return $this->starting_bid; }
+
+    public function getPictures(): array { return $this->pictures; }
+
+    // -------- Date fin d'une vente --------
     public static function get_end_period(string $date, int $amount): string{
         $dt = DateTime::createFromFormat('Y-m-d H:i:s', $date);
         $dt->modify("+{$amount} days");
+        // print_r($dt);
+        // die();
         return $dt->format('Y-m-d H:i:s');
     }
 
-    public static function get_items() : array {
-        $query = self::execute("select * from items order by created_at DESC",[]);
+    // -------- "Items I'm Participating in" --------
+    public static function get_bids_items_from_user(User $user): array{
+        $query = self::execute("SELECT i.*, p.*
+                                FROM items i
+	                                join item_pictures p on p.item = i.id
+                                    join bids b on b.item = i.id
+                                where DATE_ADD(i.created_at, INTERVAL i.duration_days DAY) > :end_date
+                                and b.owner = :owner 
+                                and i.id not in(select i.id
+                                               from bids b
+                                                join items i on i.id = b.item
+                                               where b.amount = i.buy_now_price)
+                                order by DATE_ADD(i.created_at, INTERVAL i.duration_days DAY);"
+                                ,["owner"=>$user->id, "end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]);
+    
         $data = $query->fetchAll();
-        $results = [];
-        foreach ($data as $row) {
-            $end_date = Item::get_end_period($row["created_at"], $row["duration_days"]);
-            $results[] = new Item($row["id"], $row["title"], $row["description"], $row["owner"],$row["created_at"],$row["duration_days"], $end_date,$row["buy_now_price"],$row["starting_bid"], $row["picture_path"]);
-        }
-        usort($results, function($a, $b) {
-            return strtotime($a->end_date) <=> strtotime($b->end_date);
-        });
-        return $results;
+        return self::fetch_items($data);
     }
 
-    public static function get_items_and_pictures() : array{
-        $query = self::execute("SELECT * FROM items i join item_pictures p on i.id = p.item WHERE p.priority = 1 order by created_at DESC",[]);
+    // -------- "Other Available Items" --------
+    public static function get_other_items_from_user(User $user): array{
+        $query = self::execute("SELECT i.*, p.*
+                                FROM items i
+	                                join item_pictures p on p.item = i.id
+                                where DATE_ADD(i.created_at, INTERVAL i.duration_days DAY) > :end_date
+                               -- Exclure items sur lesquels l'utilisateur a déjà bid
+                                AND NOT EXISTS (
+                                    SELECT 1 
+                                    FROM bids b1
+                                    WHERE b1.item = i.id
+                                    AND b1.owner = :owner
+                                )
+
+                                -- Exclure items où un bid == buy_now_price
+                                AND NOT EXISTS (
+                                    SELECT 1
+                                    FROM bids b2
+                                    WHERE b2.item = i.id
+                                    AND i.buy_now_price IS NOT NULL
+                                    AND b2.amount = i.buy_now_price
+                                )
+                                order by DATE_ADD(i.created_at, INTERVAL i.duration_days DAY);"
+                                ,["owner"=>$user->id, "end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]);
+    
         $data = $query->fetchAll();
-        $results = [];
-        foreach ($data as $row) {
-            $date = new DateTime($row["created_at"]);
-            $end_date = Item::get_end_period($row["created_at"], $row["duration_days"]);
-            $results[] = new Item($row["id"], $row["title"], $row["description"], $row["owner"],$date->format("Y-m-d H:i:s"),$row["duration_days"], $end_date,$row["buy_now_price"],$row["starting_bid"], $row["picture_path"]);
-        }
-        usort($results, function($a, $b) {
-            return strtotime($a->end_date) <=> strtotime($b->end_date);
-        });
-        return $results;
+        return self::fetch_items($data);
     }
 
-    // public static function get_item_by_id(int $id) : Item|false {
-    //     $query = self::execute("SELECT * FROM items where id = :id", ["id"=>$id]);
-    //     $row = $query->fetch();
-    //     if ($query->rowCount() == 0) {
-    //         return false;
-    //     } else {
-    //         return new Item($row["id"], $row["title"], $row["description"], $row["owner"],$row["created_at"],$row["duration_days"], $row["end_date"],$row["buy_now_price"],$row["starting_bid"], $row["picture_path"]);
-    //     }
-    // }
-
-    public static function get_active_items() : array{
-        $items = self::get_items_and_pictures();
+    // -------- Transforme les requêtes SQL en Object 'Item' --------
+    public static function fetch_items(array $data): array{
+        foreach ($data as $row) {
+            $item_id = $row['id'];
+    
+            // Intialise si c'est la premiere fois
+            if (!isset($items[$item_id])) {
+                $items[$item_id] = [
+                    'id'            => $row['id'],
+                    'title'         => $row['title'],
+                    'description'   => $row['description'],
+                    'owner'         => $row['owner'],
+                    'created_at'    => $row['created_at'],
+                    'duration_days' => $row['duration_days'],
+                    'buy_now_price' => $row['buy_now_price'],
+                    'starting_bid'  => $row['starting_bid'],
+                    'pictures'      => [] 
+                ];
+            }
+    
+            
+            // Ajouter les images
+            $items[$item_id]['pictures'][] = [
+                    "path"     => $row["picture_path"],
+                    "priority" => $row["priority"]
+            ];
+            
+        }
+    
+        // Converti en objets Item
         $results = [];
-        // date actuelle avec offset
-        $now = new DateTime(AppTime::get_current_datetime());
-
         foreach ($items as $item) {
-            $end = new DateTime($item->end_date);
-            if ($end > $now) {
-                $results[] = $item; 
-            }
+            $results[] = new Item(
+                $item['id'],
+                $item['title'],
+                $item['description'],
+                $item['owner'],
+                $item['created_at'],
+                $item['duration_days'],
+                ControllerBrowseItems::convert_format_number_for_bids($item['buy_now_price']),
+                ControllerBrowseItems::convert_format_number_for_bids($item['starting_bid']),
+                $item['pictures'] 
+            );
         }
-        // foreach ($items as $item) {
-        //     echo "created_at = {$item->created_at}<br>";
-        //     echo "end_date = {$item->end_date}<br>";
-        //     echo "now = " . $now->format("Y-m-d H:i:s") . "<br>";
-        //     echo "<hr>";
-        // }
+
+        // print_r($results);
         // die();
         return $results;
-    }
-
-    public static function get_item_by_id(int $id) : Item{
-        $query = self::execute("SELECT * FROM items i join item_pictures p on i.id = p.item where id =:id ",["id"=>$id]);
-        $row = $query->fetch();
-        $date = new DateTime($row["created_at"]);
-        $end_date = Item::get_end_period($row["created_at"], $row["duration_days"]);
-        return new Item($row["id"], $row["title"], $row["description"], $row["owner"],$date->format("Y-m-d H:i:s"),$row["duration_days"], $end_date,$row["buy_now_price"],$row["starting_bid"], $row["picture_path"]);
-        
-    }
-
-    public static function get_all_bids_item_from_user(User $user) : array{
-        $bids = Bids::get_all_bids_by_user($user->id);
-        // print_r($bids);
-        // die();
-        $items = [];
-        foreach ($bids as $row){
-            $product = Item::get_item_by_id($row->item);
-            $now = new DateTime(AppTime::get_current_datetime());
-            $date = new DateTime($product->created_at);
-            $end_date = Item::get_end_period($product->created_at, $product->duration_days);
-            $end = new DateTime($product->end_date);
-            // print_r($now);
-            // print_r($end);
-            // print_r($product);
-            // die();
-            if($end > $now){
-                $items[] = new Item($product->id, $product->title, $product->description, $product->owner,$date->format("Y-m-d H:i:s"), $product->duration_days, $end_date, $product->buy_now_price,$product->starting_bid, $product->picture_path);
-                // print_r($items);
-                // die();
-            }
-        }
-        // print_r($items);
-        // die();
-        usort($items, function($a, $b) {
-            return strtotime($a->end_date) <=> strtotime($b->end_date);
-        });
-        // print_r($items);
-        // die();
-        return $items;
     }
 
 }

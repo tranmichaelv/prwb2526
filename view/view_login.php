@@ -12,7 +12,7 @@
 <body>
     <div class="title"><h2>EPayFC</h2></div>
     <div class="login">
-        <form action="user/login" method="post">
+        <form action="login/login" method="post">
             <table>
                 <thead>
                     <tr><th><h2>Sign in</h2></th></tr>
@@ -26,7 +26,11 @@
                 </tbody>
 
                 <tfoot>
-                    <tr><td>For Debug Purpose</td></tr>
+                    <tr><th>For Debug Purpose</th></tr>
+                    <tr><td><a href="index.php?controller=login&action=loginAsBoris">Login as boverhaegen@epfc.eu</a></td></tr>
+                    <tr><td><a href="index.php?controller=login&action=loginAsMarc">Login as mamichel@epfc.eu</a></td></tr>
+                    <tr><td><a href="index.php?controller=login&action=loginAsQuentin">Login as quhouben@epfc.eu</a></td></tr>
+                    <tr><td><a href="index.php?controller=login&action=loginAsXavier">Login as xapigeolet@epfc.eu</a></td></tr>
                 </tfoot>
             </table>
         </form>

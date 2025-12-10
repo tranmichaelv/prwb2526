@@ -3,8 +3,8 @@ body{
     color: white;
     background: rgb(4, 14, 41);
     padding-bottom: 60px;
-    margin-left: 90px;
-    margin-right: 90px;
+    margin-left: 80px;
+    margin-right: 80px;
 }
 
 .login{
@@ -18,7 +18,7 @@ thead th{
     border-bottom: 1px solid white;
 }
 
-tfoot td{
+tfoot th{
     border-top: 1px solid white;
 }
 
@@ -77,15 +77,24 @@ tfoot td{
     display: flex;
     flex-wrap: wrap;
     gap: 18px;
-    size: 50%;
 } 
 
 .my-items {
     display: flex;
     flex-wrap: wrap;
     gap: 18px;
-    size: 50%;
 } 
+
+.item-card {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    height: 430px;       /* hauteur totale fixe */
+    box-sizing: border-box;
+    border-radius: 5px;
+    overflow: hidden;
+    background-color: #222;
+}
 
 
 
@@ -97,7 +106,8 @@ img{
 }
 
 .item-title{
-    size: 120%
+    font-size: medium;
+    font-weight: bold;
 }
 
 .item-info{
@@ -123,7 +133,92 @@ img{
 
 .labels{
     position: absolute;
+    padding: 5px;
+    border-radius: 15px;
+    font-weight: bold;
+    display: inline-block; 
+    width: 100px; 
+    text-align: center;
+}
+
+.label-buy-now{
+    top: 8px;
+    right: 16px;
+    background-color: royalblue;
+}
+
+.label-auction{
+    top: 8px;
+    right: 16px;
+    background-color:orange;
+}
+
+.label-buy-now-and-more{
+    top: 43px;
+    right: 8px;
+    background-color: royalblue;
+}
+
+.label-auction-and-more{
     top: 8px;
     right: 8px;
+    background-color:orange;
+}
+
+h1{
+    color:royalblue ;
+}
+
+.bidder{
+    position: absolute;
+    top: 8px;
+    left: 16px;
     size: 1%;
+    background-color:#222;
+    padding: 5px;
+    border-radius: 15px;
+    font-weight: bold;
+}
+
+.highest_bidder{
+    position: absolute;
+    top: 8px;
+    left: 16px;
+    size: 1%;
+    background-color:limegreen;
+    padding: 5px;
+    border-radius: 15px;
+    font-weight: bold;
+}
+
+.label-current-bid{
+    text-align: right;
+    font-size: small;
+}
+
+.current-bid{
+    color: limegreen;
+    font-weight: bold;
+}
+
+.price-labels{
+    display: flex;
+    gap: 110px;
+    align-items: center;
+}
+
+.price-auction{
+    color: orange;
+    font-size: large;
+    font-weight: bold;
+}
+
+.price-buy-now{
+    color: royalblue;
+    font-size: large;
+    font-weight: bold;
+}
+
+.time-left{
+    font-weight: bold;
 }

@@ -7,7 +7,11 @@ require_once 'utils/AppTime.php';
 
 <div class="menu">
     <div class="menu-left">
-        <i class="bi bi-clock"></i> <?= AppTime::get_current_datetime(); ?>
+        <i class="bi bi-clock"></i> 
+        <?php $time = AppTime::get_current_datetime();
+            strtotime($time);
+            echo date("d/m/Y H:i")
+         ?>
     </div>
 
     <div class="menu-right">
