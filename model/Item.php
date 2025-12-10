@@ -129,6 +129,61 @@ class Item extends Model {
         return $errors;
     }
 
+    public function persist(): array {
+     $errors =$this->validate();
+     if (!empty($errors)){
+          return $errors;
+     }
+
+     if($this->id == null) {
+          $sql = "INSERT INTO items
+                        (title, description, owner, created_at,
+                         buy_now_price, duration_days, starting_bid)
+                    VALUES
+                        (:title, :description, :owner, :created_at,
+                         :buy_now_price, :duration_days, :starting_bid)";
+          self::execute($sql, [
+                ":title"         => $this->title,
+                ":description"   => $this->description,
+                ":owner"         => $this->owner,
+                ":created_at"    => $this->created_at,
+                ":buy_now_price" => $this->buy_now_price,
+                ":duration_days" => $this->duration_days,
+                ":starting_bid"  => $this->starting_bid,
+            ]);
+
+            $this->id = self::lastInsertId();               
+
+     
+     }  else {
+            $sql = "UPDATE items SET
+                        title = :title,
+                        description = :description,
+                        buy_now_price = :buy_now_price,
+                        duration_days = :duration_days,
+                        starting_bid = :starting_bid
+                    WHERE id = :id";
+            self::execute($sql, [
+                ":title"         => $this->title,
+                ":description"   => $this->description,
+                ":buy_now_price" => $this->buy_now_price,
+                ":duration_days" => $this->duration_days,
+                ":starting_bid"  => $this->starting_bid,
+                ":id"            => $this->id,
+            ]);
+          }
+
+        return [];
+    }
+
+    public function delete(): void {
+        if ($this->id === null) {
+            return;
+        }
+        self::execute("DELETE FROM items WHERE id = :id", [":id" => $this->id]);
+        $this->id = null;
+    }
+
     //  Vérifie si un titre existe déjà pour un owner
     private static function title_exists_for_owner(string $title, int $owner, ?int $exclude_id = null) : bool {
           $sql = "SELECT COUNT(*) AS cnt FROM items
