@@ -14,22 +14,54 @@
 
         <h1>Add Item</h1>
 
-     <form method="post" action="item/add">
+      <form method="post" action="item/add">
          
     <div class ="card basic-info">
             <h2>Basic information</h2>
             
          <div class="form-group"> 
             <label>Item Title*</label>
-            <input type="text" name ="title" placeholder="Ex: iphone 13 Pro Max 256GB">
+            <input type="text" name ="title"
+                class="<?= !empty($errors['title'] ?? []) ? 'input-error' : '' ?>"
+                placeholder="Ex: iphone 13 Pro Max 256GB"
+                value="<?= htmlspecialchars($item->get_title()) ?>">
+
+             <?php if (!empty($errors['title'] ?? [])): ?>
+                  <ul class="field-errors">
+                      <?php foreach ($errors['title'] as $e): ?>
+                          <li><?= htmlspecialchars($e) ?></li>
+                      <?php endforeach; ?>
+                  </ul>
+             <?php endif; ?>
          </div>    
          <div class="form-group">            
             <label>Description</label>
-            <textarea name ="description" rows="5" placeholder="Describe your item in detail..."></textarea>
-         </div> 
+            <textarea name="description"
+                class="<?= !empty($errors['description'] ?? []) ? 'input-error' : '' ?>"
+                rows="5"
+                placeholder="Describe your item in detail..."><?= htmlspecialchars($item->get_description()) ?></textarea>
+              
+                <?php if (!empty($errors['description'] ?? [])): ?>
+                  <ul class="field-errors">
+                      <?php foreach ($errors['description'] as $e): ?>
+                          <li><?= htmlspecialchars($e) ?></li>
+                      <?php endforeach; ?>
+                  </ul>
+                <?php endif; ?>
+              </div>
          <div class="form-group">                
             <label>Sale Duration(days)*</label>
-            <input type="number" name ="duration" value="7">
+            <input type="number" name ="duration"
+              class="<?= !empty($errors['duration_days'] ?? []) ? 'input-error' : '' ?>"          
+              value="<?= htmlspecialchars($item->get_duration_days()) ?>">
+
+             <?php if (!empty($errors['duration_days'] ?? [])): ?>
+                <ul class="field-errors">
+                    <?php foreach ($errors['duration_days'] as $e): ?>
+                        <li><?= htmlspecialchars($e) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+             <?php endif; ?> 
           </div>  
         </div>
 
@@ -41,12 +73,32 @@
 
               <div class="form-group">  
                 <label>Starting bid</label>
-                <input type = "number" name="bid"  placeholder="e.g., 50.00">
-              </div>     
+                <input type = "number" name="bid"
+                  class="<?= !empty($errors['starting_bid'] ?? []) ? 'input-error' : '' ?>"
+                  placeholder="e.g., 50.00"
+                  value="<?= $item->get_starting_bid() !== null ? htmlspecialchars($item->get_starting_bid()) : '' ?>">
+                 <?php if (!empty($errors['starting_bid'] ?? [])): ?>
+                    <ul class="field-errors">
+                        <?php foreach ($errors['starting_bid'] as $e): ?>
+                            <li><?= htmlspecialchars($e) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>     
+                </div>     
               
               <div class="form-group"> 
                 <label>Instant purchase price (optional)</label>
-                <input type= "number" name ="buy_now" placeholder="e.g., 200.00">
+                <input type= "number" name ="buy_now"
+                 class="<?= !empty($errors['buy_now_price'] ?? []) ? 'input-error' : '' ?>"
+                 placeholder="e.g., 200.00"
+                 value="<?= $item->get_buy_now_price() !== null ? htmlspecialchars($item->get_buy_now_price()) : '' ?>">
+              <?php if (!empty($errors['buy_now_price'] ?? [])): ?>
+                  <ul class="field-errors">
+                      <?php foreach ($errors['buy_now_price'] as $e): ?>
+                          <li><?= htmlspecialchars($e) ?></li>
+                      <?php endforeach; ?>
+                  </ul>
+              <?php endif; ?>              
               </div>  
             </div>
 
@@ -58,6 +110,10 @@
                 <input type ="number" name="sale_price" placeholder="e.g., 150.00">
               </div>  
             </div>
+        </div>
+        
+        <div class="form-group">
+          <button type="submit" class="submit-btn">Create Item</button>
         </div>    
     </form>        
     </div>

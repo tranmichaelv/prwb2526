@@ -12,8 +12,8 @@ class Item extends Model {
         private string $description,
         private int $owner,
         private int $duration_days,
-        private float $starting_bid = 0.0,
-        private float $buy_now_price = 0.0,
+        private ?float $starting_bid = null,
+        private ?float $buy_now_price = null,
         private ?string $created_at = null
     ) {
         $this->created_at = $this->created_at ?? AppTime::get_current_datetime();
@@ -53,17 +53,17 @@ class Item extends Model {
          $this->duration_days = $d; 
     }
 
-    public function get_starting_bid(): float {
+    public function get_starting_bid(): ?float {
          return $this->starting_bid; 
     }
-    public function set_starting_bid(float $bid): void {
+    public function set_starting_bid(?float $bid): void {
          $this->starting_bid = $bid; 
     }
 
-    public function get_buy_now_price(): float {
+    public function get_buy_now_price(): ?float {
          return $this->buy_now_price; 
     }
-    public function set_buy_now_price(float $price): void {
+    public function set_buy_now_price(?float $price): void {
          $this->buy_now_price = $price; 
     }
 
@@ -78,52 +78,52 @@ class Item extends Model {
 
           // title entre 3 et 255 carac, unique par owner 
         if(mb_strlen($title) < 3 ||mb_strlen($title) > 255 ){
-               $errors[] = "Title lenght must be between 3 and 255 characters";
+               $errors['title'][] = "Title lenght must be between 3 and 255 characters";
         } elseif (self::title_exists_for_owner($title, $this->owner, $this->id)) {
-               $errors[] = "You already have an ad with this title.";
+               $errors['title'][] = "You already have an ad with this title.";
         }
 
         // si desc est remplie -> min 3 carac
         if( $desc !== "" && mb_strlen($desc) < 3 ){
-               $errors[] = "Description lenght must be at least 3 characters if filled.";
+               $errors['description'][] = "Description lenght must be at least 3 characters.";
         } 
 
         // duration days entre 1 et 365 jours
         if($this->duration_days < 1 || $this->duration_days > 365) {
-               $errors [] = "Duration days must be between 1 and 365";
+               $errors ['duration_days'][] = "Duration days must be between 1 and 365";
         }
 
         // valeur ne peut pas etre nétagif
-        if ($this->starting_bid < 0) {
-               $errors[] = "Starting bid cannot be negatif.";
+        if ($this->starting_bid !== null && $this->starting_bid < 0) {
+               $errors['starting_bid'][] = "Starting bid cannot be negatif.";
         }
 
 
-        if ($this->buy_now_price < 0) {
-               $errors[] = "Buy now price cannot be negatif.";
+        if ($this->buy_now_price !== null && $this->buy_now_price < 0) {
+               $errors['buy_now_price'][] = "Buy now price cannot be negatif.";
         }
 
         // la valeur doit avoir max 10 chiffres (dont 2 apres la virgule)
-        if (!$this->fits_decimal_10_2($this->starting_bid)) {
-               $errors[] = "Starting bid is too high.";
+        if ( $this->starting_bid !== null && !self::fits_decimal_10_2($this->starting_bid)) {
+               $errors["starting_bid"][] = "Starting bid is too high.";
         }
 
 
-        if (!$this->fits_decimal_10_2($this->buy_now_price)) {
-               $errors[] = "Buy now price is too high.";
+        if ( $this->buy_now_price !== null && !self::fits_decimal_10_2($this->buy_now_price)) {
+               $errors['buy_now_price'][] = "Buy now price is too high.";
         }
 
-        $has_bid = $this->starting_bid > 0;
-        $has_buy_now = $this->buy_now_price > 0;
+        $has_bid = $this->starting_bid !== null && $this->starting_bid > 0;
+        $has_buy_now = $this->buy_now_price !== null && $this->buy_now_price > 0;
 
         // si buy_now est rempli, il doit être > 0 et doit être > starting_bid (si pas null)
         if($has_buy_now && $has_bid && $this->buy_now_price <= $this->starting_bid) {
-               $errors[] = "Buy now price must be strictly higher than the starting bid";
+               $errors['buy_now_price'][] = "Buy now price must be strictly higher than the starting bid";
         }
 
         // Une annonce sans enchère doit avoir un buy_now_price
         if(!$has_bid && !$has_buy_now) {
-               $errors[] = "An ad without a bid must have a buy now price";
+               $errors['buy_now_price'][] = "An ad without a bid must have a buy now price";
         }
 
         return $errors;
@@ -134,6 +134,9 @@ class Item extends Model {
      if (!empty($errors)){
           return $errors;
      }
+          // on convertit les null en 0 pour la DB
+     $starting_db = $this->starting_bid ?? 0.0;
+     $buy_now_db  = $this->buy_now_price ?? 0.0;
 
      if($this->id == null) {
           $sql = "INSERT INTO items
@@ -147,9 +150,9 @@ class Item extends Model {
                 ":description"   => $this->description,
                 ":owner"         => $this->owner,
                 ":created_at"    => $this->created_at,
-                ":buy_now_price" => $this->buy_now_price,
+                ":buy_now_price" => $buy_now_db,
                 ":duration_days" => $this->duration_days,
-                ":starting_bid"  => $this->starting_bid,
+                ":starting_bid"  => $starting_db,
             ]);
 
             $this->id = self::lastInsertId();               
@@ -166,9 +169,9 @@ class Item extends Model {
             self::execute($sql, [
                 ":title"         => $this->title,
                 ":description"   => $this->description,
-                ":buy_now_price" => $this->buy_now_price,
+                ":buy_now_price" => $buy_now_db,
                 ":duration_days" => $this->duration_days,
-                ":starting_bid"  => $this->starting_bid,
+                ":starting_bid"  => $starting_db,
                 ":id"            => $this->id,
             ]);
           }
