@@ -1,0 +1,157 @@
+<?php
+
+require_once "framework/Model.php";
+require_once "utils/AppTime.php";
+
+
+class Item extends Model {
+
+    public function __construct(
+        private ?int $id,
+        private string $title,
+        private string $description,
+        private int $owner,
+        private int $duration_days,
+        private float $starting_bid = 0.0,
+        private float $buy_now_price = 0.0,
+        private ?string $created_at = null
+    ) {
+        $this->created_at = $this->created_at ?? AppTime::get_current_datetime();
+      }
+
+    public function get_id(): ?int {
+         return $this->id; 
+    }
+
+    public function get_title(): string {
+         return $this->title; 
+    }
+
+    public function set_title(string $title): void {
+         $this->title = $title; 
+     }
+
+    public function get_description(): string {
+         return $this->description; 
+    }
+    public function set_description(string $description): void { 
+        $this->description = $description; 
+    }
+
+    public function get_owner_id(): int {
+         return $this->owner; 
+    }
+
+    public function get_created_at(): string {
+         return $this->created_at; 
+    }
+
+    public function get_duration_days(): int {
+         return $this->duration_days; 
+    }
+    public function set_duration_days(int $d): void {
+         $this->duration_days = $d; 
+    }
+
+    public function get_starting_bid(): float {
+         return $this->starting_bid; 
+    }
+    public function set_starting_bid(float $bid): void {
+         $this->starting_bid = $bid; 
+    }
+
+    public function get_buy_now_price(): float {
+         return $this->buy_now_price; 
+    }
+    public function set_buy_now_price(float $price): void {
+         $this->buy_now_price = $price; 
+    }
+
+
+
+    public function validate() : array {
+
+        $errors = [];
+         
+        $title = trim($this->title);
+        $desc = trim($this->description);
+
+          // title entre 3 et 255 carac, unique par owner 
+        if(mb_strlen($title) < 3 ||mb_strlen($title) > 255 ){
+               $errors[] = "Title lenght must be between 3 and 255 characters";
+        } elseif (self::title_exists_for_owner($title, $this->owner, $this->id)) {
+               $errors[] = "You already have an ad with this title.";
+        }
+
+        // si desc est remplie -> min 3 carac
+        if( $desc !== "" && mb_strlen($desc) < 3 ){
+               $errors[] = "Description lenght must be at least 3 characters if filled.";
+        } 
+
+        // duration days entre 1 et 365 jours
+        if($this->duration_days < 1 || $this->duration_days > 365) {
+               $errors [] = "Duration days must be between 1 and 365";
+        }
+
+        // valeur ne peut pas etre nétagif
+        if ($this->starting_bid < 0) {
+               $errors[] = "Starting bid cannot be negatif.";
+        }
+
+
+        if ($this->buy_now_price < 0) {
+               $errors[] = "Buy now price cannot be negatif.";
+        }
+
+        // la valeur doit avoir max 10 chiffres (dont 2 apres la virgule)
+        if (!$this->fits_decimal_10_2($this->starting_bid)) {
+               $errors[] = "Starting bid is too high.";
+        }
+
+
+        if (!$this->fits_decimal_10_2($this->buy_now_price)) {
+               $errors[] = "Buy now price is too high.";
+        }
+
+        $has_bid = $this->starting_bid > 0;
+        $has_buy_now = $this->buy_now_price > 0;
+
+        // si buy_now est rempli, il doit être > 0 et doit être > starting_bid (si pas null)
+        if($has_buy_now && $has_bid && $this->buy_now_price <= $this->starting_bid) {
+               $errors[] = "Buy now price must be strictly higher than the starting bid";
+        }
+
+        // Une annonce sans enchère doit avoir un buy_now_price
+        if(!$has_bid && !$has_buy_now) {
+               $errors[] = "An ad without a bid must have a buy now price";
+        }
+
+        return $errors;
+    }
+
+    //  Vérifie si un titre existe déjà pour un owner
+    private static function title_exists_for_owner(string $title, int $owner, ?int $exclude_id = null) : bool {
+          $sql = "SELECT COUNT(*) AS cnt FROM items
+               WHERE owner = :owner AND title = :title";
+          
+          $params = [
+               ":owner" => $owner,
+               ":title" => $title,
+          ];
+          if($exclude_id !== null){
+               $sql .= " AND id <> :id";
+               $params[":id"] = $exclude_id;
+          }  
+
+          $stmt = self::execute($sql,$params);
+          $row = $stmt->fetch();
+          return $row && (int)$row["cnt"] > 0;
+    }
+
+    // respecter les 10 chiffres max (dont 2 après la virgule)
+    private static function fits_decimal_10_2(float $value) : bool {
+          $abs = abs($value);
+          return $abs < 100000000 && round($abs,2) == $abs;
+    }
+
+}
