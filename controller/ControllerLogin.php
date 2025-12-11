@@ -19,21 +19,25 @@ class ControllerLogin extends Controller {
     }
 
     public function loginAsQuentin() : void{
+        Configuration::is_dev();
         $user = User::get_users_by_pseudo("Quentin"); 
         $this->log_user($user);
     }
 
     public function loginAsBoris() : void{
+        Configuration::is_dev();
         $user = User::get_users_by_pseudo("Boris"); 
         $this->log_user($user);
     }
 
     public function loginAsMarc() : void{
+        Configuration::is_dev();
         $user = User::get_users_by_pseudo("Marc"); 
         $this->log_user($user);
     }
 
     public function loginAsXavier() : void{
+        Configuration::is_dev();
         $user = User::get_users_by_pseudo("Xavier"); 
         $this->log_user($user);
     }
@@ -41,11 +45,11 @@ class ControllerLogin extends Controller {
     //gestion de la connexion d'un utilisateur
     public function login() : void {
          // Login en tant que guest
-        //  if (isset($_POST['guest_login'])) {
-        //     $guest_user = User::get_users_by_pseudo(""); 
-        //     $this->log_user($guest_user);
-        //     return;
-        // }
+         if (isset($_POST['guest_login'])) {
+            $guest_user = User::guest_user(""); 
+            $this->log_user($guest_user);
+            return;
+        }
 
     
     // Login normal

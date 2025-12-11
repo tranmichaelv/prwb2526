@@ -1,6 +1,8 @@
 <?php
 
 require_once "framework/Model.php";
+require_once "framework/Controller.php";
+require_once "framework/Configuration.php";
 
 class User extends Model {
 
@@ -19,6 +21,9 @@ class User extends Model {
     //                       ["full_name"=>$this->full_name, "email"=>$this->email, "pseudo"=>$this->pseudo, "picture"=>$this->picture_path, "password"=>$this->hashed_password, "iban"=>$this->iban]);
     //     return $this;
     // }
+    public static function guest_user() : User{
+        return new User(0, "guest", "email", "pseudo", "password", "role", "picture_path", "iban");
+    }
 
     public static function get_users_by_pseudo(string $pseudo) : User|false {
         $query = self::execute("SELECT * FROM users where pseudo = :pseudo", ["pseudo"=>$pseudo]);
@@ -48,6 +53,14 @@ class User extends Model {
         } else {
             return new User($data["id"], $data["full_name"], $data["email"], $data["pseudo"], $data["password"], $data["role"], $data["picture_path"], $data["iban"]);
         }
+    }
+
+    public function get_other_items() : array{
+        return Item::get_other_items_from_user($_SESSION['user']);
+    }
+
+    public function get_my_items() : array{
+        return Item::get_bids_items_from_user($_SESSION['user']);
     }
     
     // private static function validate_password(string $password) : array {

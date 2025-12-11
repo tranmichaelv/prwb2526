@@ -27,10 +27,10 @@
 
                 <tfoot>
                     <tr><th>For Debug Purpose</th></tr>
-                    <tr><td><a href="index.php?controller=login&action=loginAsBoris">Login as boverhaegen@epfc.eu</a></td></tr>
-                    <tr><td><a href="index.php?controller=login&action=loginAsMarc">Login as mamichel@epfc.eu</a></td></tr>
-                    <tr><td><a href="index.php?controller=login&action=loginAsQuentin">Login as quhouben@epfc.eu</a></td></tr>
-                    <tr><td><a href="index.php?controller=login&action=loginAsXavier">Login as xapigeolet@epfc.eu</a></td></tr>
+                    <tr><td><a href="login/loginAsBoris">Login as boverhaegen@epfc.eu</a></td></tr>
+                    <tr><td><a href="login/loginAsMarc">Login as mamichel@epfc.eu</a></td></tr>
+                    <tr><td><a href="login/loginAsQuentin">Login as quhouben@epfc.eu</a></td></tr>
+                    <tr><td><a href="login/loginAsXavier">Login as xapigeolet@epfc.eu</a></td></tr>
                 </tfoot>
             </table>
         </form>

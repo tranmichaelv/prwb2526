@@ -1,7 +1,6 @@
 <?php
 
 require_once "framework/Model.php";
-require_once "utils/AppTime.php";
 require_once "Bids.php";
 
 class Item extends Model {
@@ -44,6 +43,22 @@ class Item extends Model {
         // print_r($dt);
         // die();
         return $dt->format('Y-m-d H:i:s');
+    }
+
+    // -------- Tout les items disponible --------
+    public static function get_all_items(): array{
+        $query = self::execute("SELECT i.*, p.*
+                                FROM items i
+                                    join item_pictures p on p.item = i.id
+                                where DATE_ADD(i.created_at, INTERVAL i.duration_days DAY) > :end_date
+                                and i.id not in(select i.id
+                                               from bids b
+                                                join items i on i.id = b.item
+                                               where b.amount = i.buy_now_price)
+                                order by DATE_ADD(i.created_at, INTERVAL i.duration_days DAY);",
+                                ["end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]);
+        $data = $query->fetchAll();
+        return self::fetch_items($data);
     }
 
     // -------- "Items I'm Participating in" --------
@@ -96,6 +111,7 @@ class Item extends Model {
 
     // -------- Transforme les requêtes SQL en Object 'Item' --------
     public static function fetch_items(array $data): array{
+        $items = [];
         foreach ($data as $row) {
             $item_id = $row['id'];
     
@@ -133,8 +149,8 @@ class Item extends Model {
                 $item['owner'],
                 $item['created_at'],
                 $item['duration_days'],
-                ControllerBrowseItems::convert_format_number_for_bids($item['buy_now_price']),
-                ControllerBrowseItems::convert_format_number_for_bids($item['starting_bid']),
+                Utils::convert_format_number_for_bids($item['buy_now_price']),
+                Utils::convert_format_number_for_bids($item['starting_bid']),
                 $item['pictures'] 
             );
         }

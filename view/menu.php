@@ -1,0 +1,13 @@
+<?php if($_SESSION["user"]->id !== 0):?>
+    <div class="menu">
+        <a href="browseItems/browse"><i class="bi bi-search"></i> Browse</a>
+        <a href="test"><i class="bi bi-house-door"></i> My Items</a>
+        <a href="test"><i class="bi bi-plus"></i> Add Other</a>
+        <a href="test"><i class="bi bi-gear"></i> Profile</a>
+    </div>
+<?php else: ?>
+    <div class="menu">
+        <a href="browseItems/browse"><i class="bi bi-search"></i> Browse</a>
+        <a href="test"><i class="bi bi-house-door"></i> Join Us</a>
+    </div>
+<?php endif; ?>
