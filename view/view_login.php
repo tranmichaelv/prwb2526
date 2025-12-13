@@ -31,6 +31,8 @@
                     <tr><td><a href="login/loginAsMarc">Login as mamichel@epfc.eu</a></td></tr>
                     <tr><td><a href="login/loginAsQuentin">Login as quhouben@epfc.eu</a></td></tr>
                     <tr><td><a href="login/loginAsXavier">Login as xapigeolet@epfc.eu</a></td></tr>
+                    <tr><td><a href="setup">Setup</a></td></tr>
+                    
                 </tfoot>
             </table>
         </form>

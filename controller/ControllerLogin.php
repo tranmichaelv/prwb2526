@@ -20,25 +20,25 @@ class ControllerLogin extends Controller {
 
     public function loginAsQuentin() : void{
         Configuration::is_dev();
-        $user = User::get_users_by_pseudo("Quentin"); 
+        $user = User::get_user_by_pseudo("Quentin"); 
         $this->log_user($user);
     }
 
     public function loginAsBoris() : void{
         Configuration::is_dev();
-        $user = User::get_users_by_pseudo("Boris"); 
+        $user = User::get_user_by_pseudo("Boris"); 
         $this->log_user($user);
     }
 
     public function loginAsMarc() : void{
         Configuration::is_dev();
-        $user = User::get_users_by_pseudo("Marc"); 
+        $user = User::get_user_by_pseudo("Marc"); 
         $this->log_user($user);
     }
 
     public function loginAsXavier() : void{
         Configuration::is_dev();
-        $user = User::get_users_by_pseudo("Xavier"); 
+        $user = User::get_user_by_pseudo("Xavier"); 
         $this->log_user($user);
     }
 
@@ -62,7 +62,7 @@ class ControllerLogin extends Controller {
 
             $errors = User::validate_login($pseudo, $password);
             if (empty($errors)) {
-                $this->log_user(User::get_users_by_pseudo($pseudo));
+                $this->log_user(User::get_user_by_pseudo($pseudo));
             }
         }
         (new View("login"))->show(["pseudo" => $pseudo, "password" => $password, "errors" => $errors]);

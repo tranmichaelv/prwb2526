@@ -160,4 +160,38 @@ class Item extends Model {
         return $results;
     }
 
+    public function get_highest_bid(): ?string{
+        return Bids::get_hightest_bid_from_item($this->getId()) ?? null;
+    }
+
+    public function get_highest_bidder() : ?int{
+        return Bids::get_highest_bidder_from_item($this->getId());
+    }
+
+    public function is_auction() : bool{
+        return Bids::is_auction($this->getId());
+    }
+
+    public function has_buy_now() : bool{
+        return Bids::has_buy_now($this->getId());
+    }
+
+    public function has_bids() : bool{
+        return Bids::has_bids($this->getId());
+    }
+
+    public function is_direct_sale() : bool{
+        return Bids::is_direct_sale($this->getId());
+    }
+
+    public function is_bidder() : bool{
+        $bidders = Bids::all_bider($this->getId());
+        foreach($bidders as $bidder){
+            if($bidder['owner'] == $_SESSION['user']->id){
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

@@ -36,7 +36,7 @@
     <?php endif; ?>
 
     <?php if ($_SESSION["user"]->id == 0): ?>
-        <?php  if(sizeof($items) != 0):?>
+        <?php  if(sizeof($all_items) != 0):?>
             <h1>Available Items</h1>
             <div class="other-items">
                 <?php foreach ($all_items as $item): ?>

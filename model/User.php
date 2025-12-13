@@ -21,11 +21,12 @@ class User extends Model {
     //                       ["full_name"=>$this->full_name, "email"=>$this->email, "pseudo"=>$this->pseudo, "picture"=>$this->picture_path, "password"=>$this->hashed_password, "iban"=>$this->iban]);
     //     return $this;
     // }
+
     public static function guest_user() : User{
         return new User(0, "guest", "email", "pseudo", "password", "role", "picture_path", "iban");
     }
 
-    public static function get_users_by_pseudo(string $pseudo) : User|false {
+    public static function get_user_by_pseudo(string $pseudo) : User|false {
         $query = self::execute("SELECT * FROM users where pseudo = :pseudo", ["pseudo"=>$pseudo]);
         $data = $query->fetch(); // un seul résultat au maximum
         if ($query->rowCount() == 0) {
@@ -108,7 +109,7 @@ class User extends Model {
     
     public static function validate_login(string $pseudo, string $password) : array {
         $errors = [];
-        $member = User::get_users_by_pseudo($pseudo);
+        $member = User::get_user_by_pseudo($pseudo);
         if ($member) {
             if (!self::check_password($password, $member->hashed_password)) {
                 $errors[] = "Wrong password. Please try again.";
