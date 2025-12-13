@@ -12,9 +12,9 @@
 <body>
     <div class = "container">
 
-        <h1>Add Item</h1>
+        <h1><?= $mode === "edit" ? "Edit Item" : "Add Item" ?></h1>
 
-      <form method="post" action="item/add">
+      <form method="post" action="<?= $mode === "edit" ? "item/edit/$id" : "item/add" ?>">
          
     <div class ="card basic-info">
             <h2>Basic information</h2>
@@ -24,12 +24,12 @@
             <input type="text" name ="title"
                 class="<?= !empty($errors['title'] ?? []) ? 'input-error' : '' ?>"
                 placeholder="Ex: iphone 13 Pro Max 256GB"
-                value="<?= htmlspecialchars($item->get_title()) ?>">
+                value="<?= $item->get_title() ?>">
 
              <?php if (!empty($errors['title'] ?? [])): ?>
                   <ul class="field-errors">
                       <?php foreach ($errors['title'] as $e): ?>
-                          <li><?= htmlspecialchars($e) ?></li>
+                          <li><?= $e ?></li>
                       <?php endforeach; ?>
                   </ul>
              <?php endif; ?>
@@ -39,12 +39,12 @@
             <textarea name="description"
                 class="<?= !empty($errors['description'] ?? []) ? 'input-error' : '' ?>"
                 rows="5"
-                placeholder="Describe your item in detail..."><?= htmlspecialchars($item->get_description()) ?></textarea>
+                placeholder="Describe your item in detail..."><?= $item->get_description() ?></textarea>
               
                 <?php if (!empty($errors['description'] ?? [])): ?>
                   <ul class="field-errors">
                       <?php foreach ($errors['description'] as $e): ?>
-                          <li><?= htmlspecialchars($e) ?></li>
+                          <li><?= $e ?></li>
                       <?php endforeach; ?>
                   </ul>
                 <?php endif; ?>
@@ -53,12 +53,12 @@
             <label>Sale Duration(days)*</label>
             <input type="number" name ="duration"
               class="<?= !empty($errors['duration_days'] ?? []) ? 'input-error' : '' ?>"          
-              value="<?= htmlspecialchars($item->get_duration_days()) ?>">
+              value="<?= $item->get_duration_days() ?>">
 
              <?php if (!empty($errors['duration_days'] ?? [])): ?>
                 <ul class="field-errors">
                     <?php foreach ($errors['duration_days'] as $e): ?>
-                        <li><?= htmlspecialchars($e) ?></li>
+                        <li><?= $e ?></li>
                     <?php endforeach; ?>
                 </ul>
              <?php endif; ?> 
@@ -76,11 +76,11 @@
                 <input type = "number" name="bid"
                   class="<?= !empty($errors['starting_bid'] ?? []) ? 'input-error' : '' ?>"
                   placeholder="e.g., 50.00"
-                  value="<?= $item->get_starting_bid() !== null ? htmlspecialchars($item->get_starting_bid()) : '' ?>">
+                  value="<?= $item->get_starting_bid() !== null ? $item->get_starting_bid() : '' ?>">
                  <?php if (!empty($errors['starting_bid'] ?? [])): ?>
                     <ul class="field-errors">
                         <?php foreach ($errors['starting_bid'] as $e): ?>
-                            <li><?= htmlspecialchars($e) ?></li>
+                            <li><?= $e ?></li>
                         <?php endforeach; ?>
                     </ul>
                 <?php endif; ?>     
@@ -91,11 +91,11 @@
                 <input type= "number" name ="buy_now"
                  class="<?= !empty($errors['buy_now_price'] ?? []) ? 'input-error' : '' ?>"
                  placeholder="e.g., 200.00"
-                 value="<?= $item->get_buy_now_price() !== null ? htmlspecialchars($item->get_buy_now_price()) : '' ?>">
+                 value="<?= $item->get_buy_now_price() !== null ? $item->get_buy_now_price() : '' ?>">
               <?php if (!empty($errors['buy_now_price'] ?? [])): ?>
                   <ul class="field-errors">
                       <?php foreach ($errors['buy_now_price'] as $e): ?>
-                          <li><?= htmlspecialchars($e) ?></li>
+                          <li><?= $e ?></li>
                       <?php endforeach; ?>
                   </ul>
               <?php endif; ?>              

@@ -196,6 +196,25 @@ class Item extends Model {
         $this->id = null;
     }
 
+    // récupère un item depuis la bd à partir de son id ou return null
+    public static function get_by_id(int $id): ?Item {
+          $sql = "SELECT * FROM items WHERE id = :id";
+          $stmt = self::execute($sql, [":id" => $id]);
+          $row = $stmt->fetch();
+          if (!$row) return null;
+
+          return new Item(
+               id: (int)$row["id"],
+               title: $row["title"],
+               description: $row["description"] ?? "",
+               owner: (int)$row["owner"],
+               duration_days: (int)$row["duration_days"],
+               starting_bid: $row["starting_bid"] !== null ? (float)$row["starting_bid"] : null,
+               buy_now_price: $row["buy_now_price"] !== null ? (float)$row["buy_now_price"] : null,
+               created_at: $row["created_at"]
+          );
+    }
+
     //  Vérifie si un titre existe déjà pour un owner
     private static function title_exists_for_owner(string $title, int $owner, ?int $exclude_id = null) : bool {
           $sql = "SELECT COUNT(*) AS cnt FROM items
