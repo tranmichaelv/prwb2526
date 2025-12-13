@@ -1,6 +1,7 @@
 <?php
 
 require_once "framework/Model.php";
+require_once "framework/Configuration.php";
 require_once "utils/AppTime.php";
 
 
@@ -76,15 +77,23 @@ class Item extends Model {
         $title = trim($this->title);
         $desc = trim($this->description);
 
+        $title_min    = (int) Configuration::get("title_min_length");
+        $title_max    = (int) Configuration::get("title_max_length");
+        $desc_min     = (int) Configuration::get("description_min_length");
+        $dur_days_min = (int) Configuration::get("duration_days_min");
+        $dur_days_max = (int) Configuration::get("duration_days_max");
+
+        
+
           // title entre 3 et 255 carac, unique par owner 
-        if(mb_strlen($title) < 3 ||mb_strlen($title) > 255 ){
+        if(mb_strlen($title) < $title_min ||mb_strlen($title) > $title_max ){
                $errors['title'][] = "Title lenght must be between 3 and 255 characters";
         } elseif (self::title_exists_for_owner($title, $this->owner, $this->id)) {
                $errors['title'][] = "You already have an ad with this title.";
         }
 
         // si desc est remplie -> min 3 carac
-        if( $desc !== "" && mb_strlen($desc) < 3 ){
+        if( $desc !== "" && mb_strlen($desc) < $desc_min ){
                $errors['description'][] = "Description lenght must be at least 3 characters.";
         } 
 
