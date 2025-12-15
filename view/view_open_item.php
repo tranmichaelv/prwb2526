@@ -11,9 +11,9 @@
 
 
     <!-- Un container de toute la page open item -->
-<div class="container d-flex flex-row align-items-start gap-4 mb-2">
+<div class="page-container d-flex flex-row align-items-start mb-2">
         
-<!-- Right-container -->
+<!-- left-container -->
     <div class="left-container d-flex flex-column gap-4 flex-grow-1">
 
         <section class="item-content">
@@ -43,9 +43,18 @@
 
         <section>
             <!-- additional-images-container -->
-            <div>
-                
-
+            <h6>Additional Images</h6>
+            <div class="additional-images">
+                <?php 
+                    $baseUrl = '/prwb_2526_c05/';
+                ?>
+                <?php if (!empty($pictures)) : ?>
+                    <?php foreach($pictures as $pic): ?>
+                        <img src="<?=$baseUrl . $pic['picture_path'] ?>" alt="item image" class="thumbnail">
+                    <?php endforeach; ?>   
+                <?php else :?>
+                    <p> Aucune image supplémentaire </p>
+                <?php endif;?>        
             </div>
 
 
@@ -55,10 +64,22 @@
 
         <section>
             <!-- bid-history-container -->
-            <div>
-                
-            
-            </div>
+           <div class="bids-history">
+                <div><p>Bid History</p></div>
+                <div class="owner-bid">
+                    <?php if (!empty($bids)) :?>
+                        <?php foreach($bids as $b) :?>
+                            <div class="bid">
+                                <p class="owner"><?= htmlspecialchars($b['owner']) ?></p>
+                                <p class="date"><?= htmlspecialchars($b['created_at']) ?></p>
+                                <p class="amount"><?= "€" . number_format($b['amount'], 2, ',', ' ') ?></p>
+                            </div>
+                        <?php endforeach ?>
+                    <?php else : ?>
+                        <p>No bids yet.</p>
+                    <?php endif ?>  
+                </div>
+</div>
 
         </section>
 
@@ -66,17 +87,42 @@
 
 
 
-<!-- left-container -->
+<!-- right container -->
     <div class="right-container d-flex flex-column gap-4 ">
 
-        <section>
+        <section class="pricing-container">
             <!-- pricing-container -->
+            <div class="pricing-content">
+                <h6> Pricing </h6>
+                <?php if (!empty($errors)): ?>
+                    <?php foreach($errors as $err) : ?>
+                        <p class="text-warning"><?php echo $err?></p>
+                    <?php endforeach;?>  
+                <?php endif?>
+
+                <div>
+                    <?php if($current_bid != false) : ?>
+                    <p>Current Bid <?= "€".$current_bid->current_bid; ?></p>
+                    <p>Buy Now  <?= "€".$current_bid->buy_now_price; ?></p>
+                    <?php endif;?>    
+                </div>   
+                
+                <div>
+                    <input type="text" name="new-bid">
+                    <button type="submit" name="place-bid"> Place Bid </button>
+                    <button type="submit" name="Buy-now-at"> Buy Now at € <?php echo $current_bid->buy_now_price; ?></button>
+                </div>
+            </div>
+            <br><br>
             <div>
-                <?php 
+                <h6>Seller information</h6>
+                <div class="seller-info-container ">
+                    <?php if ($seller) : ?>
+                    <p> <?= $seller['pseudo'];?> </p>
+                    <p><?= $seller['role'];?></p>
+                    <?php endif ?>
 
-                ?>
-                <p> Pricing </p>
-
+                </div>
             </div>
 
         </section>
@@ -94,4 +140,3 @@
 </div>    
 </body>
 </html>
-

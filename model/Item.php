@@ -31,15 +31,16 @@ class Item extends Model {
     // static et dois retourner un objet de type item
     // utiliser la vue au lieu de la table pour récup le max d'infos sur un item
 
-    public static function get_item_by_id($id) : Item | false {
+    public static function get_item_by_id($id) : ?Item {
         
+        $error = [];
         $query = self::execute("SELECT * FROM v_items_status WHERE id = :id", 
         ['id' => $id]
         );
         $Item = $query->fetch(); 
 
         if ($query->rowCount() == 0){
-            return false;
+            return null;
         } else {
             return new Item(
                 $Item["id"], 
@@ -92,7 +93,7 @@ class Item extends Model {
 
 
     // recup toutes les images 
-    public static function get_all_pictures_by_item_id($id) : array {
+    public static function get_all_pictures_by_item_id($id) : ?array {
         
         $query = self::execute(
             "SELECT ip.picture_path
@@ -105,27 +106,27 @@ class Item extends Model {
         $results = $query->fetchAll(PDO::FETCH_ASSOC);
 
         if ($query->rowCount() == 0) {
-            die ("Acune image pour cet Item !!");
+            return null;
         } else {
             return $results;
         } 
     }
 
 
-    // cette partie sera supp dès que je mets tout sur le model Item 
-    /*
-     public function owner() : User | null {
-        return User::get_owner_by_item_id($this->id);
-    }
+    public static function get_bids_history($id) : ?array {
 
-    public function pictures(): array {
-        return Picture::get_pictures_by_item_id($this->id);
-    }
+        $query = self::execute(
+            "SELECT * 
+            FROM bids b 
+            WHERE b.item = :id", 
+            ["id" => $id]
+        ); 
 
-    public function bids() : array {
-        return Bid::get_bids_by_item_id($this->id);
-    }
-    */
+
+        $bids = $query->fetchAll(PDO::FETCH_ASSOC);
+
+        return $bids ?? null;
+    } 
    
 
 }
