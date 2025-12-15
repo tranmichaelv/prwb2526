@@ -8,26 +8,90 @@
     <title>Item images</title>
 </head>
 <body>
-    <div class="container-fluid mt-3">
-        <div class="main-picture d-flex flex-column align-items-start text-start">
-            <?php 
-                $baseUrl = '/prwb_2526_c05/'; 
-                $src = $baseUrl . $main_picture;
-            ?>
 
-            <div class="image"> <img src="<?= $src ?>" alt="Image principale de Item" class="img-fluid mb-3" style="max-width: 800px;"> </div>
-            <p class="title mt-3 px-2">
-                <?php echo $item->title ; ?>
-            </p> 
-            <div class="description w-50  mt-3 px-2" >
-                <p><?php echo $item->description; ?></p>
+
+    <!-- Un container de toute la page open item -->
+<div class="container d-flex flex-row align-items-start gap-4 mb-2">
+        
+<!-- Right-container -->
+    <div class="left-container d-flex flex-column gap-4 flex-grow-1">
+
+        <section class="item-content">
+            <!-- main-picture-container -->
+            <div class="main-picture">
+                <?php 
+                    $baseUrl = '/prwb_2526_c05/';
+                    $src = $baseUrl . $main_picture;
+                ?>
+
+                <img src="<?= $src ?>" alt="Image principale de Item">
             </div>
-            <div class="startEndBid  mt-3 px-2" >
-                <p> start : <?php echo $item->created_at ?></p>
-                <p> End : <?php echo $item->end_at ?></p>
-            </div>   
-        </div>
+
+            <div class="item-infos">
+                <p>
+                    <h2> <?php echo $item->title; ?></h2>
+                </p>
+                <p> <?php echo $item->description; ?></p>
+
+                <div class="startEndBid">
+                    <p> start : <?php echo $item->created_at ?></p>
+                    <p> End : <?php echo $item->end_at ?></p>
+                </div>
+            </div>
+        </section>
+        
+
+        <section>
+            <!-- additional-images-container -->
+            <div>
+                
+
+            </div>
+
+
+        </section>
+
+
+
+        <section>
+            <!-- bid-history-container -->
+            <div>
+                
+            
+            </div>
+
+        </section>
+
     </div>
+
+
+
+<!-- left-container -->
+    <div class="right-container d-flex flex-column gap-4 ">
+
+        <section>
+            <!-- pricing-container -->
+            <div>
+                <?php 
+
+                ?>
+                <p> Pricing </p>
+
+            </div>
+
+        </section>
+        
+
+        <section>
+            <!-- Seller-info-container -->
+            <div>
+
+            </div>
+
+        </section>
+
+    </div>
+</div>    
 </body>
 </html>
 
