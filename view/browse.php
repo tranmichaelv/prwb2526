@@ -64,14 +64,16 @@
         </div>
 
         <div class="time-left">
-            <?php if ($time[0] < 1 && $time[1] < 1): ?>
-                <p><?= $time[2] ?>m <?= $time[3] ?>s left</p>
+            <?php if ($time[0] <= 0 && $time[1] <= 0 && $time[2] <= 0 && $time[3] <= 0): ?>
+                <p>closed</p>
+            <?php elseif ($time[0] < 1 && $time[1] < 1): ?>
+                <p><?= max(0, $time[2]) ?>m <?= max(0, $time[3]) ?>s left</p>
             <?php elseif ($time[0] < 1): ?>
-                <p><?= $time[1] ?>h <?= $time[2] ?>m left</p>
+                <p><?= max(0, $time[1]) ?>h <?= max(0, $time[2]) ?>m left</p>
             <?php else: ?>
-                <p><?= $time[0] ?>d <?= $time[1] ?>h left</p>
-            <?php endif; ?>
-        </div>
+                <p><?= max(0, $time[0]) ?>d <?= max(0, $time[1]) ?>h left</p>
+        <?php endif; ?>
+    </div>
     </div>
     </a>
 </div>

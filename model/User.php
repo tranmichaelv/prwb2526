@@ -60,8 +60,20 @@ class User extends Model {
         return Item::get_other_items_from_user($_SESSION['user']);
     }
 
-    public function get_my_items() : array{
+    public function get_my_bids_items() : array{
         return Item::get_bids_items_from_user($_SESSION['user']);
+    }
+
+    public function get_my_items() : array{
+        return Item::get_user_items($_SESSION['user']);
+    }
+
+    public function get_my_closed_unsold_items() : array{
+        return Item::get_user_closed_unsold_items($_SESSION['user']);
+    }
+
+    public function get_my_sold_items() : array{
+        return Item::get_user_sold_items($_SESSION['user']);
     }
     
     // private static function validate_password(string $password) : array {
@@ -107,17 +119,27 @@ class User extends Model {
     //     return $errors;
     // }
     
-    public static function validate_login(string $pseudo, string $password) : array {
+    public static function validate_login(string $email, string $password) : array {
         $errors = [];
-        $member = User::get_user_by_pseudo($pseudo);
+        $member = User::get_user_by_email($email);
         if ($member) {
             if (!self::check_password($password, $member->hashed_password)) {
                 $errors[] = "Wrong password. Please try again.";
             }
         } else {
-            $errors[] = "Can't find a member with the pseudo '$pseudo'. Please sign up.";
+            $errors[] = "Can't find a member with the e-mail '$email'. Please sign up.";
         }
         return $errors;
+    }
+
+    public static function get_user_by_email(string $email) : User|false {
+        $query = self::execute("SELECT * FROM users where email = :email", ["email"=>$email]);
+        $data = $query->fetch(); // un seul résultat au maximum
+        if ($query->rowCount() == 0) {
+            return false;
+        } else {
+            return new User($data["id"], $data["full_name"], $data["email"], $data["pseudo"], $data["password"], $data["role"], $data["picture_path"], $data["iban"]);
+        }
     }
 
     // public static function validate_photo(array $file) : array {

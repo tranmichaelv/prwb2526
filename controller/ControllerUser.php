@@ -6,15 +6,15 @@ require_once "framework/Controller.php";
 require_once "framework/Configuration.php";
 require_once "ControllerSetup.php";
 
-class ControllerLogin extends Controller {
+class ControllerUser extends Controller {
     
     //si l'utilisateur est connecté, redirige vers son profil.
     //sinon, produit la vue d'accueil.
     public function index() : void {
         if ($this->user_logged()) {
-            $this->redirect("browseItems", "browse");
+            $this->redirect("item", "browse");
         } else {
-            $this->redirect("login", "login");
+            $this->redirect("user", "login");
         }
     }
 
@@ -53,19 +53,42 @@ class ControllerLogin extends Controller {
 
     
     // Login normal
+        $email = '';
+        $password = '';
+        $errors = [];
+        if (isset($_POST['email']) && isset($_POST['password'])) {
+            $email = $_POST['email'];
+            $password = $_POST['password'];
+
+            $errors = User::validate_login($email, $password);
+            if (empty($errors)) {
+                $this->log_user(User::get_user_by_email($email));
+            }
+        }
+        (new View("login"))->show(["email" => $email, "password" => $password, "errors" => $errors]);
+    }
+
+    public function signup() : void{
+        if (isset($_POST['cancel'])) {
+           $this->login();
+           return;
+        }
+
+        $email = '';
+        $full_name = '';
         $pseudo = '';
         $password = '';
         $errors = [];
-        if (isset($_POST['pseudo']) && isset($_POST['password'])) { //note : pourraient contenir des chaînes vides
+
+        if (isset($_POST['email']) && isset($_POST['full_name']) && isset($_POST['pseudo']) && isset($_POST['password'])) {
+            $email = $_POST['email'];
+            $full_name = $_POST['full_name'];
             $pseudo = $_POST['pseudo'];
             $password = $_POST['password'];
-
-            $errors = User::validate_login($pseudo, $password);
-            if (empty($errors)) {
-                $this->log_user(User::get_user_by_pseudo($pseudo));
-            }
+            $errors = User::validate_login($email, $password);
         }
-        (new View("login"))->show(["pseudo" => $pseudo, "password" => $password, "errors" => $errors]);
+
+        (new View("signup"))->show(["email" => $email, "full_name" => $full_name, "pseudo" => $pseudo, "password" => $password, "errors" => $errors]);
     }
 
 }

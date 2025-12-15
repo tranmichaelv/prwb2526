@@ -6,13 +6,14 @@
     <title>browse</title>
     <base href="<?= $web_root ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
 </head>
 
 <body>
 
     <div class="header">
-        <p> Browse</p>
+        <p>Browse</p> <i class="bi bi-cart-fill"></i>
     </div>
 
     <?php if($_SESSION["user"]->id !== 0):?>
@@ -45,7 +46,7 @@
             </div>
         <?php endif; ?>
     <?php endif; ?>
-    <a href="login/logout">disconnect</a>
+    <a href="user/logout">disconnect</a>
 
     
 

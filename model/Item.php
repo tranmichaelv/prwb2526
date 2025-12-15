@@ -50,11 +50,15 @@ class Item extends Model {
         $query = self::execute("SELECT i.*, p.*
                                 FROM items i
                                     join item_pictures p on p.item = i.id
+                                    join v_items_status v on v.id = i.id
                                 where DATE_ADD(i.created_at, INTERVAL i.duration_days DAY) > :end_date
                                 and i.id not in(select i.id
                                                from bids b
                                                 join items i on i.id = b.item
                                                where b.amount = i.buy_now_price)
+                                and i.id not in(SELECT v.id
+                                                from v_items_status v
+                                                where v.max_bid = v.buy_now_price)
                                 order by DATE_ADD(i.created_at, INTERVAL i.duration_days DAY);",
                                 ["end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]);
         $data = $query->fetchAll();
@@ -67,12 +71,16 @@ class Item extends Model {
                                 FROM items i
 	                                join item_pictures p on p.item = i.id
                                     join bids b on b.item = i.id
+                                    join v_items_status v on v.id = i.id
                                 where DATE_ADD(i.created_at, INTERVAL i.duration_days DAY) > :end_date
                                 and b.owner = :owner 
                                 and i.id not in(select i.id
                                                from bids b
                                                 join items i on i.id = b.item
                                                where b.amount = i.buy_now_price)
+                                and i.id not in(SELECT v.id
+                                                from v_items_status v
+                                                where v.max_bid = v.buy_now_price)
                                 order by DATE_ADD(i.created_at, INTERVAL i.duration_days DAY);"
                                 ,["owner"=>$user->id, "end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]);
     
@@ -85,6 +93,7 @@ class Item extends Model {
         $query = self::execute("SELECT i.*, p.*
                                 FROM items i
 	                                join item_pictures p on p.item = i.id
+                                    join v_items_status v on v.id = i.id
                                 where DATE_ADD(i.created_at, INTERVAL i.duration_days DAY) > :end_date
                                -- Exclure items sur lesquels l'utilisateur a déjà bid
                                 AND NOT EXISTS (
@@ -102,6 +111,9 @@ class Item extends Model {
                                     AND i.buy_now_price IS NOT NULL
                                     AND b2.amount = i.buy_now_price
                                 )
+                                and i.id not in(SELECT v.id
+                                                from v_items_status v
+                                                where v.max_bid = v.buy_now_price)
                                 order by DATE_ADD(i.created_at, INTERVAL i.duration_days DAY);"
                                 ,["owner"=>$user->id, "end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]);
     
@@ -194,4 +206,60 @@ class Item extends Model {
         return false;
     }
 
+    // -------- "My Active Items" --------
+    public static function get_user_items(User $user) : array {
+        $query = self::execute("SELECT i.*, p.*
+                                FROM items i 
+                                    join users u on u.id = i.owner
+                                    join item_pictures p on p.item = i.id
+                                where DATE_ADD(i.created_at, INTERVAL i.duration_days DAY) > :end_date
+                                and u.id = :id
+                                and i.id not in(SELECT v.id
+                                                from v_items_status v
+                                                where v.max_bid = v.buy_now_price);"
+                                ,["id"=>$user->id, "end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+        
+        $data = $query->fetchAll();
+        return self::fetch_items($data);
+    }
+
+    // -------- "My Closed Unsold Items" --------
+    public static function get_user_closed_unsold_items(User $user) : array {
+        $query = self::execute("SELECT i.*, p.*
+                                FROM items i 
+                                    join users u on u.id = i.owner
+                                    join item_pictures p on p.item = i.id
+                                    join v_items_status v on v.id = i.id
+                                where DATE_ADD(i.created_at, INTERVAL i.duration_days DAY) <= :end_date
+                                and u.id = :id 
+                                and v.has_bids = false 
+                                and i.id not in(SELECT v.id
+                                                from v_items_status v
+                                                where v.max_bid = v.buy_now_price);"
+                                ,["id"=>$user->id, "end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+        
+        $data = $query->fetchAll();
+        return self::fetch_items($data);
+    }
+
+    // -------- "My Sold Items" --------
+    public static function get_user_sold_items(User $user) : array {
+        $query = self::execute("SELECT i.*, p.*
+                                FROM items i 
+                                    join users u on u.id = i.owner
+                                    join item_pictures p on p.item = i.id
+                                    join v_items_status v on v.id = i.id
+                                where (DATE_ADD(i.created_at, INTERVAL i.duration_days DAY) <= :end_date
+                                and u.id = :id
+                                and v.has_bids != false)
+                                or i.id in(SELECT v.id
+                                                from v_items_status v
+                                                    join users u on u.id = v.owner
+                                                where v.max_bid = v.buy_now_price
+                                                and u.id = :id);"
+                                ,["id"=>$user->id, "end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+        
+        $data = $query->fetchAll();
+        return self::fetch_items($data);
+    }
 }
