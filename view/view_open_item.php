@@ -22,6 +22,10 @@
                 <?php 
                     $baseUrl = '/prwb_2526_c05/';
                     $src = $baseUrl . $main_picture;
+
+                    if ($src == null) {
+                        $src = "";
+                    }
                 ?>
 
                 <img src="<?= $src ?>" alt="Image principale de Item">
@@ -66,20 +70,20 @@
             <!-- bid-history-container -->
            <div class="bids-history">
                 <div><p>Bid History</p></div>
-                <div class="owner-bid">
-                    <?php if (!empty($bids)) :?>
-                        <?php foreach($bids as $b) :?>
+                <div class="bids">
+                     <?php if (!empty($bids_history)) :?>
+                        <?php foreach($bids_history as $bid) :?>
                             <div class="bid">
-                                <p class="owner"><?= htmlspecialchars($b['owner']) ?></p>
-                                <p class="date"><?= htmlspecialchars($b['created_at']) ?></p>
-                                <p class="amount"><?= "€" . number_format($b['amount'], 2, ',', ' ') ?></p>
+                                <p class="owner"><?= htmlspecialchars($bid['pseudo']) ?></p>
+                                <p class="amount"><?= "€" . number_format($bid['amount'], 2, ',', ' ') ?></p>
+                                <p class="date"><?= htmlspecialchars($bid['created_at']) ?></p>
                             </div>
                         <?php endforeach ?>
                     <?php else : ?>
                         <p>No bids yet.</p>
-                    <?php endif ?>  
-                </div>
-</div>
+                    <?php endif ?> 
+                </div>    
+            </div>
 
         </section>
 

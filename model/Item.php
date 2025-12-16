@@ -116,10 +116,15 @@ class Item extends Model {
     public static function get_bids_history($id) : ?array {
 
         $query = self::execute(
-            "SELECT * 
-            FROM bids b 
-            WHERE b.item = :id", 
-            ["id" => $id]
+            "SELECT 
+                u.pseudo,
+                b.amount,
+                b.created_at
+                FROM bids b
+                    JOIN users u ON u.id = b.owner
+                WHERE b.item = :id
+                ORDER BY b.created_at DESC;", 
+            ["id" => $id ]
         ); 
 
 

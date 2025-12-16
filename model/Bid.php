@@ -61,9 +61,11 @@ class Bid extends Model {
     public static function get_seller_information($id) : ?array {
         
         $query = self::execute(
-            "SELECT u.* 
-            FROM v_items_status v JOIN users u ON v.owner = u.id
-            WHERE v.id = :id",
+            "SELECT u.pseudo, u.role
+            FROM users u 
+            WHERE u.id = (SELECT v.owner
+                        FROM v_items_status v 
+                        WHERE v.id = :id )",
             ["id" => $id]
         );
 

@@ -68,7 +68,7 @@ class ControllerOpenItem extends Controller {
             "pictures" => $all_pictures, 
             "current_bid" => $bid,
             "seller" => $seller,
-            "bids" => $bids_history,
+            "bids_history" => $bids_history,
             "errors" => $errors
         ]);
 
