@@ -5,12 +5,32 @@ require_once "framework/Controller.php";
 require_once "framework/Configuration.php";
 
 class User extends Model {
-
-
-
-    public function __construct(public int $id, public string $full_name, public string $email, public string $pseudo, public string $hashed_password, public string $role, public ?string $picture_path = null, public ?string $iban = null) {
-
-    }
+    public function __construct(
+        private int $id, 
+        private string $full_name, 
+        private string $email, 
+        private string $pseudo, 
+        private string $hashed_password, 
+        private string $role, 
+        private ?string $picture_path = null, 
+        private ?string $iban = null
+    ) {}
+    // -------- Getters --------
+    public function getId(): int { return $this->id; }
+    
+    public function getFullName(): string { return $this->full_name; }
+    
+    public function getEmail(): string { return $this->email; }
+    
+    public function getPseudo(): string { return $this->pseudo; }
+    
+    public function getHashedPassword(): string { return $this->hashed_password; }
+    
+    public function getRole(): string { return $this->role; }
+    
+    public function getPicturePath(): ?string { return $this->picture_path; }
+    
+    public function getIban(): ?string { return $this->iban; }
 
     // public function persist() : User {
     //     if(self::get_users_by_pseudo($this->pseudo))
@@ -21,10 +41,6 @@ class User extends Model {
     //                       ["full_name"=>$this->full_name, "email"=>$this->email, "pseudo"=>$this->pseudo, "picture"=>$this->picture_path, "password"=>$this->hashed_password, "iban"=>$this->iban]);
     //     return $this;
     // }
-
-    public static function guest_user() : User{
-        return new User(0, "guest", "email", "pseudo", "password", "role", "picture_path", "iban");
-    }
 
     public static function get_user_by_pseudo(string $pseudo) : User|false {
         $query = self::execute("SELECT * FROM users where pseudo = :pseudo", ["pseudo"=>$pseudo]);
@@ -56,24 +72,24 @@ class User extends Model {
         }
     }
 
-    public function get_other_items() : array{
-        return Item::get_other_items_from_user($_SESSION['user']);
+    public function get_my_other_items() : array{
+        return Item::get_other_items_from_user($this->getId());
     }
 
     public function get_my_bids_items() : array{
-        return Item::get_bids_items_from_user($_SESSION['user']);
+        return Item::get_bids_items_from_user($this->getId());
     }
 
     public function get_my_items() : array{
-        return Item::get_user_items($_SESSION['user']);
+        return Item::get_user_items($this->getId());
     }
 
     public function get_my_closed_unsold_items() : array{
-        return Item::get_user_closed_unsold_items($_SESSION['user']);
+        return Item::get_user_closed_unsold_items($this->getId());
     }
 
     public function get_my_sold_items() : array{
-        return Item::get_user_sold_items($_SESSION['user']);
+        return Item::get_user_sold_items($this->getId());
     }
     
     // private static function validate_password(string $password) : array {
@@ -140,6 +156,16 @@ class User extends Model {
         } else {
             return new User($data["id"], $data["full_name"], $data["email"], $data["pseudo"], $data["password"], $data["role"], $data["picture_path"], $data["iban"]);
         }
+    }
+
+    public function is_bidder(Item $item) : bool{
+        $query = self::execute("SELECT b.owner 
+                                FROM bids b
+                                    join items i on b.item = i.id
+                                where i.id = :itemId
+                                and  b.owner = :owner;", ["itemId"=>$item->getId(), "owner"=>$this->getId()]);
+        $result = $query->fetchAll();
+        return !empty($result);
     }
 
     // public static function validate_photo(array $file) : array {

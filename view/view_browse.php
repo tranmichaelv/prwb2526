@@ -16,7 +16,7 @@
         <p>Browse</p> <i class="bi bi-cart-fill"></i>
     </div>
 
-    <?php if($_SESSION["user"]->id !== 0):?>
+    <?php if($user):?>
         <?php  if(sizeof($items_user) != 0):?>
             <h1>Items I'm Participating in</h1>
             <div class="my-items">
@@ -36,7 +36,7 @@
         <?php endif; ?>
     <?php endif; ?>
 
-    <?php if ($_SESSION["user"]->id == 0): ?>
+    <?php if ($user == false): ?>
         <?php  if(sizeof($all_items) != 0):?>
             <h1>Available Items</h1>
             <div class="other-items">
