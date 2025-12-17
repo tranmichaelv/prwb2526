@@ -7,6 +7,9 @@ require_once "utils/AppTime.php";
 
 class Item extends Model {
 
+     private ?float $instant_purchase = null;
+     private ?float $sale_price = null;  
+
     public function __construct(
         private ?int $id,
         private string $title,
@@ -14,8 +17,10 @@ class Item extends Model {
         private int $owner,
         private int $duration_days,
         private ?float $starting_bid = null,
-        private ?float $buy_now_price = null,
-        private ?string $created_at = null
+        private ?float $buy_now_price = null, // valeur finale dans la BD
+        private ?string $created_at = null,
+            
+
     ) {
         $this->created_at = $this->created_at ?? AppTime::get_current_datetime();
       }
@@ -67,6 +72,20 @@ class Item extends Model {
     public function set_buy_now_price(?float $price): void {
          $this->buy_now_price = $price; 
     }
+    public function get_instant_purchase(): ?float {
+          return $this->instant_purchase; 
+    }
+    public function set_instant_purchase(?float $v): void {
+          $this->instant_purchase = $v; 
+    }
+    public function get_sale_price(): ?float {
+          return $this->sale_price; 
+    }
+    public function set_sale_price(?float $v): void {
+          $this->sale_price = $v; 
+    }
+    
+
 
 
 
@@ -123,17 +142,40 @@ class Item extends Model {
         }
 
         $has_bid = $this->starting_bid !== null && $this->starting_bid > 0;
-        $has_buy_now = $this->buy_now_price !== null && $this->buy_now_price > 0;
+        $has_instant = $this->instant_purchase !== null && $this->instant_purchase > 0;
+        $has_sale = $this->sale_price !== null && $this->sale_price > 0;
 
-        // si buy_now est rempli, il doit être > 0 et doit être > starting_bid (si pas null)
-        if($has_buy_now && $has_bid && $this->buy_now_price <= $this->starting_bid) {
-               $errors['buy_now_price'][] = "Buy now price must be strictly higher than the starting bid";
+        if ($has_bid && $has_sale) {
+            $errors['starting_bid'][] = "Cannot create both auction and direct sale.";
+            $errors['sale_price'][]    = "Cannot create both auction and direct sale.";
+         //   return $errors;
         }
+
+        if($has_bid){
+           // si buy_now est rempli, il doit être > 0 et doit être > starting_bid (si pas null)
+            if($has_instant && $has_bid && $this->instant_purchase <= $this->starting_bid) {
+               $errors['buy_now_price'][] = "Buy now price must be strictly higher than the starting bid";
+            }    
+        
+
+          $this->buy_now_price = $has_instant ? $this->instant_purchase : null;
+
+        } else {
+    
+              if (!$has_sale) {
+               $errors['sale_price'][] = "An ad without a bid must have a buy now price.";
+               return $errors;
+              }
+
+                //  sale_price devient buy_now_price
+               $this->buy_now_price = $this->sale_price;
+          }
 
         // Une annonce sans enchère doit avoir un buy_now_price
-        if(!$has_bid && !$has_buy_now) {
-               $errors['buy_now_price'][] = "An ad without a bid must have a buy now price";
-        }
+       // if(!$has_bid && !$has_instant) {
+       //        $errors['buy_now_price'][] = "An ad without a bid must have a buy now price";
+      //  }
+
 
         return $errors;
     }
@@ -203,7 +245,7 @@ class Item extends Model {
           $row = $stmt->fetch();
           if (!$row) return null;
 
-          return new Item(
+         $item = new Item(
                id: (int)$row["id"],
                title: $row["title"],
                description: $row["description"] ?? "",
@@ -213,6 +255,21 @@ class Item extends Model {
                buy_now_price: $row["buy_now_price"] !== null ? (float)$row["buy_now_price"] : null,
                created_at: $row["created_at"]
           );
+
+          $starting = (float)$row["starting_bid"];
+          $buy = $row["buy_now_price"] !== null ? (float)$row["buy_now_price"] : null;
+
+          if ($starting > 0) {
+               // Auction : buy_now_price = instant purchase
+               $item->set_instant_purchase($buy);
+               $item->set_sale_price(null);
+          } else {
+               // Direct sale : buy_now_price = sale price
+               $item->set_sale_price($buy);
+               $item->set_instant_purchase(null);
+            }
+
+       return $item;
     }
 
     //  Vérifie si un titre existe déjà pour un owner

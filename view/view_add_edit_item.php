@@ -91,7 +91,7 @@
                 <input type= "number" name ="buy_now"
                  class="<?= !empty($errors['buy_now_price'] ?? []) ? 'input-error' : '' ?>"
                  placeholder="e.g., 200.00"
-                 value="<?= $item->get_buy_now_price() !== null ? $item->get_buy_now_price() : '' ?>">
+                value="<?= $item->get_instant_purchase() !== null ? $item->get_instant_purchase() : '' ?>"
               <?php if (!empty($errors['buy_now_price'] ?? [])): ?>
                   <ul class="field-errors">
                       <?php foreach ($errors['buy_now_price'] as $e): ?>
@@ -107,7 +107,15 @@
 
               <div class="form-group"> 
                 <label>Sale Price</label>
-                <input type ="number" name="sale_price" placeholder="e.g., 150.00">
+                <input type ="number" name="sale_price" placeholder="e.g., 150.00"
+                value="<?= $item->get_sale_price() !== null ? $item->get_sale_price() : '' ?>">
+                <?php if (!empty($errors['sale_price'] ?? [])): ?>
+                  <ul class="field-errors">
+                      <?php foreach ($errors['sale_price'] as $e): ?>
+                          <li><?= $e ?></li>
+                      <?php endforeach; ?>
+                  </ul>
+             <?php endif; ?>
               </div>  
             </div>
         </div>

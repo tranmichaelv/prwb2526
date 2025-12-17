@@ -21,20 +21,13 @@ class ControllerItem extends Controller {
         $duration = isset($_POST['duration']) ? (int)$_POST['duration'] : 7;
 
         $bid_raw = $_POST['bid'] ?? null;
+        $starting_bid = ($bid_raw === '') ? null : (float)$bid_raw;
 
-        if ($bid_raw === null || $bid_raw === '') {
-            $starting_bid = null; // champ vide → placeholder
-        } else {
-            $starting_bid = (float)$bid_raw; // utilisateur a saisi quelque chose
-        }
+        $buy_raw = $_POST['buy_now'] ?? '';
+        $instant = ($buy_raw === '') ? null : (float)$buy_raw;
 
-       $buy_raw = $_POST['buy_now'] ?? null;
-
-        if ($buy_raw === null || $buy_raw === '') {
-            $buy_now = null;
-        } else {
-            $buy_now = (float)$buy_raw;
-        }            
+        $sale_raw = $_POST['sale_price'] ?? '';
+        $sale = ($sale_raw === '') ? null : (float)$sale_raw;          
 
         $item = new Item(
             id: null,
@@ -43,13 +36,18 @@ class ControllerItem extends Controller {
             owner: $owner,
             duration_days: $duration,
             starting_bid: $starting_bid,
-            buy_now_price: $buy_now
+            buy_now_price: null // calculer dans validate()
         );
+
+            $item->set_instant_purchase($instant);
+            $item->set_sale_price($sale);
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors = $item->persist(); // validation + insert tentative
 
             if (empty($errors)) {
-                // redirection vers la liste ou la page détails
+                // redirection vers Open Item
+                // plus tard
                 $this->redirect("item");
             }
         }
@@ -59,6 +57,7 @@ class ControllerItem extends Controller {
             "errors" => $errors,
             "item" => $item
         ]);
+
     }
 
     public function edit() : void {
@@ -80,11 +79,17 @@ class ControllerItem extends Controller {
              $item->set_description($_POST['description'] ?? "");
             $item->set_duration_days(isset($_POST['duration']) ? (int)$_POST['duration'] : 7);
 
-            $bid_raw = $_POST['bid'] ?? null;
-            $item->set_starting_bid(($bid_raw === null || $bid_raw === '') ? null : (float)$bid_raw);
+            $bid_raw = $_POST['bid'] ?? '';
+            $starting_bid = ($bid_raw === '') ? null : (float)$bid_raw;
+            $item->set_starting_bid($starting_bid);
 
-            $buy_raw = $_POST['buy_now'] ?? null;
-            $item->set_buy_now_price(($buy_raw === null || $buy_raw === '') ? null : (float)$buy_raw);
+            $buy_raw = $_POST['buy_now'] ?? '';
+            $instant = ($buy_raw === '') ? null : (float)$buy_raw;
+            $item->set_instant_purchase($instant);
+
+            $sale_raw = $_POST['sale_price'] ?? '';
+            $sale = ($sale_raw === '') ? null : (float)$sale_raw;
+            $item->set_sale_price($sale);
 
             $errors = $item->persist();
 
