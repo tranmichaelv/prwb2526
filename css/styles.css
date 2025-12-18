@@ -86,7 +86,7 @@ tbody input{
     margin: auto;
     padding: 5px 150px;
     min-height: 65px;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid rgba(204, 204, 204, 0.2);
 }
 
 .header{
@@ -106,7 +106,7 @@ tbody input{
     margin: auto;
     padding: 5px 150px;
     font-weight: bold;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid rgba(204, 204, 204, 0.2);
 }
 
 .menu a {
@@ -305,3 +305,102 @@ a {
     text-decoration: none;
     color: white;
 }
+
+.account-info h1{
+    color: white;
+}
+
+.account-info{
+    background: #1f2937;
+    border-radius: 5px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    margin-bottom: 16px;
+}
+  
+.username,
+.email {
+    color: #9ca3af;
+    margin: 4px 0;
+}
+
+.section {
+    /* background: #1f2937; */
+    /* border-radius: 14px; */
+    /* padding: 20px; */
+    margin-bottom: 24px;
+}
+
+    .section h2 {
+        margin-bottom: 0;
+        padding: 10px;
+        color: white;
+}
+
+.section-titre{
+    border-top-left-radius: 5px ;
+    border-top-right-radius: 5px;
+    background: #1f2937;
+    margin-bottom: 0px;
+    /* padding-left: 10px;
+    padding-bottom: 1px;
+    padding-top: 1px; */
+}
+
+.section-menu{
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    background: #222;
+    padding: 5px;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border: 1px solid #1f3a8a;
+    border-radius: 5px;
+    margin: 10px;
+    color: rgb(61, 132, 255);
+    /* cursor: pointer; */
+    /* transition: all 0.2s ease; */
+  }
+
+  .item i{
+    font-size: 22px;
+  }
+
+  .display-colonne{
+    align-items: center;
+  }
+  
+  .item:hover {
+    background: blue;
+    border-color: #3b82f6;
+    color: white;
+  }
+  
+  .item p {
+    margin: 2px 0 0;
+    font-size: 14px;
+    color: #9ca3af;
+  }
+  
+  .item.danger {
+    border-color: #7f1d1d;
+    color: #f87171;
+  }
+  
+  .item.danger:hover {
+    background: red;
+    color: white;
+  }
+

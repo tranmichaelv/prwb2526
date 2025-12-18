@@ -43,6 +43,12 @@ class ControllerUser extends Controller {
         (new View("login"))->show(["email" => $email, "password" => $password, "errors" => $errors]);
     }
 
+    public function profile() : void{
+        $user = $this->get_user_or_false();
+
+        (new View("profile"))->show(["user" => $user]);
+    }
+
     //########################### NOT FINISHED ###########################
     public function signup() : void{
         // Retourne vers la page d'acceuil
