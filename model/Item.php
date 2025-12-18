@@ -219,7 +219,8 @@ class Item extends Model {
                                 and u.id = :id
                                 and v.id not in(SELECT v.id
                                                 from v_items_status v
-                                                where v.max_bid = v.buy_now_price);"
+                                                where v.max_bid = v.buy_now_price)
+                                order by end_at;"
                                 ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
         
         $data = $query->fetchAll();
@@ -237,7 +238,8 @@ class Item extends Model {
                                 and v.has_bids = false 
                                 and v.id not in(SELECT v.id
                                                 from v_items_status v
-                                                where v.max_bid = v.buy_now_price);"
+                                                where v.max_bid = v.buy_now_price)
+                                order by end_at;"
                                 ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
         
         $data = $query->fetchAll();
@@ -257,7 +259,8 @@ class Item extends Model {
                                                 from v_items_status v
                                                     join users u on u.id = v.owner
                                                 where v.max_bid = v.buy_now_price
-                                                and u.id = :id);"
+                                                and u.id = :id)
+                                order by end_at;"
                                 ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
     
         $data = $query->fetchAll();
