@@ -91,6 +91,30 @@ class User extends Model {
     public function get_my_sold_items() : array{
         return Item::get_user_sold_items($this->getId());
     }
+
+    public function get_my_sales() : array{
+        return Item::get_user_completed_sales($this->getId());
+    }
+
+    public function get_my_purchases_top_bidder() : string{
+        return Item::get_top_bidder($this->getId());
+    }
+
+    public function get_my_sales_total_and_average() : array{
+        return Item::get_total_and_average_of_sales($this->getId());
+    }
+
+    public function get_my_purchases() : array{
+        return Item::get_user_purchases($this->getId());
+    }
+
+    public function get_my_purchases_top_seller() : string{
+        return Item::get_top_seller($this->getId());
+    }
+
+    public function get_my_purchases_total_and_average() : array{
+        return Item::get_total_and_average_of_purchases($this->getId());
+    }
     
     // private static function validate_password(string $password) : array {
     //     $errors = [];

@@ -27,7 +27,7 @@
         </div>
 
         <div class="section-menu">
-            <a href="test" class="item">
+            <a href="item/sales" class="item">
                 <i class="bi bi-receipt"></i>
                 <div class="display-colonne">
                     <strong>Sales</strong>
@@ -35,7 +35,7 @@
                 </div>
             </a>
 
-            <a href="test" class="item">
+            <a href="item/purchases" class="item">
                 <i class="bi bi-cart3"></i>
                 <div class="display-colonne">
                     <strong>Purchases</strong>

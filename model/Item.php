@@ -280,4 +280,139 @@ class Item extends Model {
         $data = $query->fetch();
         return $data['pseudo'];                       
     }
+
+    // -------- "My Purchases" --------
+    public static function get_user_purchases(int $userId) : array {
+        $query = self::execute("SELECT v.*, p.*
+                                FROM v_items_status v
+                                    join item_pictures p on p.item = v.id
+                                    join bids b on b.item = v.id and v.max_bid = b.amount
+                                where ((v.end_at <= :current_date and v.bid_count > 0)
+                                or (( v.is_direct_sale = 1
+                                    AND v.not_purchased_direct_sale = 0)
+                                    OR
+                                    ( v.is_auction = 1
+                                    AND v.buy_now_reached = 1))) 
+                                and b.owner = :id;"
+                                ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+        
+        $data = $query->fetchAll();
+        return self::fetch_items($data);
+    }
+
+    // -------- "TOTAL SPENT $$ AVERAGE TICKET PURCHASES" --------
+    public static function get_total_and_average_of_purchases(int $userId) : array {
+        $query = self::execute("SELECT sum(v.max_bid) as total, avg(v.max_bid) as average, count(*) as number_of_purchases
+                                FROM v_items_status v
+                                    join bids b on b.item = v.id and v.max_bid = b.amount
+                                where ((v.end_at <= :current_date and v.bid_count > 0)
+                                or (( v.is_direct_sale = 1
+                                    AND v.not_purchased_direct_sale = 0)
+                                    OR
+                                    ( v.is_auction = 1
+                                    AND v.buy_now_reached = 1))) 
+                                and b.owner = :id;"
+                                ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+        
+        $data = $query->fetchAll();
+        $result = [];
+        foreach ($data as $row) {
+            $result[] = [
+                "total" => Utils::convert_format_number_for_bids((float)$row["total"]),
+                "average" => Utils::convert_format_number_for_bids((float)$row["average"]),
+                "number_of_purchases" => (int)$row["number_of_purchases"]
+            ];
+        }
+        return $result;
+    }
+
+    // -------- "TOP SELLER" --------
+    public static function get_top_seller(int $userId) : string {
+        $query = self::execute("SELECT u.pseudo
+                                FROM v_items_status v
+                                    join users u on u.id = v.owner
+                                    join bids b on b.item = v.id and v.max_bid = b.amount
+                                where ((v.end_at <= :current_date and v.bid_count > 0)
+                                or (( v.is_direct_sale = 1
+                                    AND v.not_purchased_direct_sale = 0)
+                                    OR
+                                    ( v.is_auction = 1
+                                    AND v.buy_now_reached = 1))) 
+                                and b.owner = :id
+                                group by u.id, u.pseudo
+                                Limit 1;"
+                                ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+        
+        $data = $query->fetch();
+        return $data["pseudo"];
+    }
+
+    // -------- "My Completed Sales" --------
+    public static function get_user_completed_sales(int $userId) : array {
+        $query = self::execute("SELECT v.*, p.*
+                                FROM v_items_status v
+                                    join item_pictures p on p.item = v.id
+                                    join bids b on b.item = v.id and v.max_bid = b.amount
+                                where ((v.end_at <= :current_date and v.bid_count > 0)
+                                or (( v.is_direct_sale = 1
+                                    AND v.not_purchased_direct_sale = 0)
+                                    OR
+                                    ( v.is_auction = 1
+                                    AND v.buy_now_reached = 1))) 
+                                and v.owner = :id;"
+                                ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+        
+        $data = $query->fetchAll();
+        return self::fetch_items($data);
+    }
+
+
+    // -------- "TOP BUYER" --------
+    public static function get_top_bidder(int $userId) : string {
+        $query = self::execute("SELECT u.pseudo
+                                FROM v_items_status v
+                                    join bids b on b.item = v.id and v.max_bid = b.amount
+                                    join users u on u.id = b.owner
+                                where ((v.end_at <= :current_date and v.bid_count > 0)
+                                or (( v.is_direct_sale = 1
+                                    AND v.not_purchased_direct_sale = 0)
+                                    OR
+                                    ( v.is_auction = 1
+                                    AND v.buy_now_reached = 1))) 
+                                and v.owner = :id
+                                group by u.id, u.pseudo
+                                Limit 1;"
+                                ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+        
+        $data = $query->fetch();
+        return $data["pseudo"];
+    }
+
+     // -------- "TOTAL REVENUE $$ AVERAGE TICKET SALES" --------
+     public static function get_total_and_average_of_sales(int $userId) : array {
+        $query = self::execute("SELECT sum(v.max_bid) as total, avg(v.max_bid) as average, count(*) as number_of_purchases
+                                FROM v_items_status v
+                                    join bids b on b.item = v.id and v.max_bid = b.amount
+                                where ((v.end_at <= :current_date and v.bid_count > 0)
+                                or (( v.is_direct_sale = 1
+                                    AND v.not_purchased_direct_sale = 0)
+                                    OR
+                                    ( v.is_auction = 1
+                                    AND v.buy_now_reached = 1))) 
+                                and v.owner = :id;"
+                                ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+        
+        $data = $query->fetchAll();
+        $result = [];
+        foreach ($data as $row) {
+            $result[] = [
+                "total" => Utils::convert_format_number_for_bids((float)$row["total"]),
+                "average" => Utils::convert_format_number_for_bids((float)$row["average"]),
+                "number_of_purchases" => (int)$row["number_of_purchases"]
+            ];
+        }
+        return $result;
+    }
+
+
 }

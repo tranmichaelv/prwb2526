@@ -404,3 +404,117 @@ a {
     color: white;
   }
 
+  .price-and-closeTime {
+    margin-top: 8px;           
+    font-size: 18px;            
+    color: #9ca3af;              
+    text-align: left;           
+}
+
+.price-and-closeTime p {
+    margin: 2px 0;              
+}
+
+.item-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.info-box{
+    flex: 1;
+    background-color: #222;
+    border-radius: 5px;
+    padding: 12px 16px;
+    text-align: left;
+}
+
+.info-box p {
+    margin: 4px 0;   
+}
+
+.info-title {
+    margin-bottom: 4px;
+}
+
+.info-value {
+    margin: 4px 0;
+}
+
+.info-desc {
+    margin-top: 4px;
+}
+
+.info-container {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.info-title {
+    color: #9ca3af;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.info-value {
+    font-size: 32px;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.info-desc {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+.top-seller{
+    color: white;
+    font-size: 22px;
+}
+
+.title-purchases-or-sales h1{
+    color: white;
+    margin-bottom: 5px;
+}
+
+.title-purchases-or-sales p{
+    color: #9ca3af;
+    margin-top: 0;
+}
+
+.title-purchases-or-sales{
+    display: flex;
+    align-items: center;        /* centre verticalement */
+    justify-content: space-between;
+    /* margin-bottom: 20px; */
+}
+
+.purchases-badge {
+    background-color: royalblue;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 999px;       /* forme ovale */
+    font-weight: bold;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.sales-badge{
+    background-color: green;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 999px;       /* forme ovale */
+    font-weight: bold;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.title-text h1{
+    margin-top: 0;
+}
+
+

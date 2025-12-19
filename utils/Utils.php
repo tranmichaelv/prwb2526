@@ -22,6 +22,8 @@ Class Utils{
         if ($amount === null) {
             return " ";  
         }
-        return number_format($amount,2,',','');
+
+        $amount = (float) $amount;
+        return ("€ ".number_format($amount,2,',','.'));
     }
 }
