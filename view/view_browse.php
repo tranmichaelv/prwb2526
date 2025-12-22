@@ -12,9 +12,10 @@
 
 <body>
 
-    <div class="header">
-        <p>Browse</p> <i class="bi bi-cart-fill"></i>
-    </div>
+    <?php 
+        $title = "Browser";
+        include("header.php");
+    ?>
 
     <?php if($user):?>
         <?php  if(sizeof($items_user) != 0):?>

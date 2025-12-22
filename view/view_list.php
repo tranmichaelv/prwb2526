@@ -11,10 +11,10 @@
 
 <body>
 
-    <div class="header">
-        <p>My items</p> <i class="bi bi-cart-fill"></i>
-    </div>
-
+    <?php 
+        $title = "My items";
+        include("header.php");
+    ?>
     
     <?php  if(sizeof($active_items) != 0):?>
         <h1>Active Items</h1>

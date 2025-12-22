@@ -45,8 +45,23 @@ class ControllerUser extends Controller {
 
     public function profile() : void{
         $user = $this->get_user_or_false();
+        $page = "profile";
 
-        (new View("profile"))->show(["user" => $user]);
+        (new View("profile"))->show(["user" => $user, "page" =>  $page]);
+    }
+
+    public function edit_profile() : void{
+        $user = $this->get_user_or_false();
+        $page = "edit_profile";
+
+        (new View("edit_profile"))->show(["user" => $user, "page" =>  $page]);
+    }
+
+    public function change_password() : void{
+        $user = $this->get_user_or_false();
+        $page = "change_password";
+
+        (new View("change_password"))->show(["user" => $user, "page" =>  $page]);
     }
 
     //########################### NOT FINISHED ###########################

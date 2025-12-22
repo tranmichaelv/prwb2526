@@ -11,9 +11,11 @@
 
 <body>
     
-    <div class="header">
-        <p>Sales </p> <i class="bi bi-cart-fill"></i>
-    </div>
+    <?php 
+        $title = "Sales";
+        $pageBefore = "user/profile";
+        include("header.php");
+    ?>
 
     <?php include "view/sales&purchases.php"; ?>
 

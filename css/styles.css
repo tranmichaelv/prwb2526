@@ -104,9 +104,29 @@ tbody input{
     box-sizing: border-box;
     z-index: 2000;
     margin: auto;
-    padding: 5px 150px;
+    padding: 0px 10px;
     font-weight: bold;
     border-bottom: 1px solid rgba(204, 204, 204, 0.2);
+}
+
+.header-left,
+.header-right {
+    width: 80px; /* même largeur pour équilibrer */
+}
+
+.header-center {
+    flex: 1;
+    text-align: center;
+}
+
+.header-center i{
+   color: gray;
+}
+
+.header a {
+    color: royalblue;
+    font-size: 22px;
+    text-decoration: none;
 }
 
 .menu a {
@@ -338,10 +358,13 @@ a {
     margin-bottom: 24px;
 }
 
-    .section h2 {
-        margin-bottom: 0;
-        padding: 10px;
-        color: white;
+.section h2 {
+    margin-bottom: 0;
+    padding-left: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    color: white;
+    font-weight: 500;
 }
 
 .section-titre{
@@ -388,12 +411,12 @@ a {
     color: white;
   }
   
-  .item p {
+  .item p{
     margin: 2px 0 0;
     font-size: 14px;
     color: #9ca3af;
   }
-  
+
   .item.danger {
     border-color: #7f1d1d;
     color: #f87171;
@@ -517,4 +540,37 @@ a {
     margin-top: 0;
 }
 
+.section-menu p {
+    margin: 8px 0 4px; 
+    font-weight: 500;
+    padding-left: 15px;
+    padding-bottom: 5px;
+}
+
+.section-menu p.subtitle {
+    margin: 4px 5px 10px;
+    font-size: 13px;
+    color: #9ca3af;
+    font-weight: normal;
+}
+
+.section-menu input {
+    display: block;
+    width: 97%;        
+    background-color: #1a1f2e; 
+    color: #fff;
+    border: 1px solid rgba(204, 204, 204, 0.2);
+    border-radius: 6px;
+    padding: 10px 12px;
+    box-sizing: border-box;
+    outline: none;
+    margin-left: 20px;
+    font-size: 16px;
+}
+
+
+.section-menu input:focus {
+    border-color: rgba(255, 255, 255, 0.286); 
+    box-shadow: 0 0 10px rgba(71, 109, 223, 0.929);
+}
 

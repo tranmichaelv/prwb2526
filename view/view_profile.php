@@ -3,16 +3,16 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>browse</title>
     <base href="<?= $web_root ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
 </head>
 
 <body>
-    <div class="header">
-        <p>Profile </p> <i class="bi bi-cart-fill"></i>
-    </div>
+    <?php 
+        $title = "Profile";
+        include("header.php");
+    ?>
 
     <div class="account-info">
         <img src="<?= $user->getPicturePath() ?>" alt="Avatar" class="avatar" />
@@ -52,7 +52,7 @@
 
         <div class="section-menu">
 
-        <a href="test" class="item">
+        <a href="user/edit_profile" class="item">
             <i class="bi bi-person-gear"></i>
             <div class="display-colonne">
                 <strong>Edit Profile</strong>
@@ -60,7 +60,7 @@
             </div>
         </a>
 
-        <a href="test" class="item">
+        <a href="user/change_password" class="item">
             <i class="bi bi-three-dots"></i>
             <div class="display-colonne">
                 <strong>Change Password</strong>
