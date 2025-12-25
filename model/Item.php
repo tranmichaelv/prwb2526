@@ -113,26 +113,5 @@ class Item extends Model {
     }
 
 
-    public static function get_bids_history($id) : ?array {
-
-        $query = self::execute(
-            "SELECT 
-                u.pseudo,
-                b.amount,
-                b.created_at
-                FROM bids b
-                    JOIN users u ON u.id = b.owner
-                WHERE b.item = :id
-                ORDER BY b.created_at DESC;", 
-            ["id" => $id ]
-        ); 
-
-
-        $bids = $query->fetchAll(PDO::FETCH_ASSOC);
-
-        return $bids ?? null;
-    } 
-   
-
 }
 ?>

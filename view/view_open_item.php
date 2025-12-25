@@ -92,29 +92,35 @@
 
 
 <!-- right container -->
-    <div class="right-container d-flex flex-column gap-4 ">
-
+    <div class="right-container d-flex flex-column gap-4 "> 
         <section class="pricing-container">
             <!-- pricing-container -->
+                
+            <h6> Pricing </h6>
             <div class="pricing-content">
-                <h6> Pricing </h6>
-                <?php if (!empty($errors)): ?>
-                    <?php foreach($errors as $err) : ?>
-                        <p class="text-warning"><?php echo $err?></p>
-                    <?php endforeach;?>  
-                <?php endif?>
+                <?php //if (!empty($errors)): ?>
+                    <?php //foreach($errors as $err) : ?>
+                        <p class="text-warning"><?php //echo $err?></p>
+                    <?php //endforeach;?>  
+                <?php //endif?>
 
                 <div>
+                    <?php if (!$bid_is_closed && !$connected_user_is_owner && !$has_buy_now && !$has_bids) : ?> 
+                        
+                    <?php endif;?>    
+                    
                     <?php if($current_bid != false) : ?>
                     <p>Current Bid <?= "€".$current_bid->current_bid; ?></p>
-                    <p>Buy Now  <?= "€".$current_bid->buy_now_price; ?></p>
+                    <p> Starting at <?= "€".$current_bid->starting_bid; ?></p>
                     <?php endif;?>    
                 </div>   
                 
                 <div>
-                    <input type="text" name="new-bid">
-                    <button type="submit" name="place-bid"> Place Bid </button>
-                    <button type="submit" name="Buy-now-at"> Buy Now at € <?php echo $current_bid->buy_now_price; ?></button>
+                    <form action="" method="post">
+                        <input type="text" name="new-bid">
+                        <button type="submit" name="place-bid"> Place Bid </button>
+                        <button type="submit" name="Buy-now-at"> Buy Now at € <?php echo $current_bid->buy_now_price; ?></button>
+                    </form>
                 </div>
             </div>
             <br><br>
@@ -127,6 +133,11 @@
                     <?php endif ?>
 
                 </div>
+
+                <p style="font-size: 20px; color: blueviolet;"> 
+                    <?php echo $connected_user_is_owner ? 'user est le owner' : 'user est pas le owner';?>
+                    <?php echo $bid_is_closed ? 'enchère fermée' : 'enchère pas encore fermée';?>
+                </p>
             </div>
 
         </section>
@@ -141,6 +152,17 @@
         </section>
 
     </div>
+                    
+<!-- right container : 
+ - Current Bid
+ - Starting at
+ - Text field to place bid  
+ - Place Bid button 
+ - seller information
+  -->
+
+
+
 </div>    
 </body>
 </html>
