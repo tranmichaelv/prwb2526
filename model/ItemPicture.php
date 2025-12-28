@@ -25,4 +25,21 @@ class ItemPicture extends Model {
         return $this->picture_path;
     }
 
+    public static function get_by_item(int $itemId) : array {
+        $stmt = self::execute(
+            "SELECT * FROM item_pictures WHERE item = :item ORDER BY priority",
+            [":item" => $itemId]
+        );
+        $rows = $stmt->fetchAll();
+        $pics = [];
+        foreach($rows as $r) {
+            $pics[] = new ItemPicture(
+                item: (int)$r["item"],
+                priority: (int)$r["priority"],
+                picture_path: $r["picture_path"]
+            );
+        }
+        return $pics;
+    }
+
 }

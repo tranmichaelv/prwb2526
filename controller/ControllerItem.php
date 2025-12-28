@@ -1,6 +1,7 @@
 <?php
 require_once "framework/Controller.php";
 require_once "model/Item.php";
+require_once "model/ItemPicture.php";
 require_once "utils/Apptime.php";
 
 class ControllerItem extends Controller {
@@ -105,5 +106,20 @@ class ControllerItem extends Controller {
             "id" => $id
         ]);
 
+    }
+
+    public function manage_images() : void {
+        $itemId = (int)($_GET["param1"] ?? 0);
+        $item = Item::get_by_id($itemId);
+        if($item === null) $this->redirect("item");
+
+
+        $pictures = ItemPicture::get_by_item($itemId);
+
+        (new View("manage_images"))->show([
+            "item" => $item,
+            "pictures" => $pictures,
+            "errors" => []
+        ]);
     }
 }
