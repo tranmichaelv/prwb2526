@@ -42,4 +42,26 @@ class ItemPicture extends Model {
         return $pics;
     }
 
+    public static function get_max_priority(int $itemId): int {
+        $stmt = self::execute(
+            "SELECT COALESCE(MAX(priority),0) AS m FROM item_pictures WHERE item = :item",
+             [":item" => $itemId]
+        );
+        $row = $stmt->fetch();
+        return(int)$row["m"];
+    }
+
+    public static function swap_priority(int $itemId, int $p1, int $p2): void {
+
+        self::execute("UPDATE item_pictures SET priority = 0 WHERE item = :item AND priority = :p",
+        [":item" => $itemId, ":p" => $p1]);
+    
+        self::execute("UPDATE item_pictures SET priority = :p1 WHERE item = :item AND priority = :p2", 
+        [":item" => $itemId, ":p1" => $p1, ":p2" => $p2]);
+       
+        self::execute("UPDATE item_pictures SET priority = :p2 WHERE item = :item AND priority = 0", 
+        [":item" => $itemId, ":p2" => $p2]);
+    
+    }
+
 }

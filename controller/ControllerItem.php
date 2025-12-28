@@ -122,4 +122,18 @@ class ControllerItem extends Controller {
             "errors" => []
         ]);
     }
+
+    public function move_picture(): void {
+        $itemId = (int)($_GET["param1"] ?? 0);
+        $priority = (int)($_GET["param2"] ??0);
+        $dir = $_GET["param3"] ?? "";
+
+        if($dir === "left" && $priority > 1){
+            ItemPicture::swap_priority($itemId, $priority, $priority - 1);
+        } else if ($dir === "right"){
+            $max = ItemPicture::get_max_priority($itemId);
+            if($priority < $max) ItemPicture::swap_priority($itemId, $priority, $priority + 1);
+        }
+        $this->redirect("item","manage_images",$itemId);
+    }
 }
