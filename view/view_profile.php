@@ -68,7 +68,7 @@
             </div>
         </a>
 
-        <a href="test" class="item">
+        <a href="user/manage_profile_picture" class="item">
             <i class="bi bi-person-circle"></i>
             <div class="display-colonne">
                 <strong>Profile Picture</strong>

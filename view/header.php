@@ -1,8 +1,13 @@
 <div class="header">
     <?php if($page == "sales" || $page == "purchases" 
-    || $page == "edit_profile" || $page == "change_password"): ?>
+    || $page == "edit_profile" || $page == "change_password" 
+    || $page == "manage_profile_picture"): ?>
         <div class="header-left">
-            <a href="<?= $pageBefore ?>"><i class="bi bi-arrow-left"></i></a>
+            <?php if (!empty($_SESSION['previous_page'])): ?>
+                <a href="<?= htmlspecialchars($_SESSION['previous_page']) ?>">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
 

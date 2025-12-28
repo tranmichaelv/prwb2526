@@ -9,13 +9,19 @@ body{
 }
 
 .login{
-    background-color:  #555; 
-    padding: 40px 30px;
+    background-color:  #272727dd; 
+    padding: 0 20px;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    width: 350px;
+    width: auto;
     box-sizing: border-box;
     text-align: center;
+}
+
+.login tbody a{
+    font-size: 13px;
+    text-decoration:underline;
+    color: #8b8bff;
 }
 
 .login-page{
@@ -35,10 +41,10 @@ tfoot th{
 .title{
     margin: auto;
     width: auto;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding-bottom: 20px;
     text-align: center;
     font-size: 20px;
+    font-weight: 500;
 }
 
 .signup-page{
@@ -47,6 +53,10 @@ tfoot th{
     flex-direction: column;
     align-items: center; 
     text-align: center;
+}
+
+.login td {
+    padding: 5px 0;
 }
 
 tbody input{
@@ -111,7 +121,7 @@ tbody input{
 
 .header-left,
 .header-right {
-    width: 80px; /* même largeur pour équilibrer */
+    width: 80px; 
 }
 
 .header-center {
@@ -326,6 +336,28 @@ a {
     color: white;
 }
 
+.picture-change h1{
+    color: white;
+    margin: 0;
+    font-size: small;
+}
+
+.picture-change img{
+    margin-bottom: 10px;
+}
+
+.picture-change p{
+    font-size: smaller;
+}
+
+.picture-change{
+    background: #222;
+    border-radius: 5px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
 .account-info h1{
     color: white;
 }
@@ -352,9 +384,6 @@ a {
 }
 
 .section {
-    /* background: #1f2937; */
-    /* border-radius: 14px; */
-    /* padding: 20px; */
     margin-bottom: 24px;
 }
 
@@ -372,12 +401,10 @@ a {
     border-top-right-radius: 5px;
     background: #1f2937;
     margin-bottom: 0px;
-    /* padding-left: 10px;
-    padding-bottom: 1px;
-    padding-top: 1px; */
 }
 
-.section-menu{
+.section-menu,
+.section-menu-input{
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
     background: #222;
@@ -393,8 +420,6 @@ a {
     border-radius: 5px;
     margin: 10px;
     color: rgb(61, 132, 255);
-    /* cursor: pointer; */
-    /* transition: all 0.2s ease; */
   }
 
   .item i{
@@ -511,16 +536,15 @@ a {
 
 .title-purchases-or-sales{
     display: flex;
-    align-items: center;        /* centre verticalement */
+    align-items: center;        
     justify-content: space-between;
-    /* margin-bottom: 20px; */
 }
 
 .purchases-badge {
     background-color: royalblue;
     color: white;
     padding: 8px 18px;
-    border-radius: 999px;       /* forme ovale */
+    border-radius: 999px;       
     font-weight: bold;
     font-size: 14px;
     white-space: nowrap;
@@ -530,7 +554,7 @@ a {
     background-color: green;
     color: white;
     padding: 8px 18px;
-    border-radius: 999px;       /* forme ovale */
+    border-radius: 999px;       
     font-weight: bold;
     font-size: 14px;
     white-space: nowrap;
@@ -540,21 +564,27 @@ a {
     margin-top: 0;
 }
 
-.section-menu p {
+.section-menu p,
+.section-menu-input p{
     margin: 8px 0 4px; 
     font-weight: 500;
-    padding-left: 15px;
     padding-bottom: 5px;
 }
 
-.section-menu p.subtitle {
+.section-menu-input p {
+    padding-left: 15px;
+}
+
+.section-menu p.subtitle,
+.section-menu-input p.subtitle{
     margin: 4px 5px 10px;
     font-size: 13px;
     color: #9ca3af;
     font-weight: normal;
 }
 
-.section-menu input {
+.section-menu input,
+.section-menu-input input{
     display: block;
     width: 97%;        
     background-color: #1a1f2e; 
@@ -568,9 +598,50 @@ a {
     font-size: 16px;
 }
 
+.login input[type="text"],
+.login input[type="password"],
+.login input[type="email"]{
+    width: 90%;
+    background-color: #1a1f2e; 
+    border-radius: 3px;
+    box-sizing: border-box;
+    border: 1px solid rgba(204, 204, 204, 0.2);
+    font-size: 13px;
+    padding: 5px;
+    color: white;
+}
 
-.section-menu input:focus {
+.title i{
+    font-size:x-large;
+    color: lightgrey;
+}
+
+.section-menu input:focus,
+.section-menu-input  input:focus
+.login input:focus{
     border-color: rgba(255, 255, 255, 0.286); 
     box-shadow: 0 0 10px rgba(71, 109, 223, 0.929);
+}
+
+.remove-picture input{
+    border: 5px;
+    background-color: rgb(239, 67, 67);
+    width:auto;
+    margin-bottom: 10px;
+}
+
+.remove-picture p{
+    color: rgb(248, 181, 56);
+    border: 1px solid rgba(255, 166, 0, 0.48);
+    background-color: rgb(52, 41, 21);
+    padding: 10px;
+    border-radius: 5px;
+    margin: 20px;
+}
+
+.section-menu-input .button-upload{
+    background-color: #3b82f6;
+    width:auto;
+    margin-bottom: 10px;
 }
 

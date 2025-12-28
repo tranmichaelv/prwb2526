@@ -5,6 +5,7 @@ require_once "utils/AppTime.php";
 require_once "framework/Controller.php";
 require_once "framework/Configuration.php";
 require_once "ControllerSetup.php";
+require_once "utils/History.php";
 
 class ControllerUser extends Controller {
     
@@ -64,12 +65,19 @@ class ControllerUser extends Controller {
         (new View("change_password"))->show(["user" => $user, "page" =>  $page]);
     }
 
+    public function manage_profile_picture() : void{
+        $user = $this->get_user_or_false();
+        $page = "manage_profile_picture";
+
+        (new View("manage_profile_picture"))->show(["user" => $user, "page" =>  $page]);
+    }
+
     //########################### NOT FINISHED ###########################
     public function signup() : void{
         // Retourne vers la page d'acceuil
         if (isset($_POST['cancel'])) {
-           $this->login();
-           return;
+            $this->redirect("user", "login");
+            return;
         }
 
         $email = '';

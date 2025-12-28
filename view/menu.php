@@ -8,6 +8,6 @@
 <?php else: ?>
     <div class="menu">
         <a href="item/browse"><i class="bi bi-search"></i> Browse</a>
-        <a href="test"><i class="bi bi-house-door"></i> Join Us</a>
+        <a href="user/signup"><i class="bi bi-house-door"></i> Join Us</a>
     </div>
 <?php endif; ?>

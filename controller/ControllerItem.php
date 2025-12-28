@@ -5,6 +5,7 @@ require_once 'model/Item.php';
 require_once 'model/Item_pictures.php';
 require_once "framework/Controller.php";
 require_once "utils/Utils.php";
+require_once "utils/History.php";
 
 class ControllerItem extends Controller {
     public function index() : void {
