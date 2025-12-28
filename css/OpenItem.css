@@ -116,8 +116,172 @@ body {
 }
 
 
+.pricing-container {
+  max-width: 320px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #121212;
+  color: #eee;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.pricing-card {
+  background-color: #1e1e2f;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.6);
+}
+
+.section-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #a0a0a0;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pricing-info {
+  margin-bottom: 12px;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 2px;
+}
+
+.price {
+  font-size: 1.2rem;
+  margin-bottom: 6px;
+}
+
+.price.highlight {
+  color: #20c997; /* vert vif */
+  font-weight: 700;
+}
+
+.starting-at {
+  font-size: 0.85rem;
+  color: #a0a0a0;
+  margin-bottom: 10px;
+}
+
+.bid-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currency {
+  position: absolute;
+  left: 10px;
+  color: #aaa;
+  pointer-events: none;
+  font-size: 1rem;
+}
+
+input[name="new-bid"] {
+  padding-left: 26px;
+  width: 100%;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  height: 36px;
+}
+
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.25s ease;
+}
+
+.btn-primary {
+  background-color: #20c997;
+  color: #121212;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #1aa374;
+}
+
+.btn-outline-primary {
+  background-color: transparent;
+  color: #228be6;
+  border: 2px solid #228be6;
+}
+
+.btn-outline-primary:hover {
+  background-color: #228be6;
+  color: #121212;
+}
+
+.btn:disabled,
+.btn[disabled] {
+  background-color: #555 !important;
+  cursor: not-allowed;
+  color: #bbb;
+}
+
+.buy-now-btn {
+  display: block;
+  margin-top: 8px;
+}
+
+.seller-info {
+  background-color: #2a2a3c;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.seller-details {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.seller-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #444; /* placeholder gris */
+  object-fit: cover;
+}
+
+.seller-name {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+
+.seller-role {
+  font-size: 0.8rem;
+  color: #a0a0a0;
+}
+
+.warning-message {
+  margin-top: 10px;
+  color: #ff6b6b;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
 
 
+/*
 .right-container {
     flex: 0 0 25%;
     max-width: 40%;
@@ -125,7 +289,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 50vh;
+    height: 60vh;
     gap: 1rem;
     border: rgb(254, 254, 254) solid 1px;
 }

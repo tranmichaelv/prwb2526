@@ -93,64 +93,115 @@
 
 <!-- right container -->
     <div class="right-container d-flex flex-column gap-4 "> 
-        <section class="pricing-container">
-            <!-- pricing-container -->
-                
-            <h6> Pricing </h6>
-            <div class="pricing-content">
-                <?php //if (!empty($errors)): ?>
-                    <?php //foreach($errors as $err) : ?>
-                        <p class="text-warning"><?php //echo $err?></p>
-                    <?php //endforeach;?>  
-                <?php //endif?>
 
-                <div>
-                    <?php if (!$bid_is_closed && !$connected_user_is_owner && !$has_buy_now && !$has_bids) : ?> 
-                        
-                    <?php endif;?>    
-                    
-                    <?php if($current_bid != false) : ?>
-                    <p>Current Bid <?= "€".$current_bid->current_bid; ?></p>
-                    <p> Starting at <?= "€".$current_bid->starting_bid; ?></p>
-                    <?php endif;?>    
-                </div>   
-                
-                <div>
-                    <form action="" method="post">
-                        <input type="text" name="new-bid">
-                        <button type="submit" name="place-bid"> Place Bid </button>
-                        <button type="submit" name="Buy-now-at"> Buy Now at € <?php echo $current_bid->buy_now_price; ?></button>
+        <div class="pricing-container">
+            <?php if (!$bid_is_closed && !$user_is_owner && !$is_direct_sale && !$has_bids) : ?>
+            <!-- Cas 1 : Annonce ouverte, utilisateur non créateur, pas d'enchère, pas de Buy Now -->
+                <div class="pricing-card open no-bid no-buynow">
+                    <h6 class="section-title">Pricing</h6>
+                    <div class="pricing-info">
+                    <p class="label">Current Bid</p>
+                    <p class="price highlight">€149,00</p>
+                    <p class="starting-at">Starting at €149,00</p>
+                    </div>
+                    <form class="bid-form">
+                    <div class="input-group">
+                        <span class="currency">€</span>
+                        <input type="number" name="new-bid" min="0" step="1" value="149" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Place Bid</button>
                     </form>
+
+                    <div class="seller-info">
+                    <h6 class="section-title">Seller Information</h6>
+                    <div class="seller-details">
+                        <div class="seller-avatar"></div>
+                        <div>
+                        <p class="seller-name">Quentin</p>
+                        <p class="seller-role">Member</p>
+                        </div>
+                    </div>
+                    </div>
                 </div>
-            </div>
-            <br><br>
-            <div>
-                <h6>Seller information</h6>
-                <div class="seller-info-container ">
-                    <?php if ($seller) : ?>
-                    <p> <?= $seller['pseudo'];?> </p>
-                    <p><?= $seller['role'];?></p>
-                    <?php endif ?>
+            <?php elseif (!$bid_is_closed && !$user_is_owner && $has_bids && !$buy_now_reached) :?>    
+                <!-- Cas 2 : Annonce ouverte, utilisateur non créateur, enchères existantes, Buy Now non atteint -->
+                <div class="pricing-card open bid-exists buynow-available">
+                    <h6 class="section-title">Pricing</h6>
+                    <div class="pricing-info">
+                    <p class="label">Current Bid</p>
+                    <p class="price highlight">€162,00</p>
+                    <p class="label">Buy Now</p>
+                    <p class="price">€275,00</p>
+                    </div>
+                    <form class="bid-form">
+                    <div class="input-group">
+                        <span class="currency">€</span>
+                        <input type="number" name="new-bid" min="163" step="1" value="163" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Place Bid</button>
+                    <button type="button" class="btn btn-outline-primary buy-now-btn">Buy Now at €275,00</button>
+                    </form>
 
+                    <div class="seller-info">
+                    <h6 class="section-title">Seller Information</h6>
+                    <div class="seller-details">
+                        <div class="seller-avatar"></div>
+                        <div>
+                        <p class="seller-name">Xavier</p>
+                        <p class="seller-role">Member</p>
+                        </div>
+                    </div>
+                    </div>
                 </div>
+            <?php elseif (!$bid_is_closed && !$user_is_owner && $is_direct_sale ) :?>    
+                <!-- Cas 3 : Annonce ouverte, utilisateur non créateur, vente directe uniquement -->
+                <div class="pricing-card open direct-sale-only">
+                    <h6 class="section-title">Pricing</h6>
+                    <div class="pricing-info">
+                    <p class="label">Price</p>
+                    <p class="price highlight">€451,00</p>
+                    </div>
+                    <button type="button" class="btn btn-primary buy-now-btn">
+                    <span class="icon-cart">🛒</span> Buy now
+                    </button>
 
-                <p style="font-size: 20px; color: blueviolet;"> 
-                    <?php echo $connected_user_is_owner ? 'user est le owner' : 'user est pas le owner';?>
-                    <?php echo $bid_is_closed ? 'enchère fermée' : 'enchère pas encore fermée';?>
-                </p>
-            </div>
+                    <div class="seller-info">
+                    <h6 class="section-title">Seller Information</h6>
+                    <div class="seller-details">
+                        <div class="seller-avatar"></div>
+                        <div>
+                        <p class="seller-name">Quentin</p>
+                        <p class="seller-role">Member</p>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            <?php elseif (!$bid_is_closed && $user_is_owner) :?>
+                <!-- Cas 4 : Annonce ouverte, utilisateur créateur -->
+                <div class="pricing-card open owner-view">
+                    <h6 class="section-title">Pricing</h6>
+                    <div class="pricing-info">
+                    <p class="label">Price</p>
+                    <p class="price highlight">€418,00</p>
+                    </div>
+                    <button type="button" class="btn btn-primary buy-now-btn" disabled>
+                    <span class="icon-cart">🛒</span> Buy now
+                    </button>
+                    <p class="warning-message">You cannot bid on your own listing.</p>
 
-        </section>
-        
-
-        <section>
-            <!-- Seller-info-container -->
-            <div>
-
-            </div>
-
-        </section>
-
+                    <div class="seller-info">
+                    <h6 class="section-title">Seller Information</h6>
+                    <div class="seller-details">
+                        <img src="avatar-boris.png" alt="Boris avatar" class="seller-avatar" />
+                        <div>
+                        <p class="seller-name">Boris</p>
+                        <p class="seller-role">Member</p>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            <?php endif;?>    
+        </div>
     </div>
                     
 <!-- right container : 

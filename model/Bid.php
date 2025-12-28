@@ -81,6 +81,7 @@ class Bid extends Model {
         return $bids ?? null;
     } 
 
+
       
 
 
@@ -111,6 +112,32 @@ class Bid extends Model {
         }
     }
 
+    public static function bid_is_closed($id) : bool {
+
+        $query = self::execute(
+            "SELECT v.*
+            FROM v_items_status v
+            WHERE v.id = :id
+                AND (v.not_purchased_direct_sale
+                    OR (v.is_auction
+                    AND v.end_at > :now
+                    AND (NOT v.has_buy_now OR NOT v.buy_now_reached)) 
+                    );",
+            ['now' => AppTime::get_current_datetime(), "id" => $id]
+        );
+
+        $query->fetchAll();
+
+        if ($query->rowCount() !== 0) {
+            return false;
+        } 
+        return true;
+    }
+
+    public static function user_is_owner_by_item_id($id) /*: bool*/ {
+
+        
+    }
     
     /*
     public static function get_current_bid_by_item_id_original($id) : ?Bid {
