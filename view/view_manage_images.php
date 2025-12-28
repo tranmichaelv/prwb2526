@@ -13,13 +13,14 @@
  <div class="container">
 
     <h1>Manage Images</h1>
-    <p class="subtitle">Manage Images for "<?$item->get_title()?>"</p>
+    <p class="subtitle">Manage Images for "<?= $item->get_title()?>"</p>
 
     
     <div class="card">
         <h2>Add New Images</h2>
         <form method="post"
-              action="item/upload_images/<?= $item->get_id()?>">
+              action="item/upload_images/<?= $item->get_id()?>"
+             enctype="multipart/form-data">
             
             <label class="small">Select Images</label>
             <input type ="file" name="images[]" multiple
@@ -36,6 +37,8 @@
     <div class="card">
 
     <h2>Current Images</h2>
+
+             <?php $maxPriority = count($pictures); ?>
 
              <div class="grid">
                 <?php foreach ($pictures as $p): ?>
