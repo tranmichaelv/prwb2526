@@ -43,6 +43,74 @@ class ControllerUser extends Controller {
         (new View("login"))->show(["email" => $email, "password" => $password, "errors" => $errors]);
     }
 
+    public function updateProfile() {
+        $user = $this->get_user_or_false();
+        $page = "edit_profile";
+
+        // echo '<pre>'; print_r($_POST); echo '</pre>'; die();
+
+        $fullName = $_POST['full_name'] ?? $user->getFullName();
+        $username = $_POST['username'] ?? $user->getPseudo();
+        $email    = $_POST['email'] ?? $user->getEmail();
+        $iban     = $_POST['iban'] ?? $user->getIban();
+
+        // print_r($username);
+        // die();
+        
+        $errors = [
+            "full_name" => [],
+            "username"  => [],
+            "email"     => [],
+            "iban"      => []
+        ];
+
+        if ($fullName !== $user->getFullName()) {
+            $errors["full_name"] = $user->validate_full_name($fullName);
+
+            if (empty($errors["full_name"])) {
+                $user->setFullName($fullName);
+            }
+        }
+        
+        if ($username !== $user->getPseudo()) {
+            $errors["username"] = $user->validate_username($username);
+
+            if (empty($errors["username"])) {
+                $user->setPseudo($username);
+            }
+        }
+        
+        if ($email !== $user->getEmail()) {
+            $errors["email"] = $user->validate_email($email);
+
+            if (empty($errors["email"])) {
+                $user->setEmail($email);
+            }
+        }
+        
+        if ($iban !== $user->getIban()) {
+            $errors["iban"] = $user->validate_iban($iban);
+
+            if (empty($errors["iban"])) {
+                $user->setIban($iban);
+            }
+        }
+
+        $hasErrors = false;
+        foreach ($errors as $fieldErrors) {
+            if (!empty($fieldErrors)) {
+                $hasErrors = true;
+            }
+        }
+        
+        if(!$hasErrors){
+            $user->persist();
+            $this->redirect("user", "profile");
+        }
+        
+        (new View("edit_profile"))->show(["user" => $user, "page" =>  $page, "errors" => $errors]);
+    }
+
     public function profile() : void{
         $user = $this->get_user_or_false();
         $page = "profile";
@@ -99,25 +167,25 @@ class ControllerUser extends Controller {
     // -------- For Debug Purpose --------
     public function loginAsQuentin() : void{
         Configuration::is_dev();
-        $user = User::get_user_by_pseudo("Quentin"); 
+        $user = User::get_users_by_pseudo("Quentin"); 
         $this->log_user($user);
     }
 
     public function loginAsBoris() : void{
         Configuration::is_dev();
-        $user = User::get_user_by_pseudo("Boris"); 
+        $user = User::get_users_by_pseudo("Boris"); 
         $this->log_user($user);
     }
 
     public function loginAsMarc() : void{
         Configuration::is_dev();
-        $user = User::get_user_by_pseudo("Marc"); 
+        $user = User::get_users_by_pseudo("Marc"); 
         $this->log_user($user);
     }
 
     public function loginAsXavier() : void{
         Configuration::is_dev();
-        $user = User::get_user_by_pseudo("Xavier"); 
+        $user = User::get_users_by_pseudo("Xavier"); 
         $this->log_user($user);
     }
 }

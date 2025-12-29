@@ -645,3 +645,7 @@ a {
     margin-bottom: 10px;
 }
 
+.section-menu-input .error li {
+    color: red;
+    font-size: 13px;
+}

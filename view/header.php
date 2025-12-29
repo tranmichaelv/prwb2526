@@ -3,11 +3,9 @@
     || $page == "edit_profile" || $page == "change_password" 
     || $page == "manage_profile_picture"): ?>
         <div class="header-left">
-            <?php if (!empty($_SESSION['previous_page'])): ?>
-                <a href="<?= htmlspecialchars($_SESSION['previous_page']) ?>">
-                    <i class="bi bi-arrow-left"></i>
-                </a>
-            <?php endif; ?>
+            <a href="<?= $pageBefore ?>">
+                <i class="bi bi-arrow-left"></i>
+            </a>
         </div>
     <?php endif; ?>
 
@@ -17,7 +15,9 @@
 
     <?php if($page == "edit_profile" || $page == "change_password"): ?>
         <div class="header-right">
-            <a href=""><i class="bi bi-floppy"></i></a>
+            <a href="#" onclick="document.getElementById('editProfileForm').submit(); return false;">
+                <i class="bi bi-floppy"></i>
+            </a>
         </div>
     <?php endif; ?>
 </div>

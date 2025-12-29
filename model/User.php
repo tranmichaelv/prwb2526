@@ -32,18 +32,44 @@ class User extends Model {
     
     public function getIban(): ?string { return $this->iban; }
 
-    // public function persist() : User {
-    //     if(self::get_users_by_pseudo($this->pseudo))
-    //         self::execute("UPDATE users SET full_name=:full_name, email=:email; pseudo=:pseudo, password=:password, role=:role, picture_path=:picture, iban=:iban WHERE pseudo=:pseudo ", 
-    //                       ["full_name"=>$this->full_name, "email"=>$this->email, "pseudo"=>$this->pseudo, "picture"=>$this->picture_path, "password"=>$this->hashed_password, "iban"=>$this->iban]);
-    //     else
-    //         self::execute("INSERT INTO users(full_name, email, pseudo, password, role, picture_path, iban) VALUES(:pseudo,:password,:profile,:picture_path)", 
-    //                       ["full_name"=>$this->full_name, "email"=>$this->email, "pseudo"=>$this->pseudo, "picture"=>$this->picture_path, "password"=>$this->hashed_password, "iban"=>$this->iban]);
-    //     return $this;
-    // }
+    // -------- Setters --------
 
-    public static function get_user_by_pseudo(string $pseudo) : User|false {
+    public function setFullName(string $full_name): void { $this->full_name = $full_name; }
+    
+    public function setEmail(string $email): void { $this->email = $email; }
+    
+    public function setPseudo(string $pseudo): void { $this->pseudo = $pseudo; }
+    
+    public function setHashedPassword(string $hashed_password): void { $this->hashed_password = $hashed_password; }
+    
+    public function setRole(string $role): void{ $this->role = $role; }
+    
+    public function setPicturePath(?string $picture_path): void { $this->picture_path = $picture_path; }
+    
+    public function setIban(?string $iban): void { $this->iban = $iban; }
+
+    public function persist() : User {
+        if(self::get_users_by_id($this->id))
+            self::execute("UPDATE users SET full_name=:full_name, email=:email, pseudo=:pseudo, password=:password, role=:role, picture_path=:picture_path, iban=:iban WHERE id=:id ", 
+                          ["id"=>$this->id, "full_name"=>$this->full_name, "email"=>$this->email, "pseudo"=>$this->pseudo, "picture_path"=>$this->picture_path, "password"=>$this->hashed_password, "role"=>$this->role, "iban"=>$this->iban]);
+        else
+            self::execute("INSERT INTO users(full_name, email, pseudo, password, role, picture_path, iban) VALUES(:pseudo,:password,:profile,:picture_path)", 
+                          ["full_name"=>$this->full_name, "email"=>$this->email, "pseudo"=>$this->pseudo, "picture_path"=>$this->picture_path, "password"=>$this->hashed_password, "role"=>$this->role, "iban"=>$this->iban]);
+        return $this;
+    }
+
+    public static function get_users_by_pseudo(string $pseudo) : User|false {
         $query = self::execute("SELECT * FROM users where pseudo = :pseudo", ["pseudo"=>$pseudo]);
+        $data = $query->fetch(); // un seul résultat au maximum
+        if ($query->rowCount() == 0) {
+            return false;
+        } else {
+            return new User($data["id"], $data["full_name"], $data["email"], $data["pseudo"], $data["password"], $data["role"], $data["picture_path"], $data["iban"]);
+        }
+    }
+
+    public static function get_users_by_email(string $email) : User|false {
+        $query = self::execute("SELECT * FROM users where email = :email", ["email"=>$email]);
         $data = $query->fetch(); // un seul résultat au maximum
         if ($query->rowCount() == 0) {
             return false;
@@ -134,14 +160,24 @@ class User extends Model {
     //     return $errors;
     // }
     
-    // public static function validate_unicity(string $pseudo) : array {
-    //     $errors = [];
-    //     $member = self::get_users_by_pseudo($pseudo);
-    //     if ($member) {
-    //         $errors[] = "This user already exists.";
-    //     } 
-    //     return $errors;
-    // }
+    public static function validate_unicity_pseudo(string $pseudo) : array {
+        $errors = [];
+        $member = self::get_users_by_pseudo($pseudo);
+        if ($member) {
+            $errors[] = "This user already exists.";
+        } 
+        return $errors;
+    }
+
+    public static function validate_unicity_email(string $email) : array {
+        $errors = [];
+        $member = self::get_users_by_email($email);
+        if ($member) {
+            $errors[] = "This email already exists.";
+        } 
+        return $errors;
+    }
+    
 
     private static function check_password(string $clear_password, string $hash) : bool {
         return password_verify($clear_password, $hash);
@@ -190,6 +226,79 @@ class User extends Model {
                                 and  b.owner = :owner;", ["itemId"=>$item->getId(), "owner"=>$this->getId()]);
         $result = $query->fetchAll();
         return !empty($result);
+    }
+
+    public static function validate_username(string $username): array {
+        $errors = [];
+
+        if ($username === '') {
+            $errors[] = "Username is required.";
+            return $errors;
+        }
+
+        // Longueur
+        if (strlen($username) < 3 || strlen($username) > 30) {
+            $errors[] = "Username must be between 3 and 30 characters.";
+        }
+
+        // Unicité
+        $errors = array_merge(
+            $errors,
+            self::validate_unicity_pseudo($username)
+        );
+        return $errors;
+    }
+
+    public static function validate_full_name(string $fullName): array {
+        $errors = [];
+
+        if ($fullName === '') {
+            $errors[] = "Full name is required.";
+            return $errors;
+        }
+
+        // Longueur
+        if (strlen($fullName) < 3 ) {
+            $errors[] = "Full name must have more than 3 characters.";
+        }
+
+        return $errors;
+    }
+
+    public static function validate_email(string $email): array {
+        $errors = [];
+
+        if ($email === '') {
+            $errors[] = "Email is required.";
+            return $errors;
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Must be a valid email address.";
+        }
+    
+
+        return $errors;
+    }
+
+    public static function validate_iban(string $iban): array {
+        $errors = [];
+
+        if (!empty($iban)) {
+            $iban = str_replace(" ", "",$iban);
+
+            $len = strlen($iban);
+            // if ($len < 14 || $len > 34) {
+            //     $errors[] = "IBAN must be between 14 and 34 characters.";
+            // }
+
+            if (!preg_match('/^[A-Z]{2}[0-9]{2}[A-Z0-9]+$/', $iban) || ($len < 14 || $len > 34)) {
+                $errors[] = "IBAN format is invalid.";
+            }
+        }
+    
+
+        return $errors;
     }
 
     // public static function validate_photo(array $file) : array {
