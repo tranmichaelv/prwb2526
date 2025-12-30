@@ -415,4 +415,83 @@ class Item extends Model {
     }
 
 
+    /*========  Renvoie un Objet Item grace à l'ID fourni  ========*/
+    public static function get_item_by_id($id) : ?Item {
+        
+        $error = [];
+        $query = self::execute("SELECT * FROM v_items_status WHERE id = :id", 
+        ['id' => $id]
+        );
+        $Item = $query->fetch(); 
+
+        if ($query->rowCount() == 0){
+            return null;
+        } else {
+            return new Item(
+                $Item["id"], 
+                $Item["title"], 
+                $Item["description"],
+                $Item["owner"],  
+                $Item["created_at"],
+                $Item["duration_days"], 
+                $Item["end_at"],
+                $Item["bid_count"],
+                $Item["is_direct_sale"], 
+                $Item["is_auction"],
+                $Item["has_buy_now"],
+                $Item["has_bids"],
+                $Item["buy_now_reached"],
+                $Item["not_purchased_direct_sale"],
+                $Item["buy_now_price"],
+                $Item["starting_bid"],
+                $Item["max_bid"] 
+            );
+        }
+    }
+
+
+    /*====== L'image principale =======*/
+    public function get_main_picture_by_item_id() : ?string {
+        
+        $query = self::execute(
+
+            "SELECT ip.picture_path
+            FROM item_pictures ip 
+            WHERE ip.item = :id 
+            ORDER BY ip.priority ASC", 
+
+            ['id' => $this->id]
+        );
+
+        $results = $query->fetch();
+
+        if ($query->rowCount() == 0) {
+            //$error [] = "Acune image pour cet Item !!"; // tmp pas sur d'avoir besoin de cette erreur
+            return null;
+        } else {
+            return $results["picture_path"];
+        }
+    }
+
+
+    /*===== Images secondaires  *Additional images*  ======*/
+    public function get_all_pictures_by_item_id() : ?array {
+        
+        $query = self::execute(
+            "SELECT ip.picture_path
+            FROM item_pictures as ip
+            WHERE ip.item = :id
+            ORDER BY ip.priority ASC",
+            ['id' => $this->id]
+        );
+
+        $results = $query->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($query->rowCount() == 0) {
+            return null;
+        } else {
+            return $results;
+        } 
+    }
+    
 }

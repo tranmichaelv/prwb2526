@@ -33,13 +33,13 @@
 
             <div class="item-infos">
                 <p>
-                    <h2> <?php echo $item->title; ?></h2>
+                    <h2> <?= $item->getTitle(); ?> </h2>
                 </p>
-                <p> <?php echo $item->description; ?></p>
+                <p> <?= $item->getDescription(); ?></p>
 
                 <div class="startEndBid">
-                    <p> start : <?php echo $item->created_at ?></p>
-                    <p> End : <?php echo $item->end_at ?></p>
+                    <p> start : <?= $item->getCreatedAt(); ?></p>
+                    <p> End : <?= $item->getEndAt(); ?></p>
                 </div>
             </div>
         </section>
