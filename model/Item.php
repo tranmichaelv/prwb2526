@@ -1,117 +1,418 @@
-<?php 
+<?php
 
 require_once "framework/Model.php";
+require_once "Bids.php";
 
 class Item extends Model {
-
+    // -------- Constructeur --------
     public function __construct(
-        public int $id,
-        public string $title, 
-        public string $description,
-        public int $owner, 
-        public string $created_at,
-        public ?string $buy_now_price,
-        public int $duration_days,
-        public float $starting_bid,
-        public string $end_at,
-        public int $bid_count,
-        public ?int $max_bid,
-        public bool $is_direct_sale,
-        public bool $is_auction,
-        public bool $has_buy_now,
-        public bool $has_bids,
-        public bool $has_now_reached,
-        public bool $not_purchased_direct_sale,
+        private int $id,
+        private string $title,
+        private string $description,
+        private int $owner,
+        private string $created_at,
+        private int $duration_days,
+        private string $end_at,
+        private int $bid_count,
+        private bool $is_direct_sale,
+        private bool $is_auction,
+        private bool $has_buy_now,
+        private bool $has_bids,
+        private bool $buy_now_reached,
+        private bool $not_purchased_direct_sale,
+        private ?string $buy_now_price = null,
+        private ?string $starting_bid = null,
+        private ?string $max_bid = null,
+        private array $pictures = []
+    ) {}
 
-        public ?string $main_picture = null,
-        public array $pictures =  []
-    ){}
+    // -------- Getters --------
+    public function getId(): int { return $this->id; }
 
+    public function getTitle(): string { return $this->title; }
 
-    // static et dois retourner un objet de type item
-    // utiliser la vue au lieu de la table pour récup le max d'infos sur un item
+    public function getDescription(): string { return $this->description; }
 
-    public static function get_item_by_id($id) : ?Item {
-        
-        $error = [];
-        $query = self::execute("SELECT * FROM v_items_status WHERE id = :id", 
-        ['id' => $id]
-        );
-        $Item = $query->fetch(); 
+    public function getOwner(): int { return $this->owner; }
 
-        if ($query->rowCount() == 0){
-            return null;
-        } else {
-            return new Item(
-                $Item["id"], 
-                $Item["title"], 
-                $Item["description"],
-                $Item["owner"], // je dois peut etre l'enlever car je gère ca dans User et je renvoi juste le owner comme un objets indépendant  
-                $Item["created_at"],
-                $Item["buy_now_price"],
-                $Item["duration_days"], 
-                $Item["starting_bid"],
-                $Item["end_at"],
-                $Item["bid_count"],
-                $Item["max_bid"], 
-                $Item["is_direct_sale"], 
-                $Item["is_auction"],
-                $Item["has_buy_now"],
-                $Item["has_bids"], 
-                $Item["buy_now_reached"],
-                $Item["not_purchased_direct_sale"] 
+    public function getCreatedAt(): string { return $this->created_at; }
+
+    public function getDurationDays(): int { return $this->duration_days; }
+
+    public function getBuyNowPrice(): ?string { return $this->buy_now_price; }
+
+    public function getStartingBid(): ?string { return $this->starting_bid; }
+
+    public function getPictures(): array { return $this->pictures; }
+
+    public function getEndAt(): string { return $this->end_at; }
+
+    public function getBidCount(): int { return $this->bid_count; }
+
+    public function getMaxBid(): string { return $this->max_bid; }
+
+    public function isDirectSale(): bool { return $this->is_direct_sale; }
+
+    public function isAuction(): bool { return $this->is_auction; }
+
+    public function hasBuyNow(): bool { return $this->has_buy_now; }
+
+    public function hasBids(): bool { return $this->has_bids; }
+
+    public function isBuyNowReached(): bool { return $this->buy_now_reached; }
+
+    public function isNotPurchasedDirectSale(): bool{ return $this->not_purchased_direct_sale; }
+
+    public function setPictures(array $pictures): void { $this->pictures = $pictures; }
+
+    // -------- Tout les items disponible --------
+    public static function get_all_items(): array{
+        $query = self::execute("SELECT v.*, p.*
+                                FROM v_items_status v
+                                    join item_pictures p on p.item = v.id
+                                where v.end_at > :end_date 
+                                and (
+                                        ( is_direct_sale = 1
+                                            AND not_purchased_direct_sale = 1)
+                                        OR
+                                        ( is_auction = 1
+                                            AND buy_now_reached = 0)
+                                    )
+                                ORDER BY end_at ASC;",
+                                ["end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]);
+        $data = $query->fetchAll();
+        return self::fetch_items($data);
+    }
+
+    // -------- "Items I'm Participating in" --------
+    public static function get_bids_items_from_user(int $userId): array{
+        $query = self::execute("SELECT v.*, p.*
+                                FROM v_items_status v 
+	                                join item_pictures p on p.item = v.id
+                                    join bids b on b.item = v.id
+                                where end_at > :end_date
+                                and b.owner = :owner 
+                                and (
+                                        ( is_direct_sale = 1
+                                            AND not_purchased_direct_sale = 1)
+                                        OR
+                                        ( is_auction = 1
+                                            AND buy_now_reached = 0)
+                                    )
+                                order by end_at;"
+                                ,["owner"=>$userId, "end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]);
+    
+        $data = $query->fetchAll();
+        return self::fetch_items($data);
+    }
+
+    // -------- "Other Available Items" --------
+    public static function get_other_items_from_user(int $userId): array{
+        $query = self::execute("SELECT v.*, p.*
+                                FROM v_items_status v
+	                                join item_pictures p on p.item = v.id
+                                where end_at > :end_date
+                               -- Exclure items sur lesquels l'utilisateur a déjà bid
+                                AND NOT EXISTS (
+                                    SELECT 1 
+                                    FROM bids b1
+                                    WHERE b1.item = v.id
+                                    AND b1.owner = :owner
+                                )
+                                and (
+                                        ( is_direct_sale = 1
+                                            AND not_purchased_direct_sale = 1)
+                                        OR
+                                        ( is_auction = 1
+                                            AND buy_now_reached = 0)
+                                    )
+                                order by end_at;"
+                                ,["owner"=>$userId, "end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]);
+    
+        $data = $query->fetchAll();
+        return self::fetch_items($data);
+    }
+
+    // -------- Transforme les requêtes SQL en Object 'Item' --------
+    public static function fetch_items(array $data): array{
+        $items = [];
+        foreach ($data as $row) {
+            $item_id = $row['id'];
+    
+            // Intialise si c'est la premiere fois
+            if (!isset($items[$item_id])) {
+                $items[$item_id] = [
+                    'id'            => $row['id'],
+                    'title'         => $row['title'],
+                    'description'   => $row['description'],
+                    'owner'         => $row['owner'],
+                    'created_at'    => $row['created_at'],
+                    'duration_days' => $row['duration_days'],
+                    'end_at'        => $row['end_at'],
+                    'bid_count'     => $row['bid_count'],
+                    'is_direct_sale'=> (bool) $row['is_direct_sale'],
+                    'is_auction'    => (bool) $row['is_auction'],
+                    'has_buy_now'   => (bool) $row['has_buy_now'],
+                    'has_bids'      => (bool) $row['has_bids'],
+                    'buy_now_reached' => (bool) $row['buy_now_reached'],
+                    'not_purchased_direct_sale'  => (bool) $row['not_purchased_direct_sale'],
+
+                    'buy_now_price' => $row['buy_now_price'],
+                    'starting_bid'  => $row['starting_bid'],
+                    'max_bid'       => $row['max_bid'],
+                    'pictures'      => []
+                ];
+            }
+    
+            
+            // Ajouter les images
+            $items[$item_id]['pictures'][] = [
+                    "path"     => $row["picture_path"],
+                    "priority" => $row["priority"]
+            ];
+            
+        }
+    
+        // Converti en objets Item
+        $results = [];
+        foreach ($items as $item) {
+            $results[] = new Item(
+                $item['id'],
+                $item['title'],
+                $item['description'],
+                $item['owner'],
+                $item['created_at'],
+                $item['duration_days'],
+                $item['end_at'],
+                $item['bid_count'],
+                $item['is_direct_sale'],
+                $item['is_auction'],
+                $item['has_buy_now'],
+                $item['has_bids'],
+                $item['buy_now_reached'],
+                $item['not_purchased_direct_sale'],
+                Utils::convert_format_number_for_bids($item['buy_now_price']),
+                Utils::convert_format_number_for_bids($item['starting_bid']),
+                Utils::convert_format_number_for_bids($item['max_bid']),
+                $item['pictures']
             );
         }
+
+        // print_r($results);
+        // die();
+        return $results;
     }
 
 
-    // faire plusieurs model ou faire une seul model Item et définir toute les méthodes nécéssaires 
+    public function get_highest_bidder_id() : ?int{
+        return Bids::get_highest_bidder_from_item($this->getId());
+    }
 
-    // d'abord gérer les images, recup que l'image principal et plus le reste 
 
-    public static function get_main_picture_by_item_id($id) : ?string {
+    // -------- "My Active Items" --------
+    public static function get_user_items(int $userId) : array {
+        $query = self::execute("SELECT v.*, p.*
+                                FROM v_items_status v
+                                    join users u on u.id = v.owner
+                                    join item_pictures p on p.item = v.id
+                                where end_at > :current_date
+                                and u.id = :id
+                                and v.id not in(SELECT v.id
+                                                from v_items_status v
+                                                where v.max_bid = v.buy_now_price)
+                                order by end_at;"
+                                ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
         
-        $query = self::execute(
+        $data = $query->fetchAll();
+        return self::fetch_items($data);
+    }
 
-            "SELECT ip.picture_path
-            FROM item_pictures ip 
-            WHERE ip.item = :id 
-            ORDER BY ip.priority ASC", 
+    // -------- "My Closed Unsold Items" --------
+    public static function get_user_closed_unsold_items(int $userId) : array {
+        $query = self::execute("SELECT v.*, p.*
+                                FROM v_items_status v
+                                    join users u on u.id = v.owner
+                                    join item_pictures p on p.item = v.id
+                                where end_at <= :current_date
+                                and u.id = :id 
+                                and v.has_bids = false 
+                                and v.id not in(SELECT v.id
+                                                from v_items_status v
+                                                where v.max_bid = v.buy_now_price)
+                                order by end_at;"
+                                ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+        
+        $data = $query->fetchAll();
+        return self::fetch_items($data);
+    }
 
-            ['id' => $id]
-        );
+    // -------- "My Sold Items" --------
+    public static function get_user_sold_items(int $userId) : array {
+        $query = self::execute("SELECT v.*, p.*
+                                FROM v_items_status v
+                                    join users u on u.id = v.owner
+                                    join item_pictures p on p.item = v.id
+                                where end_at <= :current_date
+                                and u.id = :id
+                                and v.has_bids != false
+                                or v.id in(SELECT v.id
+                                                from v_items_status v
+                                                    join users u on u.id = v.owner
+                                                where v.max_bid = v.buy_now_price
+                                                and u.id = :id)
+                                order by end_at;"
+                                ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+    
+        $data = $query->fetchAll();
+        return self::fetch_items($data);
+    }
 
-        $results = $query->fetch();
+    public function getTimeLeft() : array{
+        return Utils::get_time_left($this->getEndAt(), $this->getDurationDays());
+    }
 
-        if ($query->rowCount() == 0) {
-            $error [] = "Acune image pour cet Item !!"; // tmp pas sur d'avoir besoin de cette erreur
-            return null;
-        } else {
-            return $results["picture_path"];
+
+    public function getOwnerName() : string {
+        $query = self::execute("select u.pseudo
+                                from items i 
+                                    join users u on u.id = i.owner
+                                where i.id = :id", ["id"=>$this->getId()]);
+        $data = $query->fetch();
+        return $data['pseudo'];                       
+    }
+
+    // -------- "My Purchases" --------
+    public static function get_user_purchases(int $userId) : array {
+        $query = self::execute("SELECT v.*, p.*
+                                FROM v_items_status v
+                                    join item_pictures p on p.item = v.id
+                                    join bids b on b.item = v.id and v.max_bid = b.amount
+                                where ((v.end_at <= :current_date and v.bid_count > 0)
+                                or (( v.is_direct_sale = 1
+                                    AND v.not_purchased_direct_sale = 0)
+                                    OR
+                                    ( v.is_auction = 1
+                                    AND v.buy_now_reached = 1))) 
+                                and b.owner = :id;"
+                                ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+        
+        $data = $query->fetchAll();
+        return self::fetch_items($data);
+    }
+
+    // -------- "TOTAL SPENT $$ AVERAGE TICKET PURCHASES" --------
+    public static function get_total_and_average_of_purchases(int $userId) : array {
+        $query = self::execute("SELECT sum(v.max_bid) as total, avg(v.max_bid) as average, count(*) as number_of_purchases
+                                FROM v_items_status v
+                                    join bids b on b.item = v.id and v.max_bid = b.amount
+                                where ((v.end_at <= :current_date and v.bid_count > 0)
+                                or (( v.is_direct_sale = 1
+                                    AND v.not_purchased_direct_sale = 0)
+                                    OR
+                                    ( v.is_auction = 1
+                                    AND v.buy_now_reached = 1))) 
+                                and b.owner = :id;"
+                                ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+        
+        $data = $query->fetchAll();
+        $result = [];
+        foreach ($data as $row) {
+            $result[] = [
+                "total" => Utils::convert_format_number_for_bids((float)$row["total"]),
+                "average" => Utils::convert_format_number_for_bids((float)$row["average"]),
+                "number_of_purchases" => (int)$row["number_of_purchases"]
+            ];
         }
+        return $result;
+    }
+
+    // -------- "TOP SELLER" --------
+    public static function get_top_seller(int $userId) : string {
+        $query = self::execute("SELECT u.pseudo
+                                FROM v_items_status v
+                                    join users u on u.id = v.owner
+                                    join bids b on b.item = v.id and v.max_bid = b.amount
+                                where ((v.end_at <= :current_date and v.bid_count > 0)
+                                or (( v.is_direct_sale = 1
+                                    AND v.not_purchased_direct_sale = 0)
+                                    OR
+                                    ( v.is_auction = 1
+                                    AND v.buy_now_reached = 1))) 
+                                and b.owner = :id
+                                group by u.id, u.pseudo
+                                Limit 1;"
+                                ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+        
+        $data = $query->fetch();
+        return $data["pseudo"];
+    }
+
+    // -------- "My Completed Sales" --------
+    public static function get_user_completed_sales(int $userId) : array {
+        $query = self::execute("SELECT v.*, p.*
+                                FROM v_items_status v
+                                    join item_pictures p on p.item = v.id
+                                    join bids b on b.item = v.id and v.max_bid = b.amount
+                                where ((v.end_at <= :current_date and v.bid_count > 0)
+                                or (( v.is_direct_sale = 1
+                                    AND v.not_purchased_direct_sale = 0)
+                                    OR
+                                    ( v.is_auction = 1
+                                    AND v.buy_now_reached = 1))) 
+                                and v.owner = :id;"
+                                ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+        
+        $data = $query->fetchAll();
+        return self::fetch_items($data);
     }
 
 
-    // recup toutes les images 
-    public static function get_all_pictures_by_item_id($id) : ?array {
+    // -------- "TOP BUYER" --------
+    public static function get_top_bidder(int $userId) : string {
+        $query = self::execute("SELECT u.pseudo
+                                FROM v_items_status v
+                                    join bids b on b.item = v.id and v.max_bid = b.amount
+                                    join users u on u.id = b.owner
+                                where ((v.end_at <= :current_date and v.bid_count > 0)
+                                or (( v.is_direct_sale = 1
+                                    AND v.not_purchased_direct_sale = 0)
+                                    OR
+                                    ( v.is_auction = 1
+                                    AND v.buy_now_reached = 1))) 
+                                and v.owner = :id
+                                group by u.id, u.pseudo
+                                Limit 1;"
+                                ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
         
-        $query = self::execute(
-            "SELECT ip.picture_path
-            FROM item_pictures as ip
-            WHERE ip.item = :id
-            ORDER BY ip.priority ASC",
-            ['id' => $id]
-        );
+        $data = $query->fetch();
+        return $data["pseudo"];
+    }
 
-        $results = $query->fetchAll(PDO::FETCH_ASSOC);
-
-        if ($query->rowCount() == 0) {
-            return null;
-        } else {
-            return $results;
-        } 
+     // -------- "TOTAL REVENUE $$ AVERAGE TICKET SALES" --------
+     public static function get_total_and_average_of_sales(int $userId) : array {
+        $query = self::execute("SELECT sum(v.max_bid) as total, avg(v.max_bid) as average, count(*) as number_of_purchases
+                                FROM v_items_status v
+                                    join bids b on b.item = v.id and v.max_bid = b.amount
+                                where ((v.end_at <= :current_date and v.bid_count > 0)
+                                or (( v.is_direct_sale = 1
+                                    AND v.not_purchased_direct_sale = 0)
+                                    OR
+                                    ( v.is_auction = 1
+                                    AND v.buy_now_reached = 1))) 
+                                and v.owner = :id;"
+                                ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
+        
+        $data = $query->fetchAll();
+        $result = [];
+        foreach ($data as $row) {
+            $result[] = [
+                "total" => Utils::convert_format_number_for_bids((float)$row["total"]),
+                "average" => Utils::convert_format_number_for_bids((float)$row["average"]),
+                "number_of_purchases" => (int)$row["number_of_purchases"]
+            ];
+        }
+        return $result;
     }
 
 
 }
-?>
