@@ -25,6 +25,14 @@ class ItemPicture extends Model {
         return $this->picture_path;
     }
 
+     public function delete(): void {
+        // supprime record
+        self::execute("DELETE FROM item_pictures WHERE item = :item AND priority = :p", [
+            ":item" => $this->item,
+            ":p" => $this->priority
+        ]);
+    }
+
     public static function get_by_item(int $itemId) : array {
         $stmt = self::execute(
             "SELECT * FROM item_pictures WHERE item = :item ORDER BY priority",

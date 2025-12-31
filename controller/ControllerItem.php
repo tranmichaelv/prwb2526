@@ -136,4 +136,37 @@ class ControllerItem extends Controller {
         }
         $this->redirect("item","manage_images",$itemId);
     }
+
+    public function delete_picture(): void {
+        $itemId = (int)($_GET["param1"] ?? 0);
+        $priority = (int)($_GET["param2"] ?? 0);
+
+        $pics = ItemPicture::get_by_item($itemId);
+        $toDelete = null;
+        foreach ($pics as $p) if ($p->get_priority() === $priority) $toDelete = $p;
+
+           if ($toDelete !== null) {
+                // supprime fichiers (main et thumb)
+                $main = $toDelete->get_picture_path();
+                $thumb = preg_replace('/\.jpg$/', '_thumbnail.jpg', $main);
+
+                if (file_exists($main)) unlink($main);
+                if (file_exists($thumb)) unlink($thumb);
+
+                $toDelete->delete();
+
+                // réindexer les priorités 
+                $pics = ItemPicture::get_by_item($itemId);
+                $p = 1;
+                foreach ($pics as $img) {
+                    if ($img->get_priority() !== $p) {
+                        ItemPicture::swap_priority($itemId, $img->get_priority(), $p);
+                    }
+                    $p++;
+                }
+            }   
+
+        $this->redirect("item", "manage_images", $itemId);
+    }
+
 }
