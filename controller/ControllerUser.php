@@ -37,75 +37,68 @@ class ControllerUser extends Controller {
 
             $errors = User::validate_login($email, $password);
             if (empty($errors)) {
-                $this->log_user(User::get_user_by_email($email));
+                $this->log_user(User::get_users_by_email($email));
             }
         }
         (new View("login"))->show(["email" => $email, "password" => $password, "errors" => $errors]);
     }
 
-    public function updateProfile() {
+    public function change_password(){
+        $user = $this->get_user_or_false();
+        $page = "change_password";
+        
+        $currentPassword = '';
+        $newPassword = '';
+        $confirmNewPassword = '';
+        $errors = [];
+
+        if (isset($_POST['current_password']) && isset($_POST['new_password']) && isset($_POST['confirm_new_password'])) {
+            $currentPassword = $_POST['current_password'];
+            $newPassword = $_POST['new_password'];
+            $confirmNewPassword = $_POST['confirm_new_password'];
+
+            $user->validate_change_password($currentPassword, $newPassword , $confirmNewPassword);
+
+            $hasErrors = false;
+            foreach ($errors as $fieldErrors) {
+                if (!empty($fieldErrors)) {
+                    $hasErrors = true;
+                }
+            }
+            
+            if(!$hasErrors){
+                $user->persist();
+                $this->redirect("user", "profile");
+            }
+        }
+
+        (new View("change_password"))->show(["user" => $user, "page" =>  $page, "errors" => $errors, "currentPassword" => $currentPassword, "newPassword" => $newPassword, "confirmNewPassword" => $confirmNewPassword]);
+    }
+
+    public function edit_profile() {
         $user = $this->get_user_or_false();
         $page = "edit_profile";
+        $errors = [];
 
-        // echo '<pre>'; print_r($_POST); echo '</pre>'; die();
-
-        $fullName = $_POST['full_name'] ?? $user->getFullName();
-        $username = $_POST['username'] ?? $user->getPseudo();
-        $email    = $_POST['email'] ?? $user->getEmail();
-        $iban     = $_POST['iban'] ?? $user->getIban();
-
-        // print_r($username);
-        // die();
-        
-        $errors = [
-            "full_name" => [],
-            "username"  => [],
-            "email"     => [],
-            "iban"      => []
-        ];
-
-        if ($fullName !== $user->getFullName()) {
-            $errors["full_name"] = $user->validate_full_name($fullName);
-
-            if (empty($errors["full_name"])) {
-                $user->setFullName($fullName);
+        if (isset($_POST['full_name']) || isset($_POST['username']) || isset($_POST['email']) || isset($_POST['iban'])) {
+            $fullName = $_POST['full_name'] ?? $user->getFullName();
+            $username = $_POST['username'] ?? $user->getPseudo();
+            $email    = $_POST['email'] ?? $user->getEmail();
+            $iban     = $_POST['iban'] ?? $user->getIban();
+            
+            $errors = $user->validate_update($fullName, $username, $email, $iban);
+            
+            $hasErrors = false;
+            foreach ($errors as $fieldErrors) {
+                if (!empty($fieldErrors)) {
+                    $hasErrors = true;
+                }
             }
-        }
-        
-        if ($username !== $user->getPseudo()) {
-            $errors["username"] = $user->validate_username($username);
 
-            if (empty($errors["username"])) {
-                $user->setPseudo($username);
+            if(!$hasErrors){
+                $user->persist();
+                $this->redirect("user", "profile");
             }
-        }
-        
-        if ($email !== $user->getEmail()) {
-            $errors["email"] = $user->validate_email($email);
-
-            if (empty($errors["email"])) {
-                $user->setEmail($email);
-            }
-        }
-        
-        if ($iban !== $user->getIban()) {
-            $errors["iban"] = $user->validate_iban($iban);
-
-            if (empty($errors["iban"])) {
-                $user->setIban($iban);
-            }
-        }
-
-        $hasErrors = false;
-        foreach ($errors as $fieldErrors) {
-            if (!empty($fieldErrors)) {
-                $hasErrors = true;
-            }
-        }
-        
-        if(!$hasErrors){
-            $user->persist();
-            $this->redirect("user", "profile");
         }
         
         (new View("edit_profile"))->show(["user" => $user, "page" =>  $page, "errors" => $errors]);
@@ -116,20 +109,6 @@ class ControllerUser extends Controller {
         $page = "profile";
 
         (new View("profile"))->show(["user" => $user, "page" =>  $page]);
-    }
-
-    public function edit_profile() : void{
-        $user = $this->get_user_or_false();
-        $page = "edit_profile";
-
-        (new View("edit_profile"))->show(["user" => $user, "page" =>  $page]);
-    }
-
-    public function change_password() : void{
-        $user = $this->get_user_or_false();
-        $page = "change_password";
-
-        (new View("change_password"))->show(["user" => $user, "page" =>  $page]);
     }
 
     public function manage_profile_picture() : void{

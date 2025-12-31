@@ -15,9 +15,12 @@
 
     <?php if($page == "edit_profile" || $page == "change_password"): ?>
         <div class="header-right">
-            <a href="#" onclick="document.getElementById('editProfileForm').submit(); return false;">
+            <!-- <a href="#" onclick="document.getElementById('editProfileForm').submit(); return false;">
+                 -->
+            <button type="submit">
                 <i class="bi bi-floppy"></i>
-            </a>
+            <!-- </a> -->
+            </button>
         </div>
     <?php endif; ?>
 </div>

@@ -15,6 +15,7 @@ class User extends Model {
         private ?string $picture_path = null, 
         private ?string $iban = null
     ) {}
+
     // -------- Getters --------
     public function getId(): int { return $this->id; }
     
@@ -32,8 +33,8 @@ class User extends Model {
     
     public function getIban(): ?string { return $this->iban; }
 
-    // -------- Setters --------
 
+    // -------- Setters --------
     public function setFullName(string $full_name): void { $this->full_name = $full_name; }
     
     public function setEmail(string $email): void { $this->email = $email; }
@@ -48,6 +49,8 @@ class User extends Model {
     
     public function setIban(?string $iban): void { $this->iban = $iban; }
 
+
+    // -------- Persist --------
     public function persist() : User {
         if(self::get_users_by_id($this->id))
             self::execute("UPDATE users SET full_name=:full_name, email=:email, pseudo=:pseudo, password=:password, role=:role, picture_path=:picture_path, iban=:iban WHERE id=:id ", 
@@ -58,6 +61,8 @@ class User extends Model {
         return $this;
     }
 
+
+    // -------- All of the get_users --------
     public static function get_users_by_pseudo(string $pseudo) : User|false {
         $query = self::execute("SELECT * FROM users where pseudo = :pseudo", ["pseudo"=>$pseudo]);
         $data = $query->fetch(); // un seul résultat au maximum
@@ -98,6 +103,8 @@ class User extends Model {
         }
     }
 
+
+    // -------- Item's requests --------
     public function get_my_other_items() : array{
         return Item::get_other_items_from_user($this->getId());
     }
@@ -142,24 +149,35 @@ class User extends Model {
         return Item::get_total_and_average_of_purchases($this->getId());
     }
     
-    // private static function validate_password(string $password) : array {
-    //     $errors = [];
-    //     if (strlen($password) < 8 || strlen($password) > 16) {
-    //         $errors[] = "Password length must be between 8 and 16.";
-    //     } if (!((preg_match("/[A-Z]/", $password)) && preg_match("/\d/", $password) && preg_match("/['\";:,.\/?!\\-]/", $password))) {
-    //         $errors[] = "Password must contain one uppercase letter, one number and one punctuation mark.";
-    //     }
-    //     return $errors;
-    // }
+    public static function validate_password(string $password, string $password_confirm) : array {
+        $errors = [];
+        if (strlen($password) < 8) {
+            $errors[] = "Password length must be at least 8 characters.";
+        } 
+        if (!((preg_match("/[A-Z]/", $password)) && preg_match("/\d/", $password) && preg_match("/[^a-zA-Z0-9]/", $password))) {
+            $errors[] = "Password must contain one uppercase letter, one number and one special character.";
+        }
+        if ($password != $password_confirm) {
+            $errors[] = "You have to enter twice the same password.";
+        }
+
+        return $errors;
+
+    }
     
-    // public static function validate_passwords(string $password, string $password_confirm) : array {
-    //     $errors = User::validate_password($password);
-    //     if ($password != $password_confirm) {
-    //         $errors[] = "You have to enter twice the same password.";
-    //     }
-    //     return $errors;
-    // }
+    public function validate_passwords(string $newPassword, string $password_confirm) : array {
+        $errors = [];
+
+        $errors = User::validate_password($newPassword, $password_confirm);
+        if (empty($errors)) {
+            $this->setHashedPassword(password_hash($newPassword,PASSWORD_BCRYPT));
+        }
+
+        return $errors;
+    }
     
+
+    // -------- UNICITY --------
     public static function validate_unicity_pseudo(string $pseudo) : array {
         $errors = [];
         $member = self::get_users_by_pseudo($pseudo);
@@ -194,10 +212,10 @@ class User extends Model {
     //     }
     //     return $errors;
     // }
-    
+
     public static function validate_login(string $email, string $password) : array {
         $errors = [];
-        $member = User::get_user_by_email($email);
+        $member = User::get_users_by_email($email);
         if ($member) {
             if (!self::check_password($password, $member->hashed_password)) {
                 $errors[] = "Wrong password. Please try again.";
@@ -208,14 +226,59 @@ class User extends Model {
         return $errors;
     }
 
-    public static function get_user_by_email(string $email) : User|false {
-        $query = self::execute("SELECT * FROM users where email = :email", ["email"=>$email]);
-        $data = $query->fetch(); // un seul résultat au maximum
-        if ($query->rowCount() == 0) {
-            return false;
-        } else {
-            return new User($data["id"], $data["full_name"], $data["email"], $data["pseudo"], $data["password"], $data["role"], $data["picture_path"], $data["iban"]);
+    public function validate_update(string $fullName, string $username , string $email, string $iban): array{
+        $errors = [
+            "full_name" => [],
+            "username"  => [],
+            "email"     => [],
+            "iban"      => []
+        ];
+
+        if ($fullName !== $this->getFullName()) {
+            $errors["full_name"] = $this->validate_full_name($fullName);
+
+            if (empty($errors["full_name"])) {
+                $this->setFullName($fullName);
+            }
         }
+
+        if ($username !== $this->getPseudo()) {
+            $errors["username"] = $this->validate_username($username);
+
+            if (empty($errors["username"])) {
+                $this->setPseudo($username);
+            }
+        }
+        
+        if ($email !== $this->getEmail()) {
+            $errors["email"] = $this->validate_email($email);
+
+            if (empty($errors["email"])) {
+                $this->setEmail($email);
+            }
+        }
+        
+        if ($iban !== $this->getIban()) {
+            $errors["iban"] = $this->validate_iban($iban);
+
+            if (empty($errors["iban"])) {
+                $this->setIban($iban);
+            }
+        }
+
+        return $errors;
+    }
+
+    public function validate_change_password(string $currentPassword, string $newPassword , string $confirmNewPassword): array{
+        $errors = [
+            "current_password" => [],
+            "new_password"  => [],
+        ];
+
+        $errors['current_password'] = User::validate_login($this->getEmail(), $currentPassword);
+        $errors['new_password'] = $this->validate_passwords($newPassword,$confirmNewPassword);
+
+        return $errors;
     }
 
     public function is_bidder(Item $item) : bool{

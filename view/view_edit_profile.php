@@ -9,15 +9,15 @@
 </head>
 
 <body>
+
+<form action="user/edit_profile" method="post">
     <?php 
         $title = "Edit profile";
-        $page = "edit_profile";
         $pageBefore = "user/profile";
-        $href = "user/updateProfile";
+        $href = "user/edit_profile";
         include("header.php");
     ?>
-    
-    <form id="editProfileForm" action="user/updateProfile" method="post">
+
         <div class="section">
             <div class="section-titre">
                 <h2>Personal Information</h2>  
