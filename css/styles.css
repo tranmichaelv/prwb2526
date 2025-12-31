@@ -133,10 +133,18 @@ tbody input{
    color: gray;
 }
 
-.header a {
+/* .header a {
     color: royalblue;
     font-size: 22px;
     text-decoration: none;
+} */
+
+.header button {
+    color: royalblue;
+    font-size: 22px;
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
 .menu a {
@@ -645,3 +653,7 @@ a {
     margin-bottom: 10px;
 }
 
+.section-menu-input .error li {
+    color: red;
+    font-size: 13px;
+}
