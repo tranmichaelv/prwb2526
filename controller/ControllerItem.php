@@ -3,6 +3,7 @@ require_once "framework/Controller.php";
 require_once "model/Item.php";
 require_once "model/ItemPicture.php";
 require_once "utils/Apptime.php";
+require_once "utils/ImageManager.php";
 
 class ControllerItem extends Controller {
 
@@ -123,6 +124,90 @@ class ControllerItem extends Controller {
         ]);
     }
 
+    public function upload_images(): void {
+        $itemId = (int)($_GET["param1"] ?? 0);
+        $item = Item::get_by_id($itemId);
+        if ($item === null) $this->redirect("item");
+
+        $errors = [];
+
+        if(!isset($_FILES["images"])){
+            $errors[] = "No files receveid.";
+        } else {
+
+            // prochaine priorité = max_priority + 1
+            $priority = ItemPicture::get_max_priority($itemId) + 1;
+
+            $names = $_FILES["images"]["name"];
+            $tmp   = $_FILES["images"]["tmp_name"];
+            $size  = $_FILES["images"]["size"];
+            $err   = $_FILES["images"]["error"];
+
+            for ($i = 0; $i < count($names); $i++) {
+
+             // ignorer cases vides   
+             if ($names[$i] === "") continue;
+             
+             $file = [
+                "name" => $names[$i],
+                "tmp_name" => $tmp[$i],
+                "size" => $size[$i],
+                "error" => $err[$i]
+             ];
+
+             // validation fichier
+             $fileErrores = ImageManager::validate($file);
+             if (!empty($fileErrors)) {
+                foreach ($fileErrors as $e) {
+                    $errors[] = $names[$i] . " : " . $e;
+                }
+                continue;
+            }
+
+            // création fichier main + thumbnail
+            $baseName = pathinfo($names[$i], PATHINFO_FILENAME);
+
+            try {
+                $mainPath = ImageManager::save_item_image($file, $itemId, $baseName, $priority);
+
+                //  db
+                $pic = new ItemPicture(
+                    item: $itemId,
+                    priority: $priority,
+                    picture_path: $mainPath
+                );
+
+                $persistErrors = $pic->persist();
+                if (!empty($persistErrors)) {
+                    foreach ($persistErrors as $e) {
+                        $errors[] = $names[$i] . " : " . $e;
+                    }
+                    // si persist rate, on supprime les fichiers créés 
+                    $thumb =preg_replace('/\.jpg$/', '_thumbnail.jpg', $mainPath);
+                    if (file_exists($mainPath)) unlink($mainPath);
+                    if (file_exists($thumb)) unlink($thumb);
+
+                    continue;
+                }
+
+                $priority++;
+
+            } catch (Exception $ex) {
+                $errors[] = $names[$i] . " : " . $ex->getMessage();
+              }
+        }
+    }
+        // recharge la page avec les images + erreurs
+        $pictures = ItemPicture::get_by_item($itemId);
+        (new View("manage_images"))->show([
+            "item" => $item,
+            "pictures" => $pictures,
+            "errors" => $errors
+        ]);
+
+}
+
+            
     public function move_picture(): void {
         $itemId = (int)($_GET["param1"] ?? 0);
         $priority = (int)($_GET["param2"] ??0);

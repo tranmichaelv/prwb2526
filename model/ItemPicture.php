@@ -25,7 +25,64 @@ class ItemPicture extends Model {
         return $this->picture_path;
     }
 
-     public function delete(): void {
+    public function validate() : array {
+
+        $errors = [];
+
+        // item valide et existant
+        if ($this->item <= 0){
+            $errors[] = " Invalide Item.";
+        } else {
+            $it = Item::get_by_id($this->item);
+            if ($it === null){
+                $errors[] = " This item does not exist.";
+            }
+        }
+
+        // priority > 0
+        if ($this->priority <= 0){
+            $errors[] = "Priority must be strictly higher than 0.";
+        }
+
+        // picture_path valide + fichier existe
+        if ($this->picture_path === null || trim($this->picture_path) === "") {
+            $errors[] = "Missing image path.";
+        } else if (!file_exists($this->picture_path)) {
+            $errors[] = "The image file does not exist on the server.";
+          }
+
+        if(empty($errors)){
+            $stmt = self::execute(
+                "SELECT picture_path FROM item_pictures WHERE item = :item AND priority = :p",
+                [":item" => $this->item, ":p" => $this->priority]
+            );
+
+            $row = $stmt->fetch();
+
+            // si une ligne existe déjà à cette priorité, ce n'est pas autorisé
+            if($row){
+                $errors[] = "Two photos in the same ad cannot have the same priority.";
+            }
+        }
+        
+        return $errors;
+    }
+
+
+    public function persist() : array {
+        $errors = $this->validate();
+        if (!empty($errors)) return $errors;
+
+        self::execute(
+            "INSERT INTO item_pictures(item,priority,picture_path) VALUES (:item, :p, :path)",
+            [":item" => $this->item, ":p" => $this->priority, ":path" => $this->picture_path]
+
+        );
+        return [];
+    }
+
+
+    public function delete(): void {
         // supprime record
         self::execute("DELETE FROM item_pictures WHERE item = :item AND priority = :p", [
             ":item" => $this->item,
