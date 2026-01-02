@@ -114,8 +114,18 @@ class ControllerUser extends Controller {
     public function manage_profile_picture() : void{
         $user = $this->get_user_or_false();
         $page = "manage_profile_picture";
+        $errors = [];
 
-        (new View("manage_profile_picture"))->show(["user" => $user, "page" =>  $page]);
+        if(isset($_POST['delete'])){
+            $user->delete_picture_path();
+        }
+
+        if (isset($_POST['upload']) && !empty($_FILES['file']['tmp_name'])) {
+            $file = $_FILES['file'];
+            $errors = $user->upload_picture_path($file);
+        }
+        
+        (new View("manage_profile_picture"))->show(["user" => $user, "page" =>  $page, "errors" => $errors]);
     }
 
     //########################### NOT FINISHED ###########################

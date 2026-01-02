@@ -364,34 +364,114 @@ class User extends Model {
         return $errors;
     }
 
-    // public static function validate_photo(array $file) : array {
-    //     $errors = [];
-    //     if (isset($file['name']) && $file['name'] != '') {
-    //         if ($file['error'] == 0) {
-    //             $valid_types = ["image/gif", "image/jpeg", "image/png"];
-    //             if (!in_array($_FILES['image']['type'], $valid_types)) {
-    //                 $errors[] = "Unsupported image format : gif, jpg/jpeg or png.";
-    //             }
-    //         } else {
-    //             $errors[] = "Error while uploading file.";
-    //         }
-    //     }
-    //     return $errors;
-    // }
+    public static function validate_photo(array $file) : array {
+        $errors = []; 
+        if (isset($file['name']) && $file['name'] != '') { 
+            if ($file['error'] == 0) { 
 
-    // //pre : validate_photo($file) returns true
-    // public function generate_photo_name() : string {
-    //     //note : time() est utilisé pour que la nouvelle image n'aie pas
-    //     //       le meme nom afin d'éviter que le navigateur affiche
-    //     //       une ancienne image présente dans le cache
-    //     if ($_FILES['image']['type'] == "image/gif") {
-    //         $saveTo = $this->pseudo . time() . ".gif";
-    //     } else if ($_FILES['image']['type'] == "image/jpeg") {
-    //         $saveTo = $this->pseudo . time() . ".jpg";
-    //     } else if ($_FILES['image']['type'] == "image/png") {
-    //         $saveTo = $this->pseudo . time() . ".png";
-    //     }
-    //     return $saveTo;
-    // }
+                $info = getimagesize($file['tmp_name']);
+                if ($info === false) {
+                    $errors[] = "Le fichier n'est pas une image valide.";
+                    return $errors;
+                }
+
+                $valid_types = ["image/gif", "image/jpeg", "image/png", "image/webp"]; 
+                if (!in_array($info["mime"], $valid_types)) { 
+                    $errors[] = "Format non autorisé (gif, jpg, png, webp uniquement)."; 
+                } 
+
+                if ($file['size'] > 5 * 1024 * 1024) {
+                    $errors[] = "L'image ne doit pas dépasser 5 MB.";
+                }
+            } 
+            else { 
+                $errors[] = "Erreur lors du chargement de l'image."; 
+            } 
+        } 
+        return $errors;
+    }
+
+    
+    private function create_image(array $file){
+        $info = getimagesize($file['tmp_name']);
+        if ($info["mime"] == "image/gif") {
+            return imagecreatefromgif($file['tmp_name']);
+        } else if ($info["mime"] == "image/jpeg") {
+            return imagecreatefromjpeg($file['tmp_name']);
+        } else if ($info["mime"] == "image/png") {
+            return imagecreatefrompng($file['tmp_name']);
+        } else if ($info["mime"] == "image/webp") {
+            return imagecreatefromwebp($file['tmp_name']);
+        }
+    }
+
+    public function upload_picture_path(array $file) : array {
+        $errors = self::validate_photo($file);
+        if (!empty($errors)) {
+            return $errors;
+        }
+
+        $image = $this->create_image($file);
+        if (!$image) {
+            return ["Impossible de traiter l'image (GD)."];
+        } else {
+            $principale = $this->resize_image($image, 1080, 1080, 90);
+            $thumbnail = $this->resize_image($image, 360, 360, 90);
+        }
+
+        $dir = "uploads/users/" . $this->getId();
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        } else {
+            // foreach (glob($dir . "/*.jpg") as $file) {
+            foreach (glob($dir . "/*") as $files) {
+                unlink($files);
+            }
+        }
+
+
+        $originalName = pathinfo($file['name'], PATHINFO_FILENAME);
+        $path_principal = $dir . "/" .  $originalName . ".jpg";
+        $path_thumbnail = $dir . "/" .  $originalName . "_thumbnail" . ".jpg";
+
+        imagejpeg($principale, $path_principal);
+        imagejpeg($thumbnail, $path_thumbnail);
+
+        $this->setPicturePath($path_principal);
+        $this->persist();
+
+        return [];
+    }
+
+    private function resize_image($image, int $maxWidth, int $maxHeight){
+        $oldWidth = imagesx($image);
+        $oldHeight = imagesy($image);
+
+        $ratio = min($maxWidth / $oldWidth, $maxHeight / $oldHeight, 1);
+
+        $newWidht = (int) ($oldWidth * $ratio);
+        $newHeight = (int) ($oldHeight * $ratio);
+
+        $temp = imagecreatetruecolor($newWidht, $newHeight);
+
+        imagecopyresampled($temp, $image, 0, 0, 0, 0, $newWidht, $newHeight, $oldWidth, $oldHeight);
+        
+        return $temp;
+    }
+
+    public function delete_picture_path(){
+        $dir = "uploads/users/" . $this->getId();
+        
+        $files = glob($dir . "/*"); 
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
+        rmdir($dir);
+
+        $this->setPicturePath(null);
+        $this->persist();
+    }
 
 }
