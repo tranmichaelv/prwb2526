@@ -44,6 +44,7 @@ class ControllerUser extends Controller {
     }
 
     public function change_password(){
+        $this->require_login();
         $user = $this->get_user_or_false();
         $page = "change_password";
         
@@ -76,6 +77,7 @@ class ControllerUser extends Controller {
     }
 
     public function edit_profile() {
+        $this->require_login();
         $user = $this->get_user_or_false();
         $page = "edit_profile";
         $errors = [];
@@ -105,6 +107,7 @@ class ControllerUser extends Controller {
     }
 
     public function profile() : void{
+        $this->require_login();
         $user = $this->get_user_or_false();
         $page = "profile";
 
@@ -112,6 +115,7 @@ class ControllerUser extends Controller {
     }
 
     public function manage_profile_picture() : void{
+        $this->require_login();
         $user = $this->get_user_or_false();
         $page = "manage_profile_picture";
         $errors = [];
@@ -152,6 +156,15 @@ class ControllerUser extends Controller {
         (new View("signup"))->show(["email" => $email, "full_name" => $full_name, "pseudo" => $pseudo, "password" => $password, "errors" => $errors]);
     }
     //########################### NOT FINISHED ###########################
+
+    // -------- Doit être connecté --------
+    private function require_login(): void {
+        if (!$this->user_logged()) {
+            $this->redirect("user", "login");
+            exit(); 
+        }
+    }
+
 
     // -------- For Debug Purpose --------
     public function loginAsQuentin() : void{

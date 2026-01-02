@@ -149,11 +149,21 @@ class User extends Model {
         return Item::get_total_and_average_of_purchases($this->getId());
     }
     
+
+    // -------- Validate user's informations --------
     public static function validate_password(string $password, string $password_confirm) : array {
         $errors = [];
-        if (strlen($password) < 8) {
-            $errors[] = "Password length must be at least 8 characters.";
+
+        $minLength = Configuration::get("password_min_length");
+        $maxLength =  Configuration::get("varchar_max_length");
+        if (strlen($password) < $minLength) {
+            $errors[] = "Password length must be at least " . $minLength . " characters.";
         } 
+
+        if (strlen($password) > $maxLength) {
+            $errors[] = "Password must have less than " . $maxLength . " characters.";
+        } 
+
         if (!((preg_match("/[A-Z]/", $password)) && preg_match("/\d/", $password) && preg_match("/[^a-zA-Z0-9]/", $password))) {
             $errors[] = "Password must contain one uppercase letter, one number and one special character.";
         }
@@ -175,43 +185,6 @@ class User extends Model {
 
         return $errors;
     }
-    
-
-    // -------- UNICITY --------
-    public static function validate_unicity_pseudo(string $pseudo) : array {
-        $errors = [];
-        $member = self::get_users_by_pseudo($pseudo);
-        if ($member) {
-            $errors[] = "This user already exists.";
-        } 
-        return $errors;
-    }
-
-    public static function validate_unicity_email(string $email) : array {
-        $errors = [];
-        $member = self::get_users_by_email($email);
-        if ($member) {
-            $errors[] = "This email already exists.";
-        } 
-        return $errors;
-    }
-    
-
-    private static function check_password(string $clear_password, string $hash) : bool {
-        return password_verify($clear_password, $hash);
-    }
-
-    // public function validate() : array {
-    //     $errors = [];
-    //     if (!strlen($this->pseudo) > 0) {
-    //         $errors[] = "Pseudo is required.";
-    //     } if (!(strlen($this->pseudo) >= 3 && strlen($this->pseudo) <= 16)) {
-    //         $errors[] = "Pseudo length must be between 3 and 16.";
-    //     } if (!(preg_match("/^[a-zA-Z][a-zA-Z0-9]*$/", $this->pseudo))) {
-    //         $errors[] = "Pseudo must start by a letter and must contain only letters and numbers.";
-    //     }
-    //     return $errors;
-    // }
 
     public static function validate_login(string $email, string $password) : array {
         $errors = [];
@@ -281,16 +254,6 @@ class User extends Model {
         return $errors;
     }
 
-    public function is_bidder(Item $item) : bool{
-        $query = self::execute("SELECT b.owner 
-                                FROM bids b
-                                    join items i on b.item = i.id
-                                where i.id = :itemId
-                                and  b.owner = :owner;", ["itemId"=>$item->getId(), "owner"=>$this->getId()]);
-        $result = $query->fetchAll();
-        return !empty($result);
-    }
-
     public static function validate_username(string $username): array {
         $errors = [];
 
@@ -299,9 +262,10 @@ class User extends Model {
             return $errors;
         }
 
-        // Longueur
-        if (strlen($username) < 3 || strlen($username) > 30) {
-            $errors[] = "Username must be between 3 and 30 characters.";
+        $minLength = Configuration::get("username_min_length");
+        $maxLength =  Configuration::get("username_max_length");
+        if (strlen($username) < $minLength || strlen($username) > $maxLength) {
+            $errors[] = "Username must be between " . $minLength . " and " . $maxLength . " characters.";
         }
 
         // Unicité
@@ -309,6 +273,21 @@ class User extends Model {
             $errors,
             self::validate_unicity_pseudo($username)
         );
+        return $errors;
+    }
+
+    private function validate_varchar_length(string $string, string $varchar): array{
+        $errors = [];
+
+        $minLength = Configuration::get("varchar_min_length");
+        $maxLength =  Configuration::get("varchar_max_length");
+        if (strlen($varchar) <  $minLength) {
+            $errors[] = $string . " must have more than " . $minLength ." characters.";
+        }
+
+        if (strlen($varchar) > $maxLength ) {
+            $errors[] = $string . " must have less than " . $maxLength . " characters.";
+        }
         return $errors;
     }
 
@@ -320,10 +299,7 @@ class User extends Model {
             return $errors;
         }
 
-        // Longueur
-        if (strlen($fullName) < 3 ) {
-            $errors[] = "Full name must have more than 3 characters.";
-        }
+        $errors[] = self::validate_varchar_length("Full name", $fullName);
 
         return $errors;
     }
@@ -339,6 +315,8 @@ class User extends Model {
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors[] = "Must be a valid email address.";
         }
+
+        $errors[] = self::validate_varchar_length("Email", $email);
     
 
         return $errors;
@@ -351,12 +329,9 @@ class User extends Model {
             $iban = str_replace(" ", "",$iban);
 
             $len = strlen($iban);
-            // if ($len < 14 || $len > 34) {
-            //     $errors[] = "IBAN must be between 14 and 34 characters.";
-            // }
 
-            if (!preg_match('/^[A-Z]{2}[0-9]{2}[A-Z0-9]+$/', $iban) || ($len < 14 || $len > 34)) {
-                $errors[] = "IBAN format is invalid.";
+            if (!preg_match('/^[A-Z]{2}[0-9]{14}/', $iban) || $len !== 16) {
+                $errors[] = "IBAN doit être de forme BE99 9999 9999 9999.";
             }
         }
     
@@ -380,8 +355,9 @@ class User extends Model {
                     $errors[] = "Format non autorisé (gif, jpg, png, webp uniquement)."; 
                 } 
 
-                if ($file['size'] > 5 * 1024 * 1024) {
-                    $errors[] = "L'image ne doit pas dépasser 5 MB.";
+                $file_max_size = Configuration::get("file_max_size");
+                if ($file['size'] > $file_max_size) {
+                    $errors[] = "L'image ne doit pas dépasser ". $file_max_size/1024/1024 ." MB.";
                 }
             } 
             else { 
@@ -389,6 +365,41 @@ class User extends Model {
             } 
         } 
         return $errors;
+    }
+
+
+    // -------- UNICITY --------
+    public static function validate_unicity_pseudo(string $pseudo) : array {
+        $errors = [];
+        $member = self::get_users_by_pseudo($pseudo);
+        if ($member) {
+            $errors[] = "This user already exists.";
+        } 
+        return $errors;
+    }
+
+    public static function validate_unicity_email(string $email) : array {
+        $errors = [];
+        $member = self::get_users_by_email($email);
+        if ($member) {
+            $errors[] = "This email already exists.";
+        } 
+        return $errors;
+    }
+    
+
+    private static function check_password(string $clear_password, string $hash) : bool {
+        return password_verify($clear_password, $hash);
+    }
+
+    public function is_bidder(Item $item) : bool{
+        $query = self::execute("SELECT b.owner 
+                                FROM bids b
+                                    join items i on b.item = i.id
+                                where i.id = :itemId
+                                and  b.owner = :owner;", ["itemId"=>$item->getId(), "owner"=>$this->getId()]);
+        $result = $query->fetchAll();
+        return !empty($result);
     }
 
     
@@ -415,35 +426,28 @@ class User extends Model {
         if (!$image) {
             return ["Impossible de traiter l'image (GD)."];
         } else {
-            $principale = $this->resize_image($image, 1080, 1080, 90);
-            $thumbnail = $this->resize_image($image, 360, 360, 90);
+            $principal = $this->resize_image($image, Configuration::get("img_max_width"), Configuration::get("img_max_height"), 90);
+            $thumbnail = $this->resize_image($image, Configuration::get("img_thumbnail_max_width"), Configuration::get("img_thumbnail_max_height"), 90);
         }
 
         $dir = "uploads/users/" . $this->getId();
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
-        } else {
-            // foreach (glob($dir . "/*.jpg") as $file) {
-            foreach (glob($dir . "/*") as $files) {
-                unlink($files);
-            }
-        }
+        self::create_or_clean_directory($dir);
 
 
-        $originalName = pathinfo($file['name'], PATHINFO_FILENAME);
-        $path_principal = $dir . "/" .  $originalName . ".jpg";
-        $path_thumbnail = $dir . "/" .  $originalName . "_thumbnail" . ".jpg";
+        $fileName = pathinfo($file['name'], PATHINFO_FILENAME);
+        $principal_path = $dir . "/" .  $fileName . ".jpg";
+        $thumbnail_path = $dir . "/" .  $fileName . "_thumbnail" . ".jpg";
 
-        imagejpeg($principale, $path_principal);
-        imagejpeg($thumbnail, $path_thumbnail);
+        imagejpeg($principal, $principal_path);
+        imagejpeg($thumbnail, $thumbnail_path);
 
-        $this->setPicturePath($path_principal);
+        $this->setPicturePath($principal_path);
         $this->persist();
 
         return [];
     }
 
-    private function resize_image($image, int $maxWidth, int $maxHeight){
+    private static function resize_image($image, int $maxWidth, int $maxHeight){
         $oldWidth = imagesx($image);
         $oldHeight = imagesy($image);
 
@@ -457,6 +461,17 @@ class User extends Model {
         imagecopyresampled($temp, $image, 0, 0, 0, 0, $newWidht, $newHeight, $oldWidth, $oldHeight);
         
         return $temp;
+    }
+
+    public static function create_or_clean_directory($dir): void{
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        } else {
+            // foreach (glob($dir . "/*.jpg") as $file) {
+            foreach (glob($dir . "/*") as $files) {
+                unlink($files);
+            }
+        }
     }
 
     public function delete_picture_path(){

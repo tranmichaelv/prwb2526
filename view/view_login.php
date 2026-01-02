@@ -33,7 +33,9 @@
                         <tr><td><a href="user/loginAsMarc">Login as mamichel@epfc.eu</a></td></tr>
                         <tr><td><a href="user/loginAsQuentin">Login as quhouben@epfc.eu</a></td></tr>
                         <tr><td><a href="user/loginAsXavier">Login as xapigeolet@epfc.eu</a></td></tr>
-                        <tr><td><a href="setup">Setup</a></td></tr>
+                        <tr><td><a href="setup">Restore original data</a></td></tr>
+                        <tr><td><a href="setup/export">Backup personal data</a></td></tr>
+                        <tr><td><a href="setup/restore">Restore personal data</a></td></tr>
                     </tfoot>
                 </table>
             </form>
