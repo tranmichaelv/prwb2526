@@ -122,10 +122,7 @@ tbody input{
 .header-left,
 .header-right {
     width: 80px; 
-}
-
-.header-left{
-    padding-left: 20px;
+    text-align: center;
 }
 
 .header-center {
