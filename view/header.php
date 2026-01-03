@@ -5,7 +5,7 @@
         $showBack = in_array($page, ["sales", "purchases", "edit_profile", "change_password", "manage_profile_picture"]);
 
         // Pages qui ont un bouton save
-        $showSave = in_array($page, ["edit_profile", "change_password", "manage_profile_picture"]);
+        $showSave = in_array($page, ["edit_profile", "change_password"]);
     ?>
 
     <?php if ($showBack): ?>
