@@ -109,6 +109,26 @@ class ControllerItem extends Controller {
 
     }
 
+    public function delete(): void {
+        $id = $_GET["param1"] ?? null;
+
+        if($id === null || !is_numeric($id)){
+            $this->redirect("item","my_items");
+        }
+
+        $item = Item::get_by_id($id);
+        if($item === null){
+            $this->redirect("item","my_items");
+        }
+        if($_SERVER["REQUEST_METHOD"] === "POST"){
+            $item->delete();
+            $this->redirect("item","my_items");
+        }
+        (new View("delete_item"))->show([
+            "item" => $item
+        ]);
+    }
+
     public function manage_images() : void {
         $itemId = (int)($_GET["param1"] ?? 0);
         $item = Item::get_by_id($itemId);

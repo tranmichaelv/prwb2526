@@ -231,10 +231,25 @@ class Item extends Model {
     }
 
     public function delete(): void {
-        if ($this->id === null) {
-            return;
+        if ($this->id === null) return;
+
+        // récuperer les images (pour supp les fichiers)
+        $pics = ItemPicture::get_by_item($this->id);
+
+        foreach ($pics as $p){
+          $main = $p->get_picture_path();
+          $thumb = preg_replace('/\.jpg$/', '_thumbnail.jpg', $main);
+
+          if (file_exists($main)) unlink($main);
+          if (file_exists($thumb)) unlink($thumb);
         }
+
+        self::execute("DELETE FROM item_pictures WHERE item = :id",[":id" => $this->id]);
+            
+        self::execute("DELETE FROM bids WHERE item = :id", [":id" => $this->id]);
+
         self::execute("DELETE FROM items WHERE id = :id", [":id" => $this->id]);
+        
         $this->id = null;
     }
 
