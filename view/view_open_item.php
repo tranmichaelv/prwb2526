@@ -21,7 +21,7 @@
             <div class="main-picture">
                 <?php 
                     $baseUrl = '/prwb_2526_c05/';
-                    $src = $baseUrl . $main_picture;
+                    $src = $item->getPictures()[0]['path'];
 
                     if ($src == null) {
                         $src = "";

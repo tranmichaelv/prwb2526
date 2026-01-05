@@ -1,5 +1,6 @@
 <?php 
 
+/*
 require_once 'model/Item.php';
 require_once "model/User.php";
 require_once "model/Picture.php";
@@ -53,6 +54,7 @@ class ControllerOpenItem extends Controller {
     }
 
     /*========= Chargements des données de l'Item ===========*/
+    /*
     private function loadItemData(int $id, ?User $current_user): array {
         $errors = [];
 
@@ -74,6 +76,7 @@ class ControllerOpenItem extends Controller {
     }
 
     /*======== Chargement des données de l'enchère =========*/
+    /*
     private function loadBidData(int $id, ?User $current_user): array {
         $errors = [];
         $bid = $this->get_bid($id);
@@ -103,5 +106,5 @@ class ControllerOpenItem extends Controller {
         ];
     }
 
-}
+}*/
 ?>
