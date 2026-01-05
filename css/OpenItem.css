@@ -280,6 +280,81 @@ input[name="new-bid"] {
   font-size: 0.9rem;
 }
 
+.menu-time {
+    position: fixed;   
+    bottom: 0;
+    left: 0;
+    width: 100%;      
+    background-color: #222;
+    color: white;
+    padding: 5px 15px;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    box-sizing: border-box;
+    z-index: 1000;
+    min-height: 0px;
+}
+
+.menu {
+    position: fixed;  
+    bottom: 50px;
+    left: 0;
+    width: 100%;       
+    background-color: rgb(13, 24, 53);
+    color: white;
+    padding: 5px 15px;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    box-sizing: border-box;
+    z-index: 2000;
+    margin: auto;
+    padding: 5px 150px;
+    min-height: 70px;
+    border-top: 1px solid rgba(204, 204, 204, 0.2);
+}
+
+.menu a {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;   
+    margin: 0;             
+    font-size: 14px;      
+    color: white; 
+    text-decoration: none;
+}
+
+.menu a i {
+    font-size: 20px;
+    height: 20px;          
+    line-height: 20px;    
+    margin-bottom: 5px;
+}
+
+
+.menu-left {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.menu-right form {
+    display: inline-block;
+}
+
+.menu-right button {
+    padding: 8px 12px;
+    background-color: #555;
+    border: none;
+    color: #fff;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.menu-right button:hover {
+    background-color: #777;
+}
 
 /*
 .right-container {

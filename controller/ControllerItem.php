@@ -5,12 +5,16 @@ require_once 'model/Item.php';
 require_once 'model/Item_pictures.php';
 require_once "framework/Controller.php";
 require_once "utils/Utils.php";
-require_once "utils/History.php";
 
 class ControllerItem extends Controller {
     public function index() : void {
         $this->browse();
     }
+
+    public function open() : void {
+        //$this->redirect("openitem");
+        $this->redirect("openitem","index",$_GET["param1"]);
+    } 
 
     // Page item/browse
     public function browse() : void {
@@ -72,4 +76,6 @@ class ControllerItem extends Controller {
             $this->redirect("user", "login");
         }
     }
+
+    
 }

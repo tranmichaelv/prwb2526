@@ -5,7 +5,7 @@ require_once "utils/AppTime.php";
 require_once "framework/Controller.php";
 require_once "framework/Configuration.php";
 require_once "ControllerSetup.php";
-require_once "utils/History.php";
+
 
 class ControllerUser extends Controller {
     

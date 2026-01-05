@@ -19,9 +19,11 @@ class ControllerOpenItem extends Controller {
 
     public function itemDetails(): void {
         $id = $_GET["param1"] ?? null;
+        
         $errors = [];
-
-        if (!$id) {
+        //print_r($id);
+        //die();
+        if ($id == null) {
             $errors[] = "Le controller a besoin d'un id pour charger la vue open item";
         }
 
