@@ -1,5 +1,9 @@
 <?php
-require_once "Bids.php";
+require_once "framework/Model.php";
+require_once "utils/AppTime.php";
+require_once "utils/Utils.php";
+require_once "model/Bids.php";
+
 
 class ItemStatus extends Model {
     // -------- Constructeur --------
@@ -174,7 +178,7 @@ class ItemStatus extends Model {
         // Converti en objets Item
         $results = [];
         foreach ($items as $item) {
-            $results[] = new Item(
+            $results[] = new ItemStatus(
                 $item['id'],
                 $item['title'],
                 $item['description'],

@@ -3,6 +3,7 @@
 require_once "framework/Model.php";
 require_once "framework/Controller.php";
 require_once "framework/Configuration.php";
+require_once "model/ItemStatus.php";
 
 class User extends Model {
     public function __construct(
@@ -106,47 +107,47 @@ class User extends Model {
 
     // -------- Item's requests --------
     public function get_my_other_items() : array{
-        return Item::get_other_items_from_user($this->getId());
+        return ItemStatus::get_other_items_from_user($this->getId());
     }
 
     public function get_my_bids_items() : array{
-        return Item::get_bids_items_from_user($this->getId());
+        return ItemStatus::get_bids_items_from_user($this->getId());
     }
 
     public function get_my_items() : array{
-        return Item::get_user_items($this->getId());
+        return ItemStatus::get_user_items($this->getId());
     }
 
     public function get_my_closed_unsold_items() : array{
-        return Item::get_user_closed_unsold_items($this->getId());
+        return ItemStatus::get_user_closed_unsold_items($this->getId());
     }
 
     public function get_my_sold_items() : array{
-        return Item::get_user_sold_items($this->getId());
+        return ItemStatus::get_user_sold_items($this->getId());
     }
 
     public function get_my_sales() : array{
-        return Item::get_user_completed_sales($this->getId());
+        return ItemStatus::get_user_completed_sales($this->getId());
     }
 
     public function get_my_purchases_top_bidder() : string{
-        return Item::get_top_bidder($this->getId());
+        return ItemStatus::get_top_bidder($this->getId());
     }
 
     public function get_my_sales_total_and_average() : array{
-        return Item::get_total_and_average_of_sales($this->getId());
+        return ItemStatus::get_total_and_average_of_sales($this->getId());
     }
 
     public function get_my_purchases() : array{
-        return Item::get_user_purchases($this->getId());
+        return ItemStatus::get_user_purchases($this->getId());
     }
 
     public function get_my_purchases_top_seller() : string{
-        return Item::get_top_seller($this->getId());
+        return ItemStatus::get_top_seller($this->getId());
     }
 
     public function get_my_purchases_total_and_average() : array{
-        return Item::get_total_and_average_of_purchases($this->getId());
+        return ItemStatus::get_total_and_average_of_purchases($this->getId());
     }
     
 
@@ -392,7 +393,7 @@ class User extends Model {
         return password_verify($clear_password, $hash);
     }
 
-    public function is_bidder(Item $item) : bool{
+    public function is_bidder(ItemStatus $item) : bool{
         $query = self::execute("SELECT b.owner 
                                 FROM bids b
                                     join items i on b.item = i.id
