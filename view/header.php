@@ -2,10 +2,10 @@
 
     <?php 
         // Pages qui ont un bouton back
-        $showBack = in_array($page, ["sales", "purchases", "edit_profile", "change_password", "manage_profile_picture"]);
+        $showBack = in_array($page, ["sales", "purchases", "edit_profile", "change_password", "manage_profile_picture","add_item" , "edit_item","manage_images"]);
 
         // Pages qui ont un bouton save
-        $showSave = in_array($page, ["edit_profile", "change_password"]);
+        $showSave = in_array($page, ["edit_profile", "change_password", "add_item", "edit_item"]);
     ?>
 
     <?php if ($showBack): ?>

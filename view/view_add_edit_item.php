@@ -6,16 +6,25 @@
     <title>Add Item</title>
     <base href="<?= $web_root ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/add_edit_item.css">
 </head>
     
-<body>
-    <div class = "container">
-
-        <h1><?= $mode === "edit" ? "Edit Item" : "Add Item" ?></h1>
+<body class="page-add-edit-item">
+    
 
       <form method="post" action="<?= $mode === "edit" ? "item/edit/$id" : "item/add" ?>">
-         
+
+       <?php
+          
+            $page = $mode === "edit" ? "edit_item" : "add_item";
+            $title = $mode === "edit" ? "Edit item" : "Add item";
+            $pageBefore = $mode === "edit" ? "item/open/$id" : "item/browse";
+
+            include("header.php");
+        ?>
+   <div class = "container">
+   
     <div class ="card basic-info">
             <h2>Basic information</h2>
             
@@ -118,15 +127,9 @@
              <?php endif; ?>
               </div>  
             </div>
-        </div>
-        
-        <div class="form-group">
-          <button type="submit" class="submit-btn">Create Item</button>
-        </div>    
+        </div>   
     </form>        
     </div>
-     <footer> 
         <?php include('footer.php'); ?>
-    </footer>
 </body>
 </html>

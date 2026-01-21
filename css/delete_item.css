@@ -60,3 +60,13 @@ p {
   background: #dc2626;
   color: white;
 }
+
+.delete-icon {
+  font-size: 56px;
+  color: #ef4444;      /* rouge vif */
+  margin-bottom: 14px;
+}
+
+.delete-icon i {
+  filter: drop-shadow(0 6px 12px rgba(239, 68, 68, 0.35));
+}

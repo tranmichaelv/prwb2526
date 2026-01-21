@@ -8,16 +8,23 @@
     <base href="<?= $web_root ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/delete_item.css">
+    <link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
 </head>
 
 <body>
    <div class="overlay"> 
     <div class="modal">
+        <div class="delete-icon">
+        <i class="bi bi-trash-fill"></i>
+        </div>
+
 
         <h2>Are you sure ?</h2>
 
         <p>
-            Do you really want to delete item "<?= $item->get_title() ?>" by ownerName and all of its dependencies ?
+            Do you really want to delete item "<?= $item->get_title() ?>" by <?= $owner->getFullName() ?> and all of its dependencies ?
             <br>
             This process cannot be undone.
         </p>

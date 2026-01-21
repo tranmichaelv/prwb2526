@@ -7,15 +7,19 @@
     <base href="<?= $web_root ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/manage_images.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
+    <?php 
+            $page = "manage_images";
+            $title = "Manage Images";
+            $pageBefore = "item/open/" . $item->get_id();
+            include("header.php");
+    ?>
  <div class="container">
-
-    <h1>Manage Images</h1>
     <p class="subtitle">Manage Images for "<?= $item->get_title()?>"</p>
 
-    
     <div class="card">
         <h2>Add New Images</h2>
         <form method="post"

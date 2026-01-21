@@ -119,7 +119,7 @@ class ControllerItem extends Controller {
             if (empty($errors)) {
                 // redirection vers Open Item
                 // plus tard
-                $this->redirect("item");
+                $this->redirect("item","open", $item->get_id());
             }
         }
 
@@ -173,7 +173,7 @@ class ControllerItem extends Controller {
             $errors = $item->persist();
 
         if (empty($errors)) {
-            $this->redirect("item");
+            $this->redirect("item","open",$item->get_id());
         }
     }
 
@@ -189,7 +189,6 @@ class ControllerItem extends Controller {
 
     public function delete(): void {
         $id = $_GET["param1"] ?? null;
-
         if($id === null || !is_numeric($id)){
             $this->redirect("item","my_items");
         }
@@ -198,12 +197,16 @@ class ControllerItem extends Controller {
         if($item === null){
             $this->redirect("item","my_items");
         }
+
+        $owner = User::get_users_by_id($item->get_owner_id());
+
         if($_SERVER["REQUEST_METHOD"] === "POST"){
             $item->delete();
-            $this->redirect("item","my_items");
+            $this->redirect("item","list");
         }
         (new View("delete_item"))->show([
-            "item" => $item
+            "item" => $item,
+            "owner" => $owner
         ]);
     }
 

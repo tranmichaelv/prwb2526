@@ -1,54 +1,134 @@
-body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
+
+.page-add-edit-item{
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+
+ 
+  padding-bottom: 180px; /* ajuste si besoin */
+  padding-top: 40px;
 }
 
-h1 {
-    text-align: center;
-    font-size: 1.6rem;
+/* Container centré comme l'exemple */
+.page-add-edit-item .container{
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 18px;
 }
 
-form {
-    max-width: 800px;     
-    margin: 0 auto;       /* centré */
+/* Titre */
+.page-add-edit-item .container > h1{
+  text-align: center;
+  color: royalblue;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 10px 0 22px;
 }
 
-.form-group {
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column; /* label au-dessus du champ */
+/* Cards */
+.page-add-edit-item .card{
+  background: rgba(34,34,34,0.92);
+  border: 1px solid rgba(204,204,204,0.18);
+  border-radius: 10px;
+  padding: 16px;
+  margin: 14px 0;
 }
 
-.form-group label {
-    margin-bottom: 6px;
-    font-weight: bold;
+/* Titres de sections */
+.page-add-edit-item .card > h2{
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
 }
 
-input[type="text"],
-input[type="number"],
-textarea {
-    width: 100%;            /*  prend toute la largeur */
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 16px;
+/* Sous-cards Auction / Direct */
+.page-add-edit-item .sale-option{
+  background: rgba(31,41,55,0.65);
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 12px;
 }
 
-textarea {
-    resize: vertical;       /*  bloque Description    */
-    min-height: 110px;
+.page-add-edit-item .sale-option h3{
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #9ca3af;
 }
 
-.field-errors {
-    margin: 4px 0 0;
-    padding-left: 18px;
-    color: #f87171;       
-    font-size: 0.85rem;
+/* Bordures bleu / vert */
+.page-add-edit-item .sale-type .sale-option:first-of-type{
+  border: 1px solid rgba(59,130,246,0.55);
+}
+.page-add-edit-item .sale-type .sale-option:last-of-type{
+  border: 1px solid rgba(34,197,94,0.45);
 }
 
-.input-error {
-    border-color: #f87171;
+/* Form groups */
+.page-add-edit-item .form-group{
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
+
+.page-add-edit-item .form-group label{
+  font-weight: 700;
+  font-size: 12px;
+  color: #e5e7eb;
+}
+
+/* Inputs dark (ON ÉCRASE styles.css) */
+.page-add-edit-item .form-group input[type="text"],
+.page-add-edit-item .form-group input[type="number"],
+.page-add-edit-item .form-group textarea{
+  width: 100%;
+  background-color: #1a1f2e !important;
+  color: #fff !important;
+  border: 1px solid rgba(204, 204, 204, 0.2) !important;
+  border-radius: 6px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  outline: none;
+  font-size: 14px;
+}
+
+.page-add-edit-item .form-group textarea{
+  min-height: 120px;
+  resize: vertical;
+}
+
+.page-add-edit-item .form-group input:focus,
+.page-add-edit-item .form-group textarea:focus{
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 0 10px rgba(71, 109, 223, 0.55);
+}
+
+/* Erreurs */
+.page-add-edit-item .field-errors{
+  margin: 4px 0 0;
+  padding-left: 18px;
+  color: #f87171;
+  font-size: 0.85rem;
+}
+
+.page-add-edit-item .input-error{
+  border-color: #f87171 !important;
+}
+
+
+.page-add-edit-item .menu,
+.page-add-edit-item .menu-time{
+  left: 0 !important;
+  width: 100% !important;
+}
+
+.page-add-edit-item textarea {
+  height: 140px;  
+  resize: none !important; 
+  overflow-y: auto !important;
+}
+
 
 
 
