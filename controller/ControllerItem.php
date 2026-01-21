@@ -78,10 +78,14 @@ class ControllerItem extends Controller {
     }
 
     public function add() : void {
-        $errors = [];
+       $user = $this->get_user_or_false();
+        if (!$user) {
+            $this->redirect("user", "login");
+            return;
+        }
 
-        // en attendant la classe User
-        $owner = 1;
+        $errors = [];
+        $owner = $user->getId();
 
         $title = $_POST['title'] ?? "";
         $description = $_POST['description'] ?? "";
@@ -122,12 +126,20 @@ class ControllerItem extends Controller {
         (new View("add_edit_item"))->show([
             "mode" => "add",         
             "errors" => $errors,
-            "item" => $item
+            "item" => $item,
+            "user" => $user
         ]);
 
     }
 
     public function edit() : void {
+
+        $user = $this->get_user_or_false();
+        if (!$user) {
+            $this->redirect("user", "login");
+            return;
+        }
+
         $id = $_GET['param1'] ?? null;
 
         if ($id === null || !is_numeric($id)) {
@@ -169,7 +181,8 @@ class ControllerItem extends Controller {
             "mode" => "edit",
             "errors" => $errors,
             "item" => $item,
-            "id" => $id
+            "id" => $id,
+            "user" => $user
         ]);
 
     }
@@ -195,6 +208,11 @@ class ControllerItem extends Controller {
     }
 
     public function manage_images() : void {
+        $user = $this->get_user_or_false();
+        if (!$user) {
+            $this->redirect("user", "login");
+            return;
+        }
         $itemId = (int)($_GET["param1"] ?? 0);
         $item = Item::get_by_id($itemId);
         if($item === null) $this->redirect("item");
@@ -205,11 +223,17 @@ class ControllerItem extends Controller {
         (new View("manage_images"))->show([
             "item" => $item,
             "pictures" => $pictures,
-            "errors" => []
+            "errors" => [],
+            "user" => $user
         ]);
     }
 
     public function upload_images(): void {
+        $user = $this->get_user_or_false();
+        if (!$user) {
+            $this->redirect("user", "login");
+            return;
+        }
         $itemId = (int)($_GET["param1"] ?? 0);
         $item = Item::get_by_id($itemId);
         if ($item === null) $this->redirect("item");
@@ -287,7 +311,8 @@ class ControllerItem extends Controller {
         (new View("manage_images"))->show([
             "item" => $item,
             "pictures" => $pictures,
-            "errors" => $errors
+            "errors" => $errors,
+            "user" => $user
         ]);
 
 }

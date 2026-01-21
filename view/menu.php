@@ -2,7 +2,7 @@
     <div class="menu">
         <a href="item/browse"><i class="bi bi-search"></i> Browse</a>
         <a href="item/myItems"><i class="bi bi-house-door"></i> My Items</a>
-        <a href="test"><i class="bi bi-plus"></i> Add Other</a>
+        <a href="item/add"><i class="bi bi-plus"></i> Add Offer</a>
         <a href="user/profile"><i class="bi bi-gear"></i> Profile</a>
     </div>
 <?php else: ?>
