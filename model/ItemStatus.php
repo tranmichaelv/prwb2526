@@ -128,6 +128,7 @@ class ItemStatus extends Model {
                                         ( is_auction = 1
                                             AND buy_now_reached = 0)
                                     )
+                                and v.owner != :owner
                                 order by end_at;"
                                 ,["owner"=>$userId, "end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]);
     
