@@ -1,13 +1,18 @@
 <div class="header">
-    <?php if($page == "sales" || $page == "purchases" 
-    || $page == "edit_profile" || $page == "change_password" 
-    || $page == "manage_profile_picture"): ?>
+
+    <?php 
+        // Pages qui ont un bouton back
+        $showBack = in_array($page, ["sales", "purchases", "edit_profile", "change_password", "manage_profile_picture","add_item" , "edit_item","manage_images"]);
+
+        // Pages qui ont un bouton save
+        $showSave = in_array($page, ["edit_profile", "change_password", "add_item", "edit_item"]);
+    ?>
+
+    <?php if ($showBack): ?>
         <div class="header-left">
-            <?php if (!empty($_SESSION['previous_page'])): ?>
-                <a href="<?= htmlspecialchars($_SESSION['previous_page']) ?>">
-                    <i class="bi bi-arrow-left"></i>
-                </a>
-            <?php endif; ?>
+            <a href="<?= $pageBefore ?>">
+                <i class="bi bi-arrow-left"></i>
+            </a>
         </div>
     <?php endif; ?>
 
@@ -15,9 +20,13 @@
         <p><?= $title ?> <i class="bi bi-cart-fill"></i></p>
     </div>
 
-    <?php if($page == "edit_profile" || $page == "change_password"): ?>
+    <?php if ($showSave): ?>
         <div class="header-right">
-            <a href=""><i class="bi bi-floppy"></i></a>
+            <button type="submit">
+                <i class="bi bi-floppy"></i>
+            </button>
         </div>
+    <?php elseif($showBack): ?>
+        <div class="header-right"></div>
     <?php endif; ?>
 </div>

@@ -1,7 +1,6 @@
 <div class="item-wrapper">
     <div class="item-card">
-
-        <a href="item/open/<?= $item->getId(); ?>/from-browse">
+        <a href="item/open/<?= $item->getId() ?>/from-browse">
             <div class="image-container">
                 <img src="<?= $item->getPictures()[0]['path'] ?>" alt="<?= $item->getTitle() ?>" width="300">
 

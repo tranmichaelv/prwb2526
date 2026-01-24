@@ -1,9 +1,6 @@
-<?php
-
-use Dom\Document;
+<?php 
 
 require_once "framework/Model.php";
-
 
 class ItemSaleStatus extends Model {
 
@@ -150,8 +147,8 @@ class ItemSaleStatus extends Model {
 
     public function user_is_owner(User $current_user) : bool {
 
-        $owner = User::get_owner_by_item_id($this->item_id);
-        return $owner->getId() == $current_user->getId();
+        $owner = User::get_owner_infos_by_item_id($this->getItemId()); // ajouter la méthode dans le modèle 
+        return $owner["id"] == $current_user->getId();
         
     }
 

@@ -6,7 +6,6 @@ require_once "framework/Controller.php";
 require_once "framework/Configuration.php";
 require_once "ControllerSetup.php";
 
-
 class ControllerUser extends Controller {
     
     //si l'utilisateur est connecté, redirige vers son profil. Sinon, produit la vue d'accueil.
@@ -38,38 +37,99 @@ class ControllerUser extends Controller {
 
             $errors = User::validate_login($email, $password);
             if (empty($errors)) {
-                $this->log_user(User::get_user_by_email($email));
+                $this->log_user(User::get_users_by_email($email));
             }
         }
         (new View("login"))->show(["email" => $email, "password" => $password, "errors" => $errors]);
     }
 
+    public function change_password(){
+        $this->require_login();
+        $user = $this->get_user_or_false();
+        $page = "change_password";
+        
+        $currentPassword = '';
+        $newPassword = '';
+        $confirmNewPassword = '';
+        $errors = [];
+
+        if (isset($_POST['current_password']) && isset($_POST['new_password']) && isset($_POST['confirm_new_password'])) {
+            $currentPassword = $_POST['current_password'];
+            $newPassword = $_POST['new_password'];
+            $confirmNewPassword = $_POST['confirm_new_password'];
+
+            $user->validate_change_password($currentPassword, $newPassword , $confirmNewPassword);
+
+            $hasErrors = false;
+            foreach ($errors as $fieldErrors) {
+                if (!empty($fieldErrors)) {
+                    $hasErrors = true;
+                }
+            }
+            
+            if(!$hasErrors){
+                $user->persist();
+                $this->redirect("user", "profile");
+            }
+        }
+
+        (new View("change_password"))->show(["user" => $user, "page" =>  $page, "errors" => $errors, "currentPassword" => $currentPassword, "newPassword" => $newPassword, "confirmNewPassword" => $confirmNewPassword]);
+    }
+
+    public function edit_profile() {
+        $this->require_login();
+        $user = $this->get_user_or_false();
+        $page = "edit_profile";
+        $errors = [];
+
+        if (isset($_POST['full_name']) || isset($_POST['username']) || isset($_POST['email']) || isset($_POST['iban'])) {
+            $fullName = $_POST['full_name'] ?? $user->getFullName();
+            $username = $_POST['username'] ?? $user->getPseudo();
+            $email    = $_POST['email'] ?? $user->getEmail();
+            $iban     = $_POST['iban'] ?? $user->getIban();
+            
+            $errors = $user->validate_update($fullName, $username, $email, $iban);
+            
+            $hasErrors = false;
+            foreach ($errors as $fieldErrors) {
+                if (!empty($fieldErrors)) {
+                    $hasErrors = true;
+                }
+            }
+
+            if(!$hasErrors){
+                $user->persist();
+                $this->redirect("user", "profile");
+            }
+        }
+        
+        (new View("edit_profile"))->show(["user" => $user, "page" =>  $page, "errors" => $errors]);
+    }
+
     public function profile() : void{
+        $this->require_login();
         $user = $this->get_user_or_false();
         $page = "profile";
 
         (new View("profile"))->show(["user" => $user, "page" =>  $page]);
     }
 
-    public function edit_profile() : void{
-        $user = $this->get_user_or_false();
-        $page = "edit_profile";
-
-        (new View("edit_profile"))->show(["user" => $user, "page" =>  $page]);
-    }
-
-    public function change_password() : void{
-        $user = $this->get_user_or_false();
-        $page = "change_password";
-
-        (new View("change_password"))->show(["user" => $user, "page" =>  $page]);
-    }
-
     public function manage_profile_picture() : void{
+        $this->require_login();
         $user = $this->get_user_or_false();
         $page = "manage_profile_picture";
+        $errors = [];
 
-        (new View("manage_profile_picture"))->show(["user" => $user, "page" =>  $page]);
+        if(isset($_POST['delete'])){
+            $user->delete_picture_path();
+        }
+
+        if (isset($_POST['upload']) && !empty($_FILES['file']['tmp_name'])) {
+            $file = $_FILES['file'];
+            $errors = $user->upload_picture_path($file);
+        }
+        
+        (new View("manage_profile_picture"))->show(["user" => $user, "page" =>  $page, "errors" => $errors]);
     }
 
     //########################### NOT FINISHED ###########################
@@ -97,28 +157,37 @@ class ControllerUser extends Controller {
     }
     //########################### NOT FINISHED ###########################
 
+    // -------- Doit être connecté --------
+    private function require_login(): void {
+        if (!$this->user_logged()) {
+            $this->redirect("user", "login");
+            exit(); 
+        }
+    }
+
+
     // -------- For Debug Purpose --------
     public function loginAsQuentin() : void{
         Configuration::is_dev();
-        $user = User::get_user_by_pseudo("Quentin"); 
+        $user = User::get_users_by_pseudo("Quentin"); 
         $this->log_user($user);
     }
 
     public function loginAsBoris() : void{
         Configuration::is_dev();
-        $user = User::get_user_by_pseudo("Boris"); 
+        $user = User::get_users_by_pseudo("Boris"); 
         $this->log_user($user);
     }
 
     public function loginAsMarc() : void{
         Configuration::is_dev();
-        $user = User::get_user_by_pseudo("Marc"); 
+        $user = User::get_users_by_pseudo("Marc"); 
         $this->log_user($user);
     }
 
     public function loginAsXavier() : void{
         Configuration::is_dev();
-        $user = User::get_user_by_pseudo("Xavier"); 
+        $user = User::get_users_by_pseudo("Xavier"); 
         $this->log_user($user);
     }
 }

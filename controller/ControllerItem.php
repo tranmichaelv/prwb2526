@@ -1,10 +1,15 @@
 <?php
-
-require_once 'model/User.php';
-require_once 'model/Item.php';
-require_once 'model/Item_pictures.php';
 require_once "framework/Controller.php";
+require_once "model/Item.php";
+require_once "model/ItemPicture.php";
+// require_once "utils/Apptime.php";
+require_once "utils/ImageManager.php";
+require_once 'model/User.php';
+require_once 'model/Item_pictures.php';
 require_once "utils/Utils.php";
+require_once "model/ItemStatus.php";
+require_once "model/ItemSaleStatus.php";
+
 
 require_once "model/Picture.php";
 require_once "model/ItemSaleStatus.php";
@@ -12,13 +17,11 @@ require_once 'framework/View.php';
 require_once 'utils/AppTime.php';
 class ControllerItem extends Controller {
 
-    private ?ItemSaleStatus $bid = null;
-
     public function index() : void {
         $this->browse();
     }
 
-    // Page item/browse
+     // Page item/browse
     public function browse() : void {
         $user = $this->get_user_or_false();
         $page = "browse";
@@ -29,7 +32,7 @@ class ControllerItem extends Controller {
 
             (new View("browse"))->show(["items" => $items_other, "items_user" => $items_user, "user" => $user, "page" => $page]);
         } else{
-            $all_items = Item::get_all_items();
+            $all_items = ItemStatus::get_all_items();
 
             (new View("browse"))->show(["all_items" => $all_items, "user" => $user, "page" => $page]);
         }
@@ -79,7 +82,296 @@ class ControllerItem extends Controller {
         }
     }
 
-    
+    public function add() : void {
+       $user = $this->get_user_or_false();
+        if (!$user) {
+            $this->redirect("user", "login");
+            return;
+        }
+
+        $errors = [];
+        $owner = $user->getId();
+
+        $title = $_POST['title'] ?? "";
+        $description = $_POST['description'] ?? "";
+        $duration = isset($_POST['duration']) ? (int)$_POST['duration'] : 7;
+
+        $bid_raw = $_POST['bid'] ?? null;
+        $starting_bid = ($bid_raw === '') ? null : (float)$bid_raw;
+
+        $buy_raw = $_POST['buy_now'] ?? '';
+        $instant = ($buy_raw === '') ? null : (float)$buy_raw;
+
+        $sale_raw = $_POST['sale_price'] ?? '';
+        $sale = ($sale_raw === '') ? null : (float)$sale_raw;          
+
+        $item = new Item(
+            id: null,
+            title: $title,
+            description: $description,
+            owner: $owner,
+            duration_days: $duration,
+            starting_bid: $starting_bid,
+            buy_now_price: null // calculer dans validate()
+        );
+
+            $item->set_instant_purchase($instant);
+            $item->set_sale_price($sale);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $errors = $item->persist(); // validation + insert tentative
+
+            if (empty($errors)) {
+                // redirection vers Open Item
+                // plus tard
+                $this->redirect("item","open", $item->get_id());
+            }
+        }
+
+        (new View("add_edit_item"))->show([
+            "mode" => "add",         
+            "errors" => $errors,
+            "item" => $item,
+            "user" => $user
+        ]);
+
+    }
+
+    public function edit() : void {
+
+        $user = $this->get_user_or_false();
+        if (!$user) {
+            $this->redirect("user", "login");
+            return;
+        }
+
+        $id = $_GET['param1'] ?? null;
+
+        if ($id === null || !is_numeric($id)) {
+            $this->redirect("item");
+        }
+
+        $item = Item::get_by_id((int)$id);
+        if ($item === null) {
+            $this->redirect("item");
+        }
+
+        $errors = [];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            $item->set_title($_POST['title'] ?? "");
+             $item->set_description($_POST['description'] ?? "");
+            $item->set_duration_days(isset($_POST['duration']) ? (int)$_POST['duration'] : 7);
+
+            $bid_raw = $_POST['bid'] ?? '';
+            $starting_bid = ($bid_raw === '') ? null : (float)$bid_raw;
+            $item->set_starting_bid($starting_bid);
+
+            $buy_raw = $_POST['buy_now'] ?? '';
+            $instant = ($buy_raw === '') ? null : (float)$buy_raw;
+            $item->set_instant_purchase($instant);
+
+            $sale_raw = $_POST['sale_price'] ?? '';
+            $sale = ($sale_raw === '') ? null : (float)$sale_raw;
+            $item->set_sale_price($sale);
+
+            $errors = $item->persist();
+
+        if (empty($errors)) {
+            $this->redirect("item","open",$item->get_id());
+        }
+    }
+
+        (new View("add_edit_item"))->show([
+            "mode" => "edit",
+            "errors" => $errors,
+            "item" => $item,
+            "id" => $id,
+            "user" => $user
+        ]);
+
+    }
+
+    public function delete(): void {
+        $id = $_GET["param1"] ?? null;
+        if($id === null || !is_numeric($id)){
+            $this->redirect("item","my_items");
+        }
+
+        $item = Item::get_by_id($id);
+        if($item === null){
+            $this->redirect("item","my_items");
+        }
+
+        $owner = User::get_users_by_id($item->get_owner_id());
+
+        if($_SERVER["REQUEST_METHOD"] === "POST"){
+            $item->delete();
+            $this->redirect("item","list");
+        }
+        (new View("delete_item"))->show([
+            "item" => $item,
+            "owner" => $owner
+        ]);
+    }
+
+    public function manage_images() : void {
+        $user = $this->get_user_or_false();
+        if (!$user) {
+            $this->redirect("user", "login");
+            return;
+        }
+        $itemId = (int)($_GET["param1"] ?? 0);
+        $item = Item::get_by_id($itemId);
+        if($item === null) $this->redirect("item");
+
+
+        $pictures = ItemPicture::get_by_item($itemId);
+
+        (new View("manage_images"))->show([
+            "item" => $item,
+            "pictures" => $pictures,
+            "errors" => [],
+            "user" => $user
+        ]);
+    }
+
+    public function upload_images(): void {
+        $user = $this->get_user_or_false();
+        if (!$user) {
+            $this->redirect("user", "login");
+            return;
+        }
+        $itemId = (int)($_GET["param1"] ?? 0);
+        $item = Item::get_by_id($itemId);
+        if ($item === null) $this->redirect("item");
+
+        $errors = [];
+
+        if(!isset($_FILES["images"])){
+            $errors[] = "No files receveid.";
+        } else {
+
+            // prochaine priorité = max_priority + 1
+            $priority = ItemPicture::get_max_priority($itemId) + 1;
+
+            $names = $_FILES["images"]["name"];
+            $tmp   = $_FILES["images"]["tmp_name"];
+            $size  = $_FILES["images"]["size"];
+            $err   = $_FILES["images"]["error"];
+
+            for ($i = 0; $i < count($names); $i++) {
+
+             // ignorer cases vides   
+             if ($names[$i] === "") continue;
+             
+             $file = [
+                "name" => $names[$i],
+                "tmp_name" => $tmp[$i],
+                "size" => $size[$i],
+                "error" => $err[$i]
+             ];
+
+             // validation fichier
+             $fileErrores = ImageManager::validate($file);
+             if (!empty($fileErrors)) {
+                foreach ($fileErrors as $e) {
+                    $errors[] = $names[$i] . " : " . $e;
+                }
+                continue;
+            }
+
+            // création fichier main + thumbnail
+            $baseName = pathinfo($names[$i], PATHINFO_FILENAME);
+
+            try {
+                $mainPath = ImageManager::save_item_image($file, $itemId, $baseName, $priority);
+
+                //  db
+                $pic = new ItemPicture(
+                    item: $itemId,
+                    priority: $priority,
+                    picture_path: $mainPath
+                );
+
+                $persistErrors = $pic->persist();
+                if (!empty($persistErrors)) {
+                    foreach ($persistErrors as $e) {
+                        $errors[] = $names[$i] . " : " . $e;
+                    }
+                    // si persist rate, on supprime les fichiers créés 
+                    $thumb =preg_replace('/\.jpg$/', '_thumbnail.jpg', $mainPath);
+                    if (file_exists($mainPath)) unlink($mainPath);
+                    if (file_exists($thumb)) unlink($thumb);
+
+                    continue;
+                }
+
+                $priority++;
+
+            } catch (Exception $ex) {
+                $errors[] = $names[$i] . " : " . $ex->getMessage();
+              }
+        }
+    }
+        // recharge la page avec les images + erreurs
+        $pictures = ItemPicture::get_by_item($itemId);
+        (new View("manage_images"))->show([
+            "item" => $item,
+            "pictures" => $pictures,
+            "errors" => $errors,
+            "user" => $user
+        ]);
+
+}
+
+            
+    public function move_picture(): void {
+        $itemId = (int)($_GET["param1"] ?? 0);
+        $priority = (int)($_GET["param2"] ??0);
+        $dir = $_GET["param3"] ?? "";
+
+        if($dir === "left" && $priority > 1){
+            ItemPicture::swap_priority($itemId, $priority, $priority - 1);
+        } else if ($dir === "right"){
+            $max = ItemPicture::get_max_priority($itemId);
+            if($priority < $max) ItemPicture::swap_priority($itemId, $priority, $priority + 1);
+        }
+        $this->redirect("item","manage_images",$itemId);
+    }
+
+    public function delete_picture(): void {
+        $itemId = (int)($_GET["param1"] ?? 0);
+        $priority = (int)($_GET["param2"] ?? 0);
+
+        $pics = ItemPicture::get_by_item($itemId);
+        $toDelete = null;
+        foreach ($pics as $p) if ($p->get_priority() === $priority) $toDelete = $p;
+
+           if ($toDelete !== null) {
+                // supprime fichiers (main et thumb)
+                $main = $toDelete->get_picture_path();
+                $thumb = preg_replace('/\.jpg$/', '_thumbnail.jpg', $main);
+
+                if (file_exists($main)) unlink($main);
+                if (file_exists($thumb)) unlink($thumb);
+
+                $toDelete->delete();
+
+                // réindexer les priorités 
+                $pics = ItemPicture::get_by_item($itemId);
+                $p = 1;
+                foreach ($pics as $img) {
+                    if ($img->get_priority() !== $p) {
+                        ItemPicture::swap_priority($itemId, $img->get_priority(), $p);
+                    }
+                    $p++;
+                }
+            }   
+
+        $this->redirect("item", "manage_images", $itemId);
+    }
+
 
     /*------------ Ici le contenur de open Item ----------------*/
 
@@ -110,25 +402,28 @@ class ControllerItem extends Controller {
 
         $current_user = $this->get_user_or_redirect();
 
-        //$itemData = $this->loadItemData($id, $current_user);
-        $item = Item::get_item_by_id($id);
+        $item = ItemStatus::get_item_by_id($id);
+
+        $item->getMaxBid();
+
         $main_picture_path = null;
         $main_picture_path = $item->get_main_picture_by_item_id();
         $bid = $this->get_bid_status($id);
     
         $seller = User::get_users_by_id($item->getOwner());
         
+        $item->getStartingBid();
+
         // $status = $this->get_bid_status($id);
         $bids_history = $bid->get_bids_history();
         // faire la vérif si y a pas de bids 
 
 
         // --------------- gestion des différents cas ---------------- // 
-        $pricing_case = $this->get_case($item, $current_user);
+        $pricing_case = $this->get_case($item->getId(), $current_user);
     
         
-
-        //(new View("open_item"))->show(array_merge($itemData, $bidData));
+        
         (new View("open_item"))->show([
             "item" => $item, 
             "main_picture_path" => $main_picture_path,
@@ -140,16 +435,16 @@ class ControllerItem extends Controller {
         ]);
     }
 
-    private function get_case(Item $item,User $current_user) : string {
-        $bid = $this->get_bid_status($item->getId());
+    private function get_case(int $item_id,User $current_user) : string {
+        $bid = $this->get_bid_status($item_id);
 
         $isClosed = $bid->bid_is_closed();
         $userIsOwner = $bid->user_is_owner($current_user);
        // $isAuction = $bid->is_auction();
         //$isAuction = $item->isAuction();
 
-        $hasBids = $bid->has_bids();
-        $hasBuyNow = $bid->has_buy_now();
+        // $hasBids = $bid->has_bids();
+        // $hasBuyNow = $bid->has_buy_now();
         
         if(count($bid->get_bids_history())!=0){
 
@@ -183,11 +478,10 @@ class ControllerItem extends Controller {
         return"";
     }
 
-    private function get_bid_status(int $id): ?ItemSaleStatus {
-        if ($this->bid === null) {
-            $this->bid = ItemSaleStatus::get_current_bid_by_item_id($id);
-        }
-        return $this->bid;
+    private function get_bid_status(int $id): ItemSaleStatus {
+        
+        // $bid = ItemSaleStatus::get_current_bid_by_item_id($id);
+        return ItemSaleStatus::get_current_bid_by_item_id($id);
     }
     
 
@@ -198,19 +492,23 @@ class ControllerItem extends Controller {
     public function place() : void {
         $current_user = $this->get_user_or_redirect();
         
+        
         if(count($_POST)){
         $item = $_POST['item'];
         $amount = $_POST['amount'];
         
-
+            //var_dump($item, " *** ", $amount);die ("arrivé sur place ");
         }else {
             $item=$_GET['param1'];
-            $item_pop = Item::get_item_by_id($item);
+            var_dump($item);die ("s'arreter juste après avoir récup l'id en argument ");
+            $item_pop = ItemStatus::get_item_by_id($item);
             $amount=$item_pop->getBuyNowPrice();
-          
-            
+
+            var_dump("id -> ",$item, "amount -> ", $amount);
+            die ("Bien arivé sur place pour buy ");
         }
-        Item::bid($current_user,$item,$amount);
+        
+        ItemStatus::bid($current_user,$item,$amount);
         
        $this->redirect("item","open",$item);
     }
@@ -222,7 +520,7 @@ class ControllerItem extends Controller {
         }
         $item = $_POST['item'];
         $amount = $_POST['amount'];
-        $check = Item::buy($current_user,$item,$amount);
+        $check = ItemStatus::buy($current_user,$item,$amount);
         
         if ($check == true) {
             header("Location: /prwb_2526_c05/item/open/$item");
@@ -231,57 +529,7 @@ class ControllerItem extends Controller {
         }
     }
 
-    /*========= Chargements des données de l'Item ===========*/
-    
-    /*private function loadItemData(int $id, ?User $current_user): array {
-        $errors = [];
-
-        $item = Item::get_item_by_id($id);
-        $main_picture = $item?->get_main_picture_by_item_id();
-        $all_pictures = $item?->get_all_pictures_by_item_id();
-
-        if (!$item) $errors[] = "Aucun item retrouvé";
-        if (!$main_picture) $errors[] = "Aucune image principale";
-        if (!$all_pictures) $errors[] = "Pas d'images retrouvées pour cet item";
-
-        return [
-            'item' => $item,
-            'main_picture' => $main_picture,
-            'pictures' => $all_pictures,
-            'user' => $current_user,
-            'errors' => $errors
-        ];
-    }*/
-
-    /*======== Chargement des données de l'enchère =========*/
-    /*
-    private function loadBidData(int $id, ?User $current_user): array {
-        $errors = [];
-        $bid = $this->get_bid($id);
-
-        if (!$bid) {
-            $errors[] = "Aucune enchère pour le moment";
-        }
-
-        $seller = $bid?->get_seller_information();
-        if (!$seller) $errors[] = "Aucune information sur le vendeur";
-
-        $bids_history = $bid?->get_bids_history();
-        if (!$bids_history) $errors[] = "Problème avec l'historique des enchères";
-
-        return [
-            'current_bid' => $bid?->getCurrentBid(),
-            'starting_bid' => $bid?->getStartingBid(),
-            'bid_is_closed' => $bid?->bid_is_closed() ?? true,
-            'user_is_owner' => $current_user ? $bid?->user_is_owner($current_user) : false,
-            'has_buy_now' => $bid?->buy_now_price_exist() ?? false,
-            'has_bids' => $bid?->has_bids() ?? false,
-            'buy_now_reached' => $bid?->buy_now_reached() ?? false,
-            'is_direct_sale' => $bid?->is_direct_sale() ?? false,
-            'seller' => $seller,
-            'bids_history' => $bids_history,
-            'errors' => $errors
-        ];
-    } */
 
 }
+
+
