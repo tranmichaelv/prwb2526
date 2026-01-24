@@ -26,4 +26,13 @@ Class Utils{
         $amount = (float) $amount;
         return ("€ ".number_format($amount,2,',','.'));
     }
+
+    public static function moneyToFloat($value): ?float {
+        $raw = (string)$value;
+        $clean = preg_replace('/[^\d,.\s]/u', '', $raw);
+        $clean = str_replace(' ', '', $clean);
+        $clean = str_replace(',', '.', $clean);
+        return is_numeric($clean) ? (float)$clean : null;
+    }
+
 }

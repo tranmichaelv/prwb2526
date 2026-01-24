@@ -44,6 +44,7 @@ class ItemSaleStatus extends Model {
     public function getIsDirectSale() : bool { return $this->is_direct_sale; }
 
 
+
     public static function get_current_bid_by_item_id($id) : ?ItemSaleStatus {
 
         $query = self::execute(
@@ -55,7 +56,7 @@ class ItemSaleStatus extends Model {
 
         $results = $query->fetch(PDO::FETCH_ASSOC);
 
-        if (!$results) {
+        if ($query->rowCount()==0) {
             return null;
         } else {
             return new ItemSaleStatus(
@@ -110,10 +111,12 @@ class ItemSaleStatus extends Model {
         }
     }
 
-     public function get_bids_history() : ?array {
+    
+    public function get_bids_history() : array {
 
         $query = self::execute(
             "SELECT 
+                u.id,
                 u.pseudo,
                 b.amount,
                 b.created_at
@@ -121,36 +124,29 @@ class ItemSaleStatus extends Model {
                     JOIN users u ON u.id = b.owner
                 WHERE b.item = :id
                 ORDER BY b.created_at DESC;", 
-            ["id" => $this->item_id ]
+            ["id" =>$this->item_id ]
         ); 
 
-        $bids = $query->fetchAll(PDO::FETCH_ASSOC);
-        return $bids ?? null;
+        $bids = $query->fetchAll();
+        return $bids ;
     } 
 
 
 
     public function bid_is_closed() : bool {
 
-        $query = self::execute(
-            "SELECT v.*
-            FROM v_items_status v
-            WHERE v.id = :id
-                AND (v.not_purchased_direct_sale
-                    OR (v.is_auction
-                    AND v.end_at > :now
-                    AND (NOT v.has_buy_now OR NOT v.buy_now_reached)) 
-                    );",
-            ['now' => AppTime::get_current_datetime(), "id" => $this->item_id]
-        );
+        if($this->has_buy_now==0){
+        if(AppTime::get_current_datetime()>$this->end_at){
+            return true;
+        }
+       } else {
+        if($this->buy_now_reached()==1 || AppTime::get_current_datetime()>$this->end_at )
+            return true;
+       }
 
-        $query->fetchAll();
-
-        if ($query->rowCount() !== 0) {
-            return false;
-        } 
-        return true;
+       return false;
     }
+
 
     public function user_is_owner(User $current_user) : bool {
 
@@ -169,23 +165,30 @@ class ItemSaleStatus extends Model {
 
     public function has_bids() : bool {
     
-        if ($this->item_id !== null && $this->has_bids) {
+        if ($this->has_bids==1) {
             return true;
         }
         return false;
     } 
     
+    public function has_buy_now() : bool {
+
+        if ($this->has_buy_now==1) {
+            return true;
+        }
+        return false;
+    }
     public function buy_now_reached() : bool {
 
-        if ($this->item_id !== null && $this->buy_now_reached) {
+        if ($this->buy_now_reached) {
             return true;
         }
         return false;
     }
 
-    public function is_direct_sale() : bool {
+    public function is_auction() : bool {
 
-        if ($this->item_id !== null && $this->is_direct_sale) {
+        if ($this->has_buy_now==0) {
             return true;
         }
         return false;

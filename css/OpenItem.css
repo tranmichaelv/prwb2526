@@ -10,6 +10,7 @@ body {
     justify-content: center;
     margin : 15px auto;
     gap: 10px;
+    /* border: red solid 5px; */
 }
 
 .item-content {
@@ -115,171 +116,6 @@ body {
   margin: px 0 0 0;
 }
 
-
-.pricing-container {
-  max-width: 320px;
-  margin: 0 auto;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #121212;
-  color: #eee;
-  padding: 20px;
-  border-radius: 10px;
-}
-
-.pricing-card {
-  background-color: #1e1e2f;
-  border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 24px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.6);
-}
-
-.section-title {
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: #a0a0a0;
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.pricing-info {
-  margin-bottom: 12px;
-}
-
-.label {
-  font-weight: 600;
-  font-size: 0.85rem;
-  margin-bottom: 2px;
-}
-
-.price {
-  font-size: 1.2rem;
-  margin-bottom: 6px;
-}
-
-.price.highlight {
-  color: #20c997; /* vert vif */
-  font-weight: 700;
-}
-
-.starting-at {
-  font-size: 0.85rem;
-  color: #a0a0a0;
-  margin-bottom: 10px;
-}
-
-.bid-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.input-group {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.currency {
-  position: absolute;
-  left: 10px;
-  color: #aaa;
-  pointer-events: none;
-  font-size: 1rem;
-}
-
-input[name="new-bid"] {
-  padding-left: 26px;
-  width: 100%;
-  font-size: 1rem;
-  border-radius: 6px;
-  border: none;
-  outline: none;
-  height: 36px;
-}
-
-.btn {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
-  transition: background-color 0.25s ease;
-}
-
-.btn-primary {
-  background-color: #20c997;
-  color: #121212;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #1aa374;
-}
-
-.btn-outline-primary {
-  background-color: transparent;
-  color: #228be6;
-  border: 2px solid #228be6;
-}
-
-.btn-outline-primary:hover {
-  background-color: #228be6;
-  color: #121212;
-}
-
-.btn:disabled,
-.btn[disabled] {
-  background-color: #555 !important;
-  cursor: not-allowed;
-  color: #bbb;
-}
-
-.buy-now-btn {
-  display: block;
-  margin-top: 8px;
-}
-
-.seller-info {
-  background-color: #2a2a3c;
-  padding: 12px;
-  border-radius: 10px;
-}
-
-.seller-details {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.seller-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #444; /* placeholder gris */
-  object-fit: cover;
-}
-
-.seller-name {
-  font-weight: 700;
-  font-size: 1rem;
-  margin-bottom: 2px;
-}
-
-.seller-role {
-  font-size: 0.8rem;
-  color: #a0a0a0;
-}
-
-.warning-message {
-  margin-top: 10px;
-  color: #ff6b6b;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
 .menu-time {
     position: fixed;   
     bottom: 0;
@@ -356,48 +192,250 @@ input[name="new-bid"] {
     background-color: #777;
 }
 
-/*
-.right-container {
-    flex: 0 0 25%;
-    max-width: 40%;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 60vh;
-    gap: 1rem;
-    border: rgb(254, 254, 254) solid 1px;
+
+
+/* ---- RIGHT PANEL sizing (optionnel) ---- */
+.right-container{
+  width: 450px;               /* ajuste si tu veux plus large */
+}
+
+/* ---- Pricing panel ---- */
+.oi-panel{
+  background: #1f2428;
+  border-radius: 10px;
+  padding: 14px;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.06);
+}
+
+.oi-title{
+  font-size: 13px;
+  font-weight: 600;
+  opacity: .8;
+  margin-bottom: 10px;
+}
+
+.oi-top{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.oi-label{
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.oi-sub{
+  font-size: 12px;
+  opacity: .65;
+  margin-top: 2px;
+}
+
+.oi-price{
+  font-size: 14px;
+  font-weight: 700;
+  color: #06b463; /* vert comme ta capture */
+  white-space: nowrap;
+}
+
+.oi-divider{
+  height: 1px;
+  background: rgba(255, 255, 255, 0.359);
+  margin: 12px 0;
+}
+
+/* ---- Form ---- */
+.oi-form{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.oi-money{
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 6px;
+  overflow: hidden;
+  height: 38px;
+}
+
+.oi-money__prefix{
+  width: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: .75;
+  border-right: 1px solid rgba(255,255,255,.12);
+}
+
+.oi-money__input{
+  width: 100%;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: rgba(255,255,255,.92);
+  padding: 0 12px;
+  font-size: 14px;
+}
+
+/* enlever les flèches sur certains navigateurs (optionnel) */
+.oi-money__input::-webkit-outer-spin-button,
+.oi-money__input::-webkit-inner-spin-button{
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.oi-btn{
+  height: 38px;
+  border: 0;
+  border-radius: 6px;
+  background: #20c997;
+  color: whitesmoke;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.oi-btn:hover{
+  filter: brightness(1.05);
+}
+
+/* ---- Seller card ---- */
+.oi-seller{
+  background: #1f2428;
+  border-radius: 10px;
+  padding: 14px;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.06);
+}
+
+.oi-seller__title{
+  font-size: 13px;
+  font-weight: 600;
+  opacity: .8;
+  margin-bottom: 10px;
+}
+
+.oi-seller__content{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.oi-seller__avatar{
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #3a3f44; /* gris comme sur l’image */
+}
+
+.oi-seller__name{
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.oi-seller__role{
+  font-size: 12px;
+  opacity: .6;
+}
+
+/* petites variantes de texte */
+.oi-sub--spaced{
+  margin-top: 10px;
+  color: whitesmoke;
+}
+
+.oi-sub--muted{
+  color: whitesmoke;
+  font-weight: 600;
+}
+
+/* bouton outline "Buy now" */
+.oi-btn--outline{
+  background: transparent;
+  border: 1px solid rgba(59,130,246,.9); /* bleu */
+  color: rgba(96,165,250,1);             /* bleu clair */
+}
+
+.oi-btn--outline:hover{
+  background: rgba(59,130,246,.08);
+}
+
+/* form plus serré (pour coller à ta capture) */
+.oi-form--tight{
+  margin-top: 10px;
 }
 
 
 
-.pricing-content {
-    border: #2ecc71 solid 1px;
-    max-width: 80%;
-    margin: 15px 12px 0 12px;
+/* ici mon conteneur personalisé */
+.panel {
+  border : greenyellow solid 4px;
+  padding: 14px;
 }
 
-.pricing-container h6 {
-    margin-left: 15px;
-}
-.pricing-content h6 {
-    color: rgb(255, 255, 255);
+.money-container {
+  display: flex;
 }
 
-.seller-info-container {
-    border: #2ecc71 solid 1px;
-    max-width: 90%;
-    margin: 0 15px 15px 15px;
+.title {
+  border : red solid 2px;
+  color :aqua;
+  font-size: 15px;
+  opacity: 0.6;
+  margin-bottom: 10px;
 }
 
-.seller-info-container p, h6 {
-    color: rgb(255, 255, 255);
+.label {
+  border : red solid 2px;
+  color :whitesmoke;
+  font-size: 20px;
+  width: 50%;
+  display: flex;
 }
 
-.pricing-content p {
-    color: rgb(252, 255, 255);
+.price {
+  color :whitesmoke;
+  width: 50%;
+  text-align: end;
+  padding-right: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #06b463; /* vert comme ta capture */
+  white-space: nowrap;
 }
 
+.sub-label {
+  border : violet solid 2px;
+  color : whitesmoke;
+  font-weight: bold;
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.359);
+  margin: 12px 0;
+}
+
+.money-input {
+  width: 90%;
+  height: 100%;
+  background : transparent;
+  border-radius: 0;
+  outline: none;
+  outline: none;
+  color: rgba(241, 58, 58, 0.92);
+  padding: 0 12px;
+  font-size: 14px;
+}
 
 
 

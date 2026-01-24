@@ -86,6 +86,9 @@ class ControllerItem extends Controller {
     public function open() : void {
         //$this->redirect("openitem");
         //$this->redirect("openitem","index",$_GET["param1"]);
+        //$var = Item::test($_GET['param1']);
+        //var_dump($var);
+        //die ();
         $this->itemDetails();
     } 
 
@@ -96,12 +99,11 @@ class ControllerItem extends Controller {
     */
 
     public function itemDetails(): void {
-        //$id = $_GET["param1"] ?? null;
+        
         $id = isset($_GET['param1']) ? (int) $_GET['param1'] : null;
         
         $errors = [];
-        //print_r($id);
-        //die();
+        
         if ($id == null) {
             $errors[] = "Le controller a besoin d'un id pour charger la vue open item";
         }
@@ -110,28 +112,123 @@ class ControllerItem extends Controller {
 
         //$itemData = $this->loadItemData($id, $current_user);
         $item = Item::get_item_by_id($id);
-        //$bidData = $this->loadBidData($id, $current_user);
-        $bid = $this->get_bid($id);
+        $main_picture_path = null;
+        $main_picture_path = $item->get_main_picture_by_item_id();
+        $bid = $this->get_bid_status($id);
+    
         $seller = User::get_users_by_id($item->getOwner());
-        // Fusion des erreurs
-        //$errors = array_merge($errors, $itemData['errors'], $bidData['errors']);
-        //$itemData['errors'] = $errors;
-        //$bidData['errors'] = []; // éviter écrasement lors du merge
-
         
+        // $status = $this->get_bid_status($id);
+        $bids_history = $bid->get_bids_history();
+        // faire la vérif si y a pas de bids 
+
+
+        // --------------- gestion des différents cas ---------------- // 
+        $pricing_case = $this->get_case($item, $current_user);
+    
+        
+
         //(new View("open_item"))->show(array_merge($itemData, $bidData));
-        (new View("open_item"))->show(["item" => $item, "bid" => $bid, "seller" => $seller]);
+        (new View("open_item"))->show([
+            "item" => $item, 
+            "main_picture_path" => $main_picture_path,
+            "bid" => $bid, 
+            "seller" => $seller, 
+            "pricing_case" => $pricing_case, 
+            "user" => $current_user,
+            "bids_history" => $bids_history
+        ]);
     }
 
-    private function get_bid(int $id): ?ItemSaleStatus {
+    private function get_case(Item $item,User $current_user) : string {
+        $bid = $this->get_bid_status($item->getId());
+
+        $isClosed = $bid->bid_is_closed();
+        $userIsOwner = $bid->user_is_owner($current_user);
+       // $isAuction = $bid->is_auction();
+        //$isAuction = $item->isAuction();
+
+        $hasBids = $bid->has_bids();
+        $hasBuyNow = $bid->has_buy_now();
+        
+        if(count($bid->get_bids_history())!=0){
+
+        $lastBiderId = $bid->get_bids_history()['0']['id'];
+
+        }
+     
+        $buyNowReached = $bid->buy_now_reached();
+        
+    
+        if (!$isClosed && !$userIsOwner && !$bid->getHasBuyNow() && !$bid->getHasBids()){
+            return "case1";
+        }
+        
+        if (!$isClosed && !$userIsOwner && $bid->getHasBids() && $bid->getHasBuyNow()) {
+            return "case2";
+        } 
+        if (!$isClosed && !$userIsOwner && $bid->getIsDirectSale()) {
+            return "case3";
+        } 
+
+        if (!$isClosed && $userIsOwner) {
+            return "case4";
+        } 
+        if (!$userIsOwner && ($isClosed && $current_user->getId() === $lastBiderId)) {
+            return "case5";
+        } 
+        if ($isClosed && $userIsOwner) {
+            return "case6";
+        }
+        return"";
+    }
+
+    private function get_bid_status(int $id): ?ItemSaleStatus {
         if ($this->bid === null) {
             $this->bid = ItemSaleStatus::get_current_bid_by_item_id($id);
         }
         return $this->bid;
     }
     
+
     private function get_current_time(): ?string {
         return AppTime::get_current_datetime();
+    }
+
+    public function place() : void {
+        $current_user = $this->get_user_or_redirect();
+        
+        if(count($_POST)){
+        $item = $_POST['item'];
+        $amount = $_POST['amount'];
+        
+
+        }else {
+            $item=$_GET['param1'];
+            $item_pop = Item::get_item_by_id($item);
+            $amount=$item_pop->getBuyNowPrice();
+          
+            
+        }
+        Item::bid($current_user,$item,$amount);
+        
+       $this->redirect("item","open",$item);
+    }
+
+    public function buy() : void {
+        $current_user = $this->get_user_or_false();
+        if (!$current_user) {
+            die ("Not logged in");
+        }
+        $item = $_POST['item'];
+        $amount = $_POST['amount'];
+        $check = Item::buy($current_user,$item,$amount);
+        
+        if ($check == true) {
+            header("Location: /prwb_2526_c05/item/open/$item");
+        } else {
+            die ("arreter le programme pour le moment");
+        }
     }
 
     /*========= Chargements des données de l'Item ===========*/

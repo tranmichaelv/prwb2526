@@ -49,7 +49,7 @@ class Item extends Model {
 
     public function getBidCount(): int { return $this->bid_count; }
 
-    public function getMaxBid(): string { return $this->max_bid; }
+    public function getMaxBid(): ?string { return $this->max_bid; }
 
     public function isDirectSale(): bool { return $this->is_direct_sale; }
 
@@ -65,6 +65,15 @@ class Item extends Model {
 
     public function setPictures(array $pictures): void { $this->pictures = $pictures; }
 
+    public static function test(int $id) {
+        $query = self::execute(
+
+            "SELECT is_auction FROM v_items_status WHERE  id = :id", 
+            ["id" => $id]
+        );
+        $data=$query->fetch();
+        return $data['is_auction'];
+    }
     // -------- Tout les items disponible --------
     public static function get_all_items(): array{
         $query = self::execute("SELECT v.*, p.*
@@ -442,9 +451,14 @@ class Item extends Model {
                 $Item["has_bids"],
                 $Item["buy_now_reached"],
                 $Item["not_purchased_direct_sale"],
+                $Item['buy_now_price'],
+                Utils::convert_format_number_for_bids($Item['starting_bid']),
+                Utils::convert_format_number_for_bids($Item['max_bid']),
+                /*
                 $Item["buy_now_price"],
                 $Item["starting_bid"],
                 $Item["max_bid"] 
+                */
             );
         }
     }
@@ -465,12 +479,7 @@ class Item extends Model {
 
         $results = $query->fetch();
 
-        if ($query->rowCount() == 0) {
-            //$error [] = "Acune image pour cet Item !!"; // tmp pas sur d'avoir besoin de cette erreur
-            return null;
-        } else {
-            return $results["picture_path"];
-        }
+        return $results ? $results["picture_path"] : null;
     }
 
 
@@ -494,4 +503,54 @@ class Item extends Model {
         } 
     }
     
+
+    // ========= Faire une enchère ou acheter un Item ========== //
+
+    public static function bid($owner,$item_id,$amount) : bool {
+
+        //var_dump($item, $owner, $amount);
+        //die (" bien arrivé sur bid dans Item ");
+        // pas besoin de vérifier si ouvert/fermée 
+        $item = self::get_item_by_id($item_id);
+        $current = $item->hasBids() ? (float) $item->getMaxBid(): (float) $item->getStartingBid();
+       
+        
+       
+
+        $now = AppTime::get_current_datetime();
+        if ($amount > $current) {
+            self::execute("INSERT INTO bids (owner, item, created_at, amount) VALUES (:owner, :item, :created_at, :amount)", 
+                [
+                    "owner" => $owner->getId(),
+                    "item" => $item->getId(), 
+                    "created_at" => $now, 
+                    "amount" => $amount
+                ]
+            );
+            return true;
+        }  
+        return false;
+
+    }
+
+    public static function buy($owner,$item_id,$amount) : bool {
+        
+        $item = self::get_item_by_id($item_id);
+        $current = $item->getBuyNowPrice();
+
+        if ($amount >= $current) {
+            self::execute(
+                "INSERT INTO bids (owner, item, created_at, amount) VALUES (:owner, :item, :created_at, :amount)", 
+                [
+                    "owner" => $owner,
+                    "item" => $item_id,
+                    "created_at" => AppTime::get_current_datetime(), 
+                    "amount" => $amount
+                ]
+            );
+            return true;
+        }
+        return false;
+
+    }
 }
