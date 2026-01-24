@@ -490,4 +490,28 @@ class User extends Model {
         $this->persist();
     }
 
+    // A véririfer sans fonctionnement !
+    public static function get_owner_infos_by_item_id(int $id) : array {
+
+        $query=self::execute(
+            "SELECT u.*
+            FROM v_items_status v join users u on v.owner = u.id 
+            WHERE v.id = :id", 
+
+            ["id" => $id]
+        );
+
+        $ownerInfo  = $query->fetch();
+        return $ownerInfo;
+        /*
+        return new User(
+            $owner["id"],
+            $owner["full_name"],
+            $owner["email"],
+            $owner["pseudo"],
+            $owner["password"],
+            $owner["role"]
+        );*/
+    }
+
 }

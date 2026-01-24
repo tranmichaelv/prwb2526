@@ -417,4 +417,138 @@ class ItemStatus extends Model {
         return $result;
     }
 
+
+
+    /*========  Renvoie un Objet Item grace à l'ID fourni  ========*/
+    public static function get_item_by_id($id) : ItemStatus {
+        
+        $error = [];
+        $query = self::execute("SELECT * FROM v_items_status WHERE id = :id", 
+        ['id' => $id]
+        );
+        $Item = $query->fetch(); 
+
+        if ($query->rowCount() == 0){
+            die ("Voir la méthode get_item_by_id dans Items Status ");
+        } else {
+            return new ItemStatus(
+                $Item["id"], 
+                $Item["title"], 
+                $Item["description"],
+                $Item["owner"],  
+                $Item["created_at"],
+                $Item["duration_days"], 
+                $Item["end_at"],
+                $Item["bid_count"],
+                $Item["is_direct_sale"], 
+                $Item["is_auction"],
+                $Item["has_buy_now"],
+                $Item["has_bids"],
+                $Item["buy_now_reached"],
+                $Item["not_purchased_direct_sale"],
+                $Item['buy_now_price'],
+                Utils::convert_format_number_for_bids($Item['starting_bid']),
+                Utils::convert_format_number_for_bids($Item['max_bid']),
+                /*
+                $Item["buy_now_price"],
+                $Item["starting_bid"],
+                $Item["max_bid"] 
+                */
+            );
+        }
+    }
+
+
+    /*====== L'image principale =======*/
+    public function get_main_picture_by_item_id() : ?string {
+        
+        $query = self::execute(
+
+            "SELECT ip.picture_path
+            FROM item_pictures ip 
+            WHERE ip.item = :id 
+            ORDER BY ip.priority ASC", 
+
+            ['id' => $this->id]
+        );
+
+        $results = $query->fetch();
+
+        return $results ? $results["picture_path"] : null;
+    }
+
+
+    /*===== Images secondaires  *Additional images*  ======*/
+    public function get_all_pictures_by_item_id() : ?array {
+        
+        $query = self::execute(
+            "SELECT ip.picture_path
+            FROM item_pictures as ip
+            WHERE ip.item = :id
+            ORDER BY ip.priority ASC",
+            ['id' => $this->id]
+        );
+
+        $results = $query->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($query->rowCount() == 0) {
+            return null;
+        } else {
+            return $results;
+        } 
+    }
+    
+
+    // ========= Faire une enchère ou acheter un Item ========== //
+
+    public static function bid($owner,$item_id,$amount) : bool {
+
+        //var_dump($item, $owner, $amount);
+        //die (" bien arrivé sur bid dans Item ");
+        // pas besoin de vérifier si ouvert/fermée 
+        $item = self::get_item_by_id($item_id);
+        $current = $item->hasBids() ? (float) $item->getMaxBid(): (float) $item->getStartingBid();
+       
+        
+       //var_dump($item, "*************", "CURRENT -> ",$current,);
+       //die ("arrivé sur bid");
+
+        $now = AppTime::get_current_datetime();
+        if ($amount > $current) {
+            self::execute("INSERT INTO bids (owner, item, created_at, amount) VALUES (:owner, :item, :created_at, :amount)", 
+                [
+                    "owner" => $owner->getId(),
+                    "item" => $item->getId(), 
+                    "created_at" => $now, 
+                    "amount" => $amount
+                ]
+            );
+            return true;
+        }  
+        return false;
+
+    }
+
+    public static function buy($owner,$item_id,$amount) : bool {
+        
+        $item = self::get_item_by_id($item_id);
+        $current = $item->getBuyNowPrice();
+
+        if ($amount >= $current) {
+            self::execute(
+                "INSERT INTO bids (owner, item, created_at, amount) VALUES (:owner, :item, :created_at, :amount)", 
+                [
+                    "owner" => $owner,
+                    "item" => $item_id,
+                    "created_at" => AppTime::get_current_datetime(), 
+                    "amount" => $amount
+                ]
+            );
+            return true;
+        }
+        return false;
+
+    }
+
+
 }
