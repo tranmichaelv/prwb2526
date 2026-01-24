@@ -395,7 +395,7 @@ class ControllerItem extends Controller {
         
         
         $id = isset($_GET['param1']) ? (int) $_GET['param1'] : null;
-        
+        $img_priority = isset($_GET['param3']) ? (int) $_GET['param3'] : 1;
         $errors = [];
         
         if ($id == null) {
@@ -408,8 +408,17 @@ class ControllerItem extends Controller {
 
         $item->getMaxBid();
 
+        $pictures = $item->get_all_pictures_by_item_id();
         $main_picture_path = null;
-        $main_picture_path = $item->get_main_picture_by_item_id();
+        if ($img_priority === 1) { // si je suis pas arrivé avec une priorité -> je viens pas de l'url de l'image addionnelle 
+            $main_picture_path = $item->get_main_picture_by_item_id();
+        } else {
+            $main_picture_path = $item->get_picture_by_priority($img_priority,$item->getId());
+    
+        }
+        // $main_picture_path = $item->get_main_picture_by_item_id();
+       
+       
         $bid = $this->get_bid_status($id);
     
         $seller = User::get_users_by_id($item->getOwner());
@@ -429,6 +438,7 @@ class ControllerItem extends Controller {
         (new View("open_item"))->show([
             "item" => $item, 
             "main_picture_path" => $main_picture_path,
+            "pictures" => $pictures,
             "bid" => $bid, 
             "seller" => $seller, 
             "pricing_case" => $pricing_case, 

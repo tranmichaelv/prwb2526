@@ -51,12 +51,9 @@
             <!-- additional-images-container -->
             <h6 style="color : white">Additional Images</h6>
             <div class="additional-images">
-                <?php 
-                    $baseUrl = '/prwb_2526_c05/';
-                ?>
                 <?php if (!empty($pictures)) : ?>
-                    <?php foreach($pictures as $pic): ?>
-                        <img src="<?=$baseUrl . $pic['picture_path'] ?>" alt="item image" class="thumbnail">
+                    <?php foreach($pictures as $pic):?>
+                            <a href="item/open/<?= $item->getId() ?>/from-browse/<?= $pic["priority"] ?>"><img src="<?=$pic['picture_path'] ?>" alt="item image" class="thumbnail"></a>
                     <?php endforeach; ?>   
                 <?php else :?>
                 <?php endif;?>        

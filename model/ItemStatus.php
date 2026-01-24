@@ -479,10 +479,10 @@ class ItemStatus extends Model {
 
 
     /*===== Images secondaires  *Additional images*  ======*/
-    public function get_all_pictures_by_item_id() : ?array {
+    public function get_all_pictures_by_item_id() : array {
         
         $query = self::execute(
-            "SELECT ip.picture_path
+            "SELECT ip.picture_path, ip.priority
             FROM item_pictures as ip
             WHERE ip.item = :id
             ORDER BY ip.priority ASC",
@@ -491,13 +491,23 @@ class ItemStatus extends Model {
 
         $results = $query->fetchAll(PDO::FETCH_ASSOC);
 
-        if ($query->rowCount() == 0) {
-            return null;
-        } else {
-            return $results;
-        } 
+       return $results;
+    
     }
     
+    public function get_picture_by_priority(int $priority, int $item_id) : string {
+
+        $query = self::execute(
+            "SELECT ip.picture_path
+            FROM item_pictures ip 
+            WHERE ip.priority = :priority 
+            AND ip.item = :item", 
+            ["priority" => $priority, "item" => $item_id]
+        );
+
+        $pic = $query->fetch();
+        return $pic['picture_path'];
+    }
 
     // ========= Faire une enchère ou acheter un Item ========== //
 
@@ -511,7 +521,7 @@ class ItemStatus extends Model {
        
         
        //var_dump($item, "*************", "CURRENT -> ",$current,);
-       //die ("arrivé sur bid");
+       die ("arrivé sur bid");
 
         $now = AppTime::get_current_datetime();
         if ($amount > $current) {
