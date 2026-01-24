@@ -395,6 +395,7 @@ input[name="new-bid"] {
     border: #2ecc71 solid 1px;
     max-width: 80%;
     margin: 15px 12px 0 12px;
+}
 .oi-top{
   display: flex;
   justify-content: space-between;
@@ -466,6 +467,7 @@ input[name="new-bid"] {
 
 .pricing-container h6 {
     margin-left: 15px;
+}
 /* enlever les flèches sur certains navigateurs (optionnel) */
 .oi-money__input::-webkit-outer-spin-button,
 .oi-money__input::-webkit-inner-spin-button{
@@ -484,7 +486,7 @@ input[name="new-bid"] {
 }
 .pricing-content h6 {
     color: rgb(255, 255, 255);
-
+}
 .oi-btn:hover{
   filter: brightness(1.05);
 }
@@ -493,6 +495,7 @@ input[name="new-bid"] {
     border: #2ecc71 solid 1px;
     max-width: 90%;
     margin: 0 15px 15px 15px;
+}
 /* ---- Seller card ---- */
 .oi-seller{
   background: #1f2428;
@@ -504,6 +507,8 @@ input[name="new-bid"] {
 
 .seller-info-container p, h6 {
     color: rgb(255, 255, 255);
+}
+
 .oi-seller__title{
   font-size: 13px;
   font-weight: 600;
@@ -513,6 +518,7 @@ input[name="new-bid"] {
 
 .pricing-content p {
     color: rgb(252, 255, 255);
+}
 .oi-seller__content{
   display: flex;
   align-items: center;

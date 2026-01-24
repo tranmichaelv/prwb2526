@@ -59,153 +59,96 @@ class Item extends Model {
          $this->duration_days = $d; 
     }
 
-    public function getMaxBid(): string { return $this->max_bid; }
-
-    public function isDirectSale(): bool { return $this->is_direct_sale; }
-
-    public function isAuction(): bool { return $this->is_auction; }
-
-    public function hasBuyNow(): bool { return $this->has_buy_now; }
-
-    public function hasBids(): bool { return $this->has_bids; }
-
-    public function isBuyNowReached(): bool { return $this->buy_now_reached; }
-
-    public function isNotPurchasedDirectSale(): bool{ return $this->not_purchased_direct_sale; }
-
-    public function setPictures(array $pictures): void { $this->pictures = $pictures; }
-
-    // -------- Tout les items disponible --------
-    public static function get_all_items(): array{
-        $query = self::execute("SELECT v.*, p.*
-                                FROM v_items_status v
-                                    join item_pictures p on p.item = v.id
-                                where v.end_at > :end_date 
-                                and (
-                                        ( is_direct_sale = 1
-                                            AND not_purchased_direct_sale = 1)
-                                        OR
-                                        ( is_auction = 1
-                                            AND buy_now_reached = 0)
-                                    )
-                                ORDER BY end_at ASC;",
-                                ["end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]);
-        $data = $query->fetchAll();
-        return self::fetch_items($data);
+    public function get_starting_bid(): ?float {
+         return $this->starting_bid; 
+    }
+    public function set_starting_bid(?float $bid): void {
+         $this->starting_bid = $bid; 
     }
 
-    // -------- "Items I'm Participating in" --------
-    public static function get_bids_items_from_user(int $userId): array{
-        $query = self::execute("SELECT v.*, p.*
-                                FROM v_items_status v 
-	                                join item_pictures p on p.item = v.id
-                                    join bids b on b.item = v.id
-                                where end_at > :end_date
-                                and b.owner = :owner 
-                                and (
-                                        ( is_direct_sale = 1
-                                            AND not_purchased_direct_sale = 1)
-                                        OR
-                                        ( is_auction = 1
-                                            AND buy_now_reached = 0)
-                                    )
-                                order by end_at;"
-                                ,["owner"=>$userId, "end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]);
-    
-        $data = $query->fetchAll();
-        return self::fetch_items($data);
+    public function get_buy_now_price(): ?float {
+         return $this->buy_now_price; 
     }
-
-    // -------- "Other Available Items" --------
-    public static function get_other_items_from_user(int $userId): array{
-        $query = self::execute("SELECT v.*, p.*
-                                FROM v_items_status v
-	                                join item_pictures p on p.item = v.id
-                                where end_at > :end_date
-                               -- Exclure items sur lesquels l'utilisateur a déjà bid
-                                AND NOT EXISTS (
-                                    SELECT 1 
-                                    FROM bids b1
-                                    WHERE b1.item = v.id
-                                    AND b1.owner = :owner
-                                )
-                                and (
-                                        ( is_direct_sale = 1
-                                            AND not_purchased_direct_sale = 1)
-                                        OR
-                                        ( is_auction = 1
-                                            AND buy_now_reached = 0)
-                                    )
-                                order by end_at;"
-                                ,["owner"=>$userId, "end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]);
-    
-        $data = $query->fetchAll();
-        return self::fetch_items($data);
+    public function set_buy_now_price(?float $price): void {
+         $this->buy_now_price = $price; 
     }
-
-    // -------- Transforme les requêtes SQL en Object 'Item' --------
-    public static function fetch_items(array $data): array{
-        $items = [];
-        foreach ($data as $row) {
-            $item_id = $row['id'];
+    public function get_instant_purchase(): ?float {
+          return $this->instant_purchase; 
+    }
+    public function set_instant_purchase(?float $v): void {
+          $this->instant_purchase = $v; 
+    }
+    public function get_sale_price(): ?float {
+          return $this->sale_price; 
+    }
+    public function set_sale_price(?float $v): void {
+          $this->sale_price = $v; 
+    }
     
-            // Intialise si c'est la premiere fois
-            if (!isset($items[$item_id])) {
-                $items[$item_id] = [
-                    'id'            => $row['id'],
-                    'title'         => $row['title'],
-                    'description'   => $row['description'],
-                    'owner'         => $row['owner'],
-                    'created_at'    => $row['created_at'],
-                    'duration_days' => $row['duration_days'],
-                    'end_at'        => $row['end_at'],
-                    'bid_count'     => $row['bid_count'],
-                    'is_direct_sale'=> (bool) $row['is_direct_sale'],
-                    'is_auction'    => (bool) $row['is_auction'],
-                    'has_buy_now'   => (bool) $row['has_buy_now'],
-                    'has_bids'      => (bool) $row['has_bids'],
-                    'buy_now_reached' => (bool) $row['buy_now_reached'],
-                    'not_purchased_direct_sale'  => (bool) $row['not_purchased_direct_sale'],
 
-                    'buy_now_price' => $row['buy_now_price'],
-                    'starting_bid'  => $row['starting_bid'],
-                    'max_bid'       => $row['max_bid'],
-                    'pictures'      => []
-                ];
-            }
-    
-            
-            // Ajouter les images
-            $items[$item_id]['pictures'][] = [
-                    "path"     => $row["picture_path"],
-                    "priority" => $row["priority"]
-            ];
-            
+
+
+
+    public function validate() : array {
+
+        $errors = [];
+         
+        $title = trim($this->title);
+        $desc = trim($this->description);
+
+        $title_min    = (int) Configuration::get("title_min_length");
+        $title_max    = (int) Configuration::get("title_max_length");
+        $desc_min     = (int) Configuration::get("description_min_length");
+        $dur_days_min = (int) Configuration::get("duration_days_min");
+        $dur_days_max = (int) Configuration::get("duration_days_max");
+
+        
+
+          // title entre 3 et 255 carac, unique par owner 
+        if(mb_strlen($title) < $title_min ||mb_strlen($title) > $title_max ){
+               $errors['title'][] = "Title lenght must be between 3 and 255 characters";
+        } elseif (self::title_exists_for_owner($title, $this->owner, $this->id)) {
+               $errors['title'][] = "You already have an ad with this title.";
         }
-    
-        // Converti en objets Item
-        $results = [];
-        foreach ($items as $item) {
-            $results[] = new Item(
-                $item['id'],
-                $item['title'],
-                $item['description'],
-                $item['owner'],
-                $item['created_at'],
-                $item['duration_days'],
-                $item['end_at'],
-                $item['bid_count'],
-                $item['is_direct_sale'],
-                $item['is_auction'],
-                $item['has_buy_now'],
-                $item['has_bids'],
-                $item['buy_now_reached'],
-                $item['not_purchased_direct_sale'],
-                Utils::convert_format_number_for_bids($item['buy_now_price']),
-                Utils::convert_format_number_for_bids($item['starting_bid']),
-                Utils::convert_format_number_for_bids($item['max_bid']),
-                $item['pictures']
-            );
+
+        // si desc est remplie -> min 3 carac
+        if( $desc !== "" && mb_strlen($desc) < $desc_min ){
+               $errors['description'][] = "Description lenght must be at least 3 characters.";
+        } 
+
+        // duration days entre 1 et 365 jours
+        if($this->duration_days < 1 || $this->duration_days > 365) {
+               $errors ['duration_days'][] = "Duration days must be between 1 and 365";
+        }
+
+        // valeur ne peut pas etre nétagif
+        if ($this->starting_bid !== null && $this->starting_bid < 0) {
+               $errors['starting_bid'][] = "Starting bid cannot be negatif.";
+        }
+
+
+        if ($this->buy_now_price !== null && $this->buy_now_price < 0) {
+               $errors['buy_now_price'][] = "Buy now price cannot be negatif.";
+        }
+
+        // la valeur doit avoir max 10 chiffres (dont 2 apres la virgule)
+        if ( $this->starting_bid !== null && !self::fits_decimal_10_2($this->starting_bid)) {
+               $errors["starting_bid"][] = "Starting bid is too high.";
+        }
+
+
+        if ( $this->buy_now_price !== null && !self::fits_decimal_10_2($this->buy_now_price)) {
+               $errors['buy_now_price'][] = "Buy now price is too high.";
+        }
+
+        $has_bid = $this->starting_bid !== null && $this->starting_bid > 0;
+        $has_instant = $this->instant_purchase !== null && $this->instant_purchase > 0;
+        $has_sale = $this->sale_price !== null && $this->sale_price > 0;
+
+        if ($has_bid && $has_sale) {
+            $errors['starting_bid'][] = "Cannot create both auction and direct sale.";
+            $errors['sale_price'][]    = "Cannot create both auction and direct sale.";
+         //   return $errors;
         }
 
         if($has_bid){
@@ -367,135 +310,5 @@ class Item extends Model {
     private static function fits_decimal_10_2(float $value) : bool {
           $abs = abs($value);
           return $abs < 100000000 && round($abs,2) == $abs;
-    }
-
-    /*========  Renvoie un Objet Item grace à l'ID fourni  ========*/
-    public static function get_item_by_id($id) : ?Item {
-        
-        $error = [];
-        $query = self::execute("SELECT * FROM v_items_status WHERE id = :id", 
-        ['id' => $id]
-        );
-        $Item = $query->fetch(); 
-
-        if ($query->rowCount() == 0){
-            return null;
-        } else {
-            return new Item(
-                $Item["id"], 
-                $Item["title"], 
-                $Item["description"],
-                $Item["owner"],  
-                $Item["created_at"],
-                $Item["duration_days"], 
-                $Item["end_at"],
-                $Item["bid_count"],
-                $Item["is_direct_sale"], 
-                $Item["is_auction"],
-                $Item["has_buy_now"],
-                $Item["has_bids"],
-                $Item["buy_now_reached"],
-                $Item["not_purchased_direct_sale"],
-                $Item['buy_now_price'],
-                Utils::convert_format_number_for_bids($Item['starting_bid']),
-                Utils::convert_format_number_for_bids($Item['max_bid']),
-                /*
-                $Item["buy_now_price"],
-                $Item["starting_bid"],
-                $Item["max_bid"] 
-                */
-            );
-        }
-    }
-
-
-    /*====== L'image principale =======*/
-    public function get_main_picture_by_item_id() : ?string {
-        
-        $query = self::execute(
-
-            "SELECT ip.picture_path
-            FROM item_pictures ip 
-            WHERE ip.item = :id 
-            ORDER BY ip.priority ASC", 
-
-            ['id' => $this->id]
-        );
-
-        $results = $query->fetch();
-
-        return $results ? $results["picture_path"] : null;
-    }
-
-
-    /*===== Images secondaires  *Additional images*  ======*/
-    public function get_all_pictures_by_item_id() : ?array {
-        
-        $query = self::execute(
-            "SELECT ip.picture_path
-            FROM item_pictures as ip
-            WHERE ip.item = :id
-            ORDER BY ip.priority ASC",
-            ['id' => $this->id]
-        );
-
-        $results = $query->fetchAll(PDO::FETCH_ASSOC);
-
-        if ($query->rowCount() == 0) {
-            return null;
-        } else {
-            return $results;
-        } 
-    }
-    
-
-    // ========= Faire une enchère ou acheter un Item ========== //
-
-    public static function bid($owner,$item_id,$amount) : bool {
-
-        //var_dump($item, $owner, $amount);
-        //die (" bien arrivé sur bid dans Item ");
-        // pas besoin de vérifier si ouvert/fermée 
-        $item = self::get_item_by_id($item_id);
-        $current = $item->hasBids() ? (float) $item->getMaxBid(): (float) $item->getStartingBid();
-       
-        
-       
-
-        $now = AppTime::get_current_datetime();
-        if ($amount > $current) {
-            self::execute("INSERT INTO bids (owner, item, created_at, amount) VALUES (:owner, :item, :created_at, :amount)", 
-                [
-                    "owner" => $owner->getId(),
-                    "item" => $item->getId(), 
-                    "created_at" => $now, 
-                    "amount" => $amount
-                ]
-            );
-            return true;
-        }  
-        return false;
-
-    }
-
-    public static function buy($owner,$item_id,$amount) : bool {
-        
-        $item = self::get_item_by_id($item_id);
-        $current = $item->getBuyNowPrice();
-
-        if ($amount >= $current) {
-            self::execute(
-                "INSERT INTO bids (owner, item, created_at, amount) VALUES (:owner, :item, :created_at, :amount)", 
-                [
-                    "owner" => $owner,
-                    "item" => $item_id,
-                    "created_at" => AppTime::get_current_datetime(), 
-                    "amount" => $amount
-                ]
-            );
-            return true;
-        }
-        return false;
-
     }
 }

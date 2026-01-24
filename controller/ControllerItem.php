@@ -381,6 +381,7 @@ class ControllerItem extends Controller {
         //$var = Item::test($_GET['param1']);
         //var_dump($var);
         //die ();
+        // die("Arrivé sur open dans controller item ");
         $this->itemDetails();
     } 
 
@@ -391,6 +392,7 @@ class ControllerItem extends Controller {
     */
 
     public function itemDetails(): void {
+        
         
         $id = isset($_GET['param1']) ? (int) $_GET['param1'] : null;
         
