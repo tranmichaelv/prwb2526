@@ -133,17 +133,21 @@ class ItemSaleStatus extends Model {
     public function bid_is_closed() : bool {
 
         if($this->has_buy_now==0){
-        if(AppTime::get_current_datetime()>$this->end_at){
-            return true;
-        }
+            if(AppTime::get_current_datetime()>$this->end_at){
+                return true;
+            }
        } else {
         if($this->buy_now_reached()==1 || AppTime::get_current_datetime()>$this->end_at )
             return true;
-       }
+        }
 
        return false;
     }
 
+    /*public function closed_unslod() : bool {
+
+        if ()
+    }*/
 
     public function user_is_owner(User $current_user) : bool {
 

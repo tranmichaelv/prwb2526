@@ -406,7 +406,7 @@ class ControllerItem extends Controller {
 
         $item = ItemStatus::get_item_by_id($id);
 
-        $item->getMaxBid();
+        //$item->getMaxBid();
 
         $pictures = $item->get_all_pictures_by_item_id();
         $main_picture_path = null;
@@ -423,8 +423,14 @@ class ControllerItem extends Controller {
     
         $seller = User::get_users_by_id($item->getOwner());
         
+        // var_dump($seller->getPicturePath()); die();
+        
+        
+       
+        // var_dump();
+        // die ();
         $item->getStartingBid();
-
+        
         // $status = $this->get_bid_status($id);
         $bids_history = $bid->get_bids_history();
         // faire la vérif si y a pas de bids 
@@ -451,41 +457,46 @@ class ControllerItem extends Controller {
         $bid = $this->get_bid_status($item_id);
 
         $isClosed = $bid->bid_is_closed();
-        $userIsOwner = $bid->user_is_owner($current_user);
+        $userIsSeller = $bid->user_is_owner($current_user);
        // $isAuction = $bid->is_auction();
         //$isAuction = $item->isAuction();
-
+        
         // $hasBids = $bid->has_bids();
         // $hasBuyNow = $bid->has_buy_now();
+        // $topBider = ItemStatus::get_top_bidder($current_user->getId());
         
         if(count($bid->get_bids_history())!=0){
 
-        $lastBiderId = $bid->get_bids_history()['0']['id'];
-
+            $lastBiderId = $bid->get_bids_history()['0']['id'];
         }
-     
+
         $buyNowReached = $bid->buy_now_reached();
         
-    
-        if (!$isClosed && !$userIsOwner && !$bid->getHasBuyNow() && !$bid->getHasBids()){
+        if (!$isClosed && !$userIsSeller && !$bid->getHasBuyNow() && !$bid->getHasBids()){
             return "case1";
         }
         
-        if (!$isClosed && !$userIsOwner && $bid->getHasBids() && $bid->getHasBuyNow()) {
+        if (!$isClosed && !$userIsSeller && $bid->getHasBids() && $bid->getHasBuyNow()) {
             return "case2";
         } 
-        if (!$isClosed && !$userIsOwner && $bid->getIsDirectSale()) {
+        if (!$isClosed && !$userIsSeller && $bid->getIsDirectSale()) {
             return "case3";
         } 
 
-        if (!$isClosed && $userIsOwner) {
+        if (!$isClosed && $userIsSeller) {
             return "case4";
         } 
-        if (!$userIsOwner && ($isClosed && $current_user->getId() === $lastBiderId)) {
+        if (!$userIsSeller && ($isClosed && $current_user->getId() === $lastBiderId)) {
             return "case5";
         } 
-        if ($isClosed && $userIsOwner) {
+        if ($isClosed && $userIsSeller) {
             return "case6";
+        }
+        if ($isClosed && $userIsSeller) {
+            return "case7";
+        } 
+        if (!$isClosed && $bid->has_bids()) {
+            return "case8";
         }
         return"";
     }
@@ -508,24 +519,24 @@ class ControllerItem extends Controller {
         if(count($_POST)){
         $item = $_POST['item'];
         $amount = $_POST['amount'];
-        
+        // var_dump("id -> ",$item, "amount -> ", $amount); die("ne doit arrivé la ????");
             //var_dump($item, " *** ", $amount);die ("arrivé sur place ");
         }else {
             $item=$_GET['param1'];
-            var_dump($item);die ("s'arreter juste après avoir récup l'id en argument ");
+            // var_dump($item);die ("je recois l'id en paramèttre donc je viens d'un achat");
             $item_pop = ItemStatus::get_item_by_id($item);
             $amount=$item_pop->getBuyNowPrice();
 
-            var_dump("id -> ",$item, "amount -> ", $amount);
-            die ("Bien arivé sur place pour buy ");
+            // var_dump("id -> ",$item, "amount -> ", $amount); die("Bien arrivé par l'achat");
+            // die ("Bien arivé sur place pour buy ");
         }
-        
+        // die("arrivé sur place dans controller item ");
         ItemStatus::bid($current_user,$item,$amount);
         
        $this->redirect("item","open",$item);
     }
 
-    public function buy() : void {
+    /* public function buy() : void {
         $current_user = $this->get_user_or_false();
         if (!$current_user) {
             die ("Not logged in");
@@ -539,7 +550,7 @@ class ControllerItem extends Controller {
         } else {
             die ("arreter le programme pour le moment");
         }
-    }
+    } */
 
 
 }
