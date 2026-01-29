@@ -43,6 +43,7 @@ class ControllerUser extends Controller {
         (new View("login"))->show(["email" => $email, "password" => $password, "errors" => $errors]);
     }
 
+    // -------- Change Password --------
     public function change_password(){
         $this->require_login();
         $user = $this->get_user_or_false();
@@ -58,7 +59,7 @@ class ControllerUser extends Controller {
             $newPassword = $_POST['new_password'];
             $confirmNewPassword = $_POST['confirm_new_password'];
 
-            $user->validate_change_password($currentPassword, $newPassword , $confirmNewPassword);
+            $errors = $user->validate_change_password($currentPassword, $newPassword , $confirmNewPassword);
 
             $hasErrors = false;
             foreach ($errors as $fieldErrors) {
@@ -76,6 +77,7 @@ class ControllerUser extends Controller {
         (new View("change_password"))->show(["user" => $user, "page" =>  $page, "errors" => $errors, "currentPassword" => $currentPassword, "newPassword" => $newPassword, "confirmNewPassword" => $confirmNewPassword]);
     }
 
+    // -------- Edit Profile --------
     public function edit_profile() {
         $this->require_login();
         $user = $this->get_user_or_false();
@@ -106,6 +108,7 @@ class ControllerUser extends Controller {
         (new View("edit_profile"))->show(["user" => $user, "page" =>  $page, "errors" => $errors]);
     }
 
+    // -------- Profile --------
     public function profile() : void{
         $this->require_login();
         $user = $this->get_user_or_false();
@@ -114,6 +117,7 @@ class ControllerUser extends Controller {
         (new View("profile"))->show(["user" => $user, "page" =>  $page]);
     }
 
+    // -------- Mangage Profile Picture --------
     public function manage_profile_picture() : void{
         $this->require_login();
         $user = $this->get_user_or_false();
@@ -132,7 +136,7 @@ class ControllerUser extends Controller {
         (new View("manage_profile_picture"))->show(["user" => $user, "page" =>  $page, "errors" => $errors]);
     }
 
-    //########################### NOT FINISHED ###########################
+    // -------- Signup --------
     public function signup() : void{
         // Retourne vers la page d'acceuil
         if (isset($_POST['cancel'])) {
@@ -140,22 +144,57 @@ class ControllerUser extends Controller {
             return;
         }
 
-        $email = '';
-        $full_name = '';
-        $pseudo = '';
-        $password = '';
-        $errors = [];
+        $email = $_POST['email'] ?? '';
+        $full_name = $_POST['full_name'] ?? '';
+        $pseudo = $_POST['pseudo'] ?? '';
+        $password = $_POST['password'] ?? '';
+        $confirm = $_POST['confirm_password'] ?? '';
+        $errors = [
+            "email" => [],
+            "full_name"  => [],
+            "pseudo"  => [],
+            "password"  => []
+        ];
 
-        if (isset($_POST['email']) && isset($_POST['full_name']) && isset($_POST['pseudo']) && isset($_POST['password'])) {
-            $email = $_POST['email'];
-            $full_name = $_POST['full_name'];
-            $pseudo = $_POST['pseudo'];
-            $password = $_POST['password'];
+        if (isset($_POST['full_name']) && isset($_POST['pseudo']) && isset($_POST['email']) && isset($_POST['password']) && isset($_POST['confirm_password'])) {
+            $errors['email'] = array_merge(
+                User::validate_email($_POST['email']),
+                User::validate_unicity_email($_POST['email'])
+            );
+
+            $errors['full_name'] = array_merge(
+                [],
+                User::validate_full_name($_POST['full_name'])
+            );
+
+            $errors['pseudo'] = array_merge(
+                User::validate_username($_POST['pseudo']),
+                User::validate_unicity_pseudo($_POST['pseudo'])
+            );
+
+            $errors['password'] = array_merge(
+                [],
+                User::validate_password($_POST['password'], $_POST['confirm_password'])
+            );
+
+            $hasErrors = false;
+            foreach ($errors as $fieldErrors) {
+                if (!empty($fieldErrors)) {
+                    $hasErrors = true;
+                }
+            }
+
+            if(!$hasErrors) {
+                $user = new User(99,$full_name, $email,$pseudo,password_hash($password, PASSWORD_BCRYPT),"user");
+                $user->persist();
+
+                $this->login();
+            }
         }
 
-        (new View("signup"))->show(["email" => $email, "full_name" => $full_name, "pseudo" => $pseudo, "password" => $password, "errors" => $errors]);
+        (new View("signup"))->show(["email" => $email, "full_name" => $full_name, "pseudo" => $pseudo, "password" => $password, "confirm" => $confirm, "errors" => $errors]);
     }
-    //########################### NOT FINISHED ###########################
+
 
     // -------- Doit être connecté --------
     private function require_login(): void {

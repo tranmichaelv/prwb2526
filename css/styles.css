@@ -53,6 +53,7 @@ tfoot th{
     flex-direction: column;
     align-items: center; 
     text-align: center;
+    
 }
 
 .login td {
@@ -654,7 +655,12 @@ a {
     margin-bottom: 10px;
 }
 
-.section-menu-input .error li {
+.section-menu-input .error li,
+.signup-page .login form .error li{
     color: red;
     font-size: 13px;
+}
+
+.signup-page .login form .error li{
+    text-align: left;
 }
