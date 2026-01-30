@@ -20,27 +20,70 @@
                 </thead>
 
                 <tbody>
-                    <tr><td><i class="bi bi-envelope"></i> <input id="email" name="email" type="email" placeholder="Email" value="<?= $email ?>"></td></tr>
-                    <tr><td><i class="bi bi-person"></i> <input id="full_name" name="full_name" type="text" placeholder="Full Name" value="<?= $full_name ?>"></td></tr>
-                    <tr><td><i class="bi bi-file-person"></i> <input id="pseudo" name="pseudo" type="text" placeholder="Pseudo" value="<?= $pseudo ?>"></td></tr>
-                    <tr><td><i class="bi bi-key"></i> <input id="password" name="password" type="password" placeholder="Password" value="<?= $password ?>"></td></tr>
-                    <tr><td><i class="bi bi-key"></i> <input id="confirm_password" name="confirm_password" type="password" placeholder="Confirm your password"></td></tr>
+                    <tr>
+                        <td>
+                            <i class="bi bi-envelope"></i> 
+                            <input id="email" name="email" type="email" placeholder="Email" value="<?= $email ?>">
+                            <?php if (!empty($errors['email'])): ?>
+                            <ul class="error">
+                                <?php foreach ($errors['email'] as $error): ?>
+                                    <li><?= $error ?></li>
+                                <?php endforeach; ?> 
+                            </ul>
+                        <?php endif; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <i class="bi bi-person"></i> 
+                            <input id="full_name" name="full_name" type="text" placeholder="Full Name" value="<?= $full_name ?>">
+                            <?php if (!empty($errors['full_name'])): ?>
+                                <ul class="error">
+                                    <?php foreach ($errors['full_name'] as $error): ?>
+                                        <li><?= $error ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <i class="bi bi-file-person"></i> 
+                            <input id="pseudo" name="pseudo" type="text" placeholder="Pseudo" value="<?= $pseudo ?>">
+                            <?php if (!empty($errors['pseudo'])): ?>
+                                <ul class="error">
+                                    <?php foreach ($errors['pseudo'] as $error): ?>
+                                        <li><?= $error ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <i class="bi bi-key"></i> 
+                            <input id="password" name="password" type="password" placeholder="Password" value="<?= $password ?>">
+                            <?php if (!empty($errors['password'])): ?>
+                                <ul class="error">
+                                    <?php foreach ($errors['password'] as $error): ?>
+                                        <li><?= $error ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <i class="bi bi-key"></i> 
+                            <input id="confirm_password" name="confirm_password" type="password" placeholder="Confirm your password"  value="<?= $confirm ?>">
+                        </td>
+                    </tr>
                     <tr><td><input type="submit" name="signup" value="Sign Up"></td></tr>
                     <tr><td><input type="submit" name="cancel" value="Cancel"></td></tr>
                 </tbody>
 
             </table>
         </form>
-        <?php if (count($errors) != 0): ?>
-            <div class='errors'>
-                <p>Please correct the following error(s) :</p>
-                <ul>
-                    <?php foreach ($errors as $error): ?>
-                        <li><?= $error ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
     </div>
 </div>
 </body>

@@ -57,8 +57,8 @@ class User extends Model {
             self::execute("UPDATE users SET full_name=:full_name, email=:email, pseudo=:pseudo, password=:password, role=:role, picture_path=:picture_path, iban=:iban WHERE id=:id ", 
                           ["id"=>$this->id, "full_name"=>$this->full_name, "email"=>$this->email, "pseudo"=>$this->pseudo, "picture_path"=>$this->picture_path, "password"=>$this->hashed_password, "role"=>$this->role, "iban"=>$this->iban]);
         else
-            self::execute("INSERT INTO users(full_name, email, pseudo, password, role, picture_path, iban) VALUES(:pseudo,:password,:profile,:picture_path)", 
-                          ["full_name"=>$this->full_name, "email"=>$this->email, "pseudo"=>$this->pseudo, "picture_path"=>$this->picture_path, "password"=>$this->hashed_password, "role"=>$this->role, "iban"=>$this->iban]);
+            self::execute("INSERT INTO users(full_name, email, pseudo, password, role) VALUES(:full_name, :email, :pseudo, :password, :role)", 
+                          ["full_name"=>$this->full_name, "email"=>$this->email, "pseudo"=>$this->pseudo, "password"=>$this->hashed_password, "role"=>$this->role]);
         return $this;
     }
 
@@ -277,7 +277,7 @@ class User extends Model {
         return $errors;
     }
 
-    private function validate_varchar_length(string $string, string $varchar): array{
+    private static function validate_varchar_length(string $string, string $varchar): array{
         $errors = [];
 
         $minLength = Configuration::get("varchar_min_length");
@@ -300,7 +300,10 @@ class User extends Model {
             return $errors;
         }
 
-        $errors[] = self::validate_varchar_length("Full name", $fullName);
+        $errors = array_merge(
+            $errors,
+            self::validate_varchar_length("Full name", $fullName)
+        );
 
         return $errors;
     }
@@ -317,7 +320,10 @@ class User extends Model {
             $errors[] = "Must be a valid email address.";
         }
 
-        $errors[] = self::validate_varchar_length("Email", $email);
+        $errors = array_merge(
+            $errors,
+            User::validate_varchar_length("Email", $email)
+        );
     
 
         return $errors;
