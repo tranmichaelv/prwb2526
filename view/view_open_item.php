@@ -5,11 +5,19 @@
     <base href="<?= $web_root ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" 
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/open_item.css" >
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet" href="css/OpenItem.css" >
+    <link rel="stylesheet" href="css/styles.css" >
     <title>Item images</title>
 </head>
 <body>
 
+    <?php 
+    $page = "open_item" ; 
+    $title = "Item open";
+    $pageBefore = $from === 'from-browse' ? "item/browse" : "item/myItems";
+    include("header.php")?>
 
     <!-- Un container de toute la page open item -->
 <div class="page-container d-flex flex-row align-items-start mb-2">
@@ -51,12 +59,9 @@
             <!-- additional-images-container -->
             <h6 style="color : white">Additional Images</h6>
             <div class="additional-images">
-                <?php 
-                    $baseUrl = '/prwb_2526_c05/';
-                ?>
                 <?php if (!empty($pictures)) : ?>
-                    <?php foreach($pictures as $pic): ?>
-                        <img src="<?=$baseUrl . $pic['picture_path'] ?>" alt="item image" class="thumbnail">
+                    <?php foreach($pictures as $pic):?>
+                            <a href="item/open/<?= $item->getId() ?>/from-browse/<?= $pic["priority"] ?>"><img src="<?=$pic['picture_path'] ?>" alt="item image" class="thumbnail"></a>
                     <?php endforeach; ?>   
                 <?php else :?>
                 <?php endif;?>        
@@ -119,10 +124,15 @@
                 include "pricing_container/_case7.php"; 
             } ?>
 
+            <?php if ($pricing_case === 'case8') {
+                include "pricing_container/_case8.php";
+            }
 
+            ?>
         </div>
 
         <?php include "_seller_info.php"; ?>
+        <?php if ($can_edit == true)  include ("owner_actions.php") ?>
     </div>
 
 </div>

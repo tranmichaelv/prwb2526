@@ -311,5 +311,4 @@ class Item extends Model {
           $abs = abs($value);
           return $abs < 100000000 && round($abs,2) == $abs;
     }
-
 }

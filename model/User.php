@@ -520,4 +520,33 @@ class User extends Model {
         );*/
     }
 
+
+    
+
+    /*======  Propriétaire de l'item  ======*/
+    public static function get_owner_by_item_id($id) : User {
+
+        $query = self::execute(
+            "SELECT * 
+            FROM v_items_status as vs JOIN users as u on u.id = vs.owner
+            WHERE vs.id = :id", ['id' => $id]);
+
+        $owner = $query->fetch(); 
+
+        if ($query->rowCount() == 0){
+            die ("User non trouvé !!!!!");
+        } else {
+            return new User(
+                $owner["id"], 
+                $owner["full_name"],
+                $owner["email"],
+                $owner["pseudo"],
+                $owner["password"],
+                $owner["role"],
+                $owner["picture_path"],
+                $owner["iban"],
+            );
+        }
+    }
+
 }

@@ -422,13 +422,14 @@ class ItemStatus extends Model {
     /*========  Renvoie un Objet Item grace à l'ID fourni  ========*/
     public static function get_item_by_id($id) : ItemStatus {
         
-        $error = [];
+        $errors = [];
         $query = self::execute("SELECT * FROM v_items_status WHERE id = :id", 
         ['id' => $id]
         );
         $Item = $query->fetch(); 
 
         if ($query->rowCount() == 0){
+            $errors [] = "No item found for this id ";
             die ("Voir la méthode get_item_by_id dans Items Status ");
         } else {
             return new ItemStatus(
@@ -447,8 +448,10 @@ class ItemStatus extends Model {
                 $Item["buy_now_reached"],
                 $Item["not_purchased_direct_sale"],
                 $Item['buy_now_price'],
-                Utils::convert_format_number_for_bids($Item['starting_bid']),
-                Utils::convert_format_number_for_bids($Item['max_bid']),
+                $Item['starting_bid'],
+                $Item['max_bid']
+                // Utils::convert_format_number_for_bids($Item['starting_bid']),
+                // Utils::convert_format_number_for_bids($Item['max_bid']),
                 /*
                 $Item["buy_now_price"],
                 $Item["starting_bid"],
@@ -479,10 +482,10 @@ class ItemStatus extends Model {
 
 
     /*===== Images secondaires  *Additional images*  ======*/
-    public function get_all_pictures_by_item_id() : ?array {
+    public function get_all_pictures_by_item_id() : array {
         
         $query = self::execute(
-            "SELECT ip.picture_path
+            "SELECT ip.picture_path, ip.priority
             FROM item_pictures as ip
             WHERE ip.item = :id
             ORDER BY ip.priority ASC",
@@ -491,30 +494,39 @@ class ItemStatus extends Model {
 
         $results = $query->fetchAll(PDO::FETCH_ASSOC);
 
-        if ($query->rowCount() == 0) {
-            return null;
-        } else {
-            return $results;
-        } 
+       return $results;
+    
     }
     
+    public function get_picture_by_priority(int $priority, int $item_id) : string {
+
+        $query = self::execute(
+            "SELECT ip.picture_path
+            FROM item_pictures ip 
+            WHERE ip.priority = :priority 
+            AND ip.item = :item", 
+            ["priority" => $priority, "item" => $item_id]
+        );
+
+        $pic = $query->fetch();
+        return $pic['picture_path'];
+    }
 
     // ========= Faire une enchère ou acheter un Item ========== //
 
     public static function bid($owner,$item_id,$amount) : bool {
 
-        //var_dump($item, $owner, $amount);
-        //die (" bien arrivé sur bid dans Item ");
+        
         // pas besoin de vérifier si ouvert/fermée 
         $item = self::get_item_by_id($item_id);
         $current = $item->hasBids() ? (float) $item->getMaxBid(): (float) $item->getStartingBid();
-       
         
-       //var_dump($item, "*************", "CURRENT -> ",$current,);
-       //die ("arrivé sur bid");
-
+        // si je viens d'une annonce qui n'a pas d'enchère enocre, 
+        // l'utilisateur a le droit de mettre un prix qui est égale au starting_at
+        $canInsert = $current === (float) $item->getStartingBid() ? true : false;
+       
         $now = AppTime::get_current_datetime();
-        if ($amount > $current) {
+        if ($amount > $current || $canInsert == true) {
             self::execute("INSERT INTO bids (owner, item, created_at, amount) VALUES (:owner, :item, :created_at, :amount)", 
                 [
                     "owner" => $owner->getId(),
@@ -522,13 +534,15 @@ class ItemStatus extends Model {
                     "created_at" => $now, 
                     "amount" => $amount
                 ]
-            );
+            ); 
             return true;
+            
         }  
         return false;
 
     }
 
+    /*
     public static function buy($owner,$item_id,$amount) : bool {
         
         $item = self::get_item_by_id($item_id);
@@ -549,6 +563,6 @@ class ItemStatus extends Model {
         return false;
 
     }
-
+    */
 
 }

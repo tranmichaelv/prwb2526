@@ -40,4 +40,17 @@ class Bids extends Model {
     //     return $result;
     // }
 
+    // avant de faire une enchère sur un Item vérifier : 
+         
+        // doit être strictement 
+            // supérieur au montant de l'offre la plus élevée déjà faite sur l'annonce <=> amount > max_bid 
+            // (ou supérieure à starting_bid si aucune offre n'a encore été faite <=> if has_bids is false -> amount > starting_bid 
+            // ou égale à buy_now_price dans le cadre d'un achat immédiat) <=> if buy_now_price is not null -> amount = buy_now_price 
+
+        // created_at doit être une date/heure comprise entre 
+        // la date/heure de création de l'annonce (items.created_at) <=> date given to insert >= created_at
+        // et sa clôture (durée terminée ou prix d'achat immédiat atteint) <=> date given to insert <= end_at OR buy_now_reached
+
+    
+
 }
