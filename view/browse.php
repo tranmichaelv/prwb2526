@@ -1,6 +1,9 @@
 <div class="item-wrapper">
     <div class="item-card">
-        <a href="item/open/<?= $item->getId() ?>/from-browse">
+        <?php 
+        $fromWhere = empty($from) ? "from-browse" : $from;
+        if($title)?>
+        <a href="item/open/<?= $item->getId() ?>/<?= $fromWhere ?>">
             <div class="image-container">
                 <img src="<?= $item->getPictures()[0]['path'] ?>" alt="<?= $item->getTitle() ?>" width="300">
 

@@ -1,4 +1,6 @@
-<?php ?>
+<?php 
+
+?>
 
 
 <section>
@@ -12,8 +14,11 @@
         </div>
 
         <div class="divider"></div>
-
-        <button type="submit" class="btn btn-success w-100 fw-semibold"><i class="bi bi-cart-arrow-down"></i>Buy Now</button>
+        <?php if ($bid->bid_is_closed()): ?>
+        <div>Congratulations! You purchased this item for <?= $item->getBuyNowPrice() ?></div>
+        <?php elseif (!$bid->bid_is_closed()) :?>
+        <button type="submit" class="btn btn-success w-100 fw-semibold" ><i class="bi bi-cart-arrow-down"></i>Buy Now</button>
+         <?php endif; ?>   
     </div>    
     </form>
     

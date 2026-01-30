@@ -8,10 +8,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
 
     <link rel="stylesheet" href="css/OpenItem.css" >
+    <link rel="stylesheet" href="css/styles.css" >
     <title>Item images</title>
 </head>
 <body>
 
+    <?php 
+    $page = "open_item" ; 
+    $title = "Item open";
+    $pageBefore = $from === 'from-browse' ? "item/browse" : "item/myItems";
+    include("header.php")?>
 
     <!-- Un container de toute la page open item -->
 <div class="page-container d-flex flex-row align-items-start mb-2">
@@ -123,11 +129,10 @@
             }
 
             ?>
-
-
         </div>
 
         <?php include "_seller_info.php"; ?>
+        <?php if ($can_edit == true)  include ("owner_actions.php") ?>
     </div>
 
 </div>

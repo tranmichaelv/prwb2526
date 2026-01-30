@@ -516,18 +516,17 @@ class ItemStatus extends Model {
 
     public static function bid($owner,$item_id,$amount) : bool {
 
-        // var_dump($item_id, $owner, $amount);
-        // die (" bien arrivé sur bid dans Item ");
+        
         // pas besoin de vérifier si ouvert/fermée 
         $item = self::get_item_by_id($item_id);
         $current = $item->hasBids() ? (float) $item->getMaxBid(): (float) $item->getStartingBid();
-       
         
-       //var_dump($item, "*************", "CURRENT -> ",$current,);
-       // die ("arrivé sur bid");
-
+        // si je viens d'une annonce qui n'a pas d'enchère enocre, 
+        // l'utilisateur a le droit de mettre un prix qui est égale au starting_at
+        $canInsert = $current === (float) $item->getStartingBid() ? true : false;
+       
         $now = AppTime::get_current_datetime();
-        if ($amount > $current) {
+        if ($amount > $current || $canInsert == true) {
             self::execute("INSERT INTO bids (owner, item, created_at, amount) VALUES (:owner, :item, :created_at, :amount)", 
                 [
                     "owner" => $owner->getId(),
@@ -535,13 +534,15 @@ class ItemStatus extends Model {
                     "created_at" => $now, 
                     "amount" => $amount
                 ]
-            );
+            ); 
             return true;
+            
         }  
         return false;
 
     }
 
+    /*
     public static function buy($owner,$item_id,$amount) : bool {
         
         $item = self::get_item_by_id($item_id);
@@ -562,6 +563,6 @@ class ItemStatus extends Model {
         return false;
 
     }
-
+    */
 
 }
