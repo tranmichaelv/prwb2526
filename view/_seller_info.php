@@ -6,11 +6,11 @@
 <section class="card bg-dark text-white">
 
     <div class="card-body">
-        <small class="text-secondary fs-6 fw-bold">Seller information</small>
+        <small class="text-secondary fs-6 fw-bold">Seller information </small>
 
         <div class="d-flex align-items-center mt-2">
             <div class="rounded-circle bg-secondary me-3" style="width: 48px; height: 48px;">
-                <img src="<?= $seller->getPicturePath() ?>" class="rounded-circle" width="48px">
+                <img src="<?= $seller->getPicturePath() ?>" class="seller-avatar rounded-circle" width="48px">
             </div>
 
             <div>
