@@ -195,19 +195,19 @@ class ControllerItem extends Controller {
     public function delete(): void {
         $id = $_GET["param1"] ?? null;
         if($id === null || !is_numeric($id)){
-            $this->redirect("item","my_items");
+            $this->redirect("item","myItems");
         }
 
         $item = Item::get_by_id($id);
         if($item === null){
-            $this->redirect("item","my_items");
+            $this->redirect("item","myItems");
         }
 
         $owner = User::get_users_by_id($item->get_owner_id());
 
         if($_SERVER["REQUEST_METHOD"] === "POST"){
             $item->delete();
-            $this->redirect("item","list");
+            $this->redirect("item","myItems");
         }
         (new View("delete_item"))->show([
             "item" => $item,

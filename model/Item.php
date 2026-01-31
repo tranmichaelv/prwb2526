@@ -187,7 +187,7 @@ class Item extends Model {
      }
           // on convertit les null en 0 pour la DB
      $starting_db = $this->starting_bid ?? 0.0;
-     $buy_now_db  = $this->buy_now_price ?? 0.0;
+     $buy_now_db  = $this->buy_now_price ?? null;
 
      if($this->id == null) {
           $sql = "INSERT INTO items
