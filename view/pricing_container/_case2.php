@@ -22,17 +22,28 @@
 
           <div class="divider"></div>
 
+        <?php if ($user_is_guest === false): ?>
           <div class="input-group mb-3">
             <span class="input-group-text bg-dark text-white  border-secondary">€</span>
             <input class="form-control bg-dark text-white border-secondary fw-bold" type="" name="amount" placeholder="mettre une enchère" value="<?= $item->getMaxBid() + 1 ?>" aria-label="Username" aria-describedby="basic-addon1">
           </div>
           
-
-          <button type="submit" class="btn btn-success w-100 fw-semibold mb-2"> Place Bid</button>
-          
+            <button type="submit" class="btn btn-success w-100 fw-semibold mb-2"> Place Bid</button>
+          <?php else:?>
+            <div class="input-group mb-3">
+              <span class="input-group-text bg-dark text-white  border-secondary">€</span>
+              <input disabled class="form-control bg-dark text-white border-secondary fw-bold" type="" name="amount" placeholder="mettre une enchère" value="<?= $item->getMaxBid() + 1 ?>" aria-label="Username" aria-describedby="basic-addon1">
+            </div>
+            <button type="submit" class="btn btn-success w-100 fw-semibold mb-2" disabled> Place Bid</button>
+          <?php endif;?>  
       </form>
       <form method="post" action="item/place/<?= $item->getId() ?>">
+        <?php if ($user_is_guest === false): ?>
           <button type="submit" class="btn btn-outline-primary fw-semibold w-100">Buy Now at <?=  $item->getBuyNowPrice() ?></button>
+        <?php else:?>
+          <button type="submit" class="btn btn-outline-primary fw-semibold w-100" disabled>Buy Now at <?=  $item->getBuyNowPrice() ?></button>
+            <div class="text-secondary fw-semibold ">Sign in with a buyer account to participate</div>
+        <?php endif;?>  
       </form>
   </div>
   
