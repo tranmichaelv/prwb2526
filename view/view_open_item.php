@@ -74,11 +74,15 @@
 
         <section>
             <!-- bid-history-container -->
+            <?php if (!empty($bids_history) && !$bid->bid_is_closed()):?>
            <div class="bids-history">
                 
+                <div class="d-flex justify-content-between align-items-center ">
+                    <p class="m-0">Bid history</p>
+                    <span class="badge bg-light text-dark rounded fw-bold"><?= count($bids_history) ?> entries</span>
+                </div>
                 <div class="bids">
-                     <?php if (!empty($bids_history)) :?>
-                        <div><p>Bid History</p></div>
+                     <?php //if (!empty($bids_history)) :?>
                         <?php foreach($bids_history as $bid) :?>
                             <div class="bid">
                                 <p class="owner"><?= $bid['pseudo']; ?></p>
@@ -86,11 +90,15 @@
                                 <p class="date"><?= $bid['created_at']; ?></p>
                             </div>
                         <?php endforeach ?>
-                    <?php else : ?>
-                        
-                    <?php endif ?> 
+                    <?php // endif ?> 
                 </div>    
             </div>
+            <?php else:?>
+                <div class="bids-history">
+                    <div><p>Bid History</p></div>
+                    <div class="text-secondary fw-semibold">Not bids yet. Be the first to participate!</div>
+                </div>
+            <?php endif;?>    
         </section>
 
     </div>
