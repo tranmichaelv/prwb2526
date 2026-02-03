@@ -114,7 +114,7 @@ class ControllerItem extends Controller {
             $item->set_instant_purchase($instant);
             $item->set_sale_price($sale);
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (isset($_POST)) {
             $errors = $item->persist(); // validation + insert tentative
 
             if (empty($errors)) {
@@ -154,7 +154,7 @@ class ControllerItem extends Controller {
 
         $errors = [];
 
-        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+        if(isset($_POST)){
             $item->set_title($_POST['title'] ?? "");
              $item->set_description($_POST['description'] ?? "");
             $item->set_duration_days(isset($_POST['duration']) ? (int)$_POST['duration'] : 7);
@@ -189,6 +189,12 @@ class ControllerItem extends Controller {
     }
 
     public function delete(): void {
+        $user = $this->get_user_or_false();
+        if (!$user) {
+            $this->redirect("user", "login");
+            return;
+        }
+
         $id = $_GET["param1"] ?? null;
         if($id === null || !is_numeric($id)){
             $this->redirect("item","myItems");
@@ -201,7 +207,7 @@ class ControllerItem extends Controller {
 
         $owner = User::get_users_by_id($item->get_owner_id());
 
-        if($_SERVER["REQUEST_METHOD"] === "POST"){
+        if(isset($_POST)){
             $item->delete();
             $this->redirect("item","myItems");
         }
