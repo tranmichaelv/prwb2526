@@ -117,7 +117,7 @@ class Item extends Model {
         } 
 
         // duration days entre 1 et 365 jours
-        if($this->duration_days < 1 || $this->duration_days > 365) {
+        if($this->duration_days < $dur_days_min || $this->duration_days > $dur_days_max) {
                $errors ['duration_days'][] = "Duration days must be between $dur_days_min and $dur_days_max";
         }
 
@@ -170,12 +170,6 @@ class Item extends Model {
                 //  sale_price devient buy_now_price
                $this->buy_now_price = $this->sale_price;
           }
-
-        // Une annonce sans enchère doit avoir un buy_now_price
-       // if(!$has_bid && !$has_instant) {
-       //        $errors['buy_now_price'][] = "An ad without a bid must have a buy now price";
-      //  }
-
 
         return $errors;
     }
