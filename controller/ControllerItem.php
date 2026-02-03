@@ -207,7 +207,7 @@ class ControllerItem extends Controller {
 
         if($_SERVER["REQUEST_METHOD"] === "POST"){
             $item->delete();
-            $this->redirect("item","list");
+            $this->redirect("item","myItems");
         }
         (new View("delete_item"))->show([
             "item" => $item,
@@ -419,33 +419,14 @@ class ControllerItem extends Controller {
             $main_picture_path = $item->get_picture_by_priority($img_priority,$item->getId());
     
         }
-        // $main_picture_path = $item->get_main_picture_by_item_id();
-       
-       
+  
         $bid = $this->get_bid_status($id);
     
         $seller = User::get_users_by_id($item->getOwner());
-        
-        // var_dump($seller->getPicturePath()); die();
-        
-        
-       
-        // var_dump();
-        // die ();
+    
         $item->getStartingBid();
-        // $item->getStartingBid();
-        // $lastBider = $bid->get_bids_history()['0']['pseudo'];
-        // var_dump($lastBider); die ();
-        
-        // $status = $this->get_bid_status($id);
         $bids_history = $bid->get_bids_history();
-        // faire la vérif si y a pas de bids 
-        // var_dump($bids_history); 
-        // var_dump();
-
-        // var_dump($bids_history['0']['pseudo']);
-        // die;
-
+       
         // --------------- gestion des différents cas ---------------- // 
         $pricing_case = $this->get_case($item->getId(), $current_user);
     
@@ -471,13 +452,6 @@ class ControllerItem extends Controller {
 
         $isClosed = $bid->bid_is_closed();
         $userIsSeller = $bid->user_is_owner($current_user);
-       // $isAuction = $bid->is_auction();
-        //$isAuction = $item->isAuction();
-        
-        // $hasBids = $bid->has_bids();
-        // $hasBuyNow = $bid->has_buy_now();
-        // $topBider = ItemStatus::get_top_bidder($current_user->getId());
-        
         if(count($bid->get_bids_history())!=0){
 
             $lastBiderId = $bid->get_bids_history()['0']['id'];
@@ -519,10 +493,6 @@ class ControllerItem extends Controller {
         $bid = $this->get_bid_status($item->getId());
         $user_is_seller = $bid->user_is_owner($current_user);
 
-        // if ($from === "from-browse" || ($from === 'from-items' && $item->hasBids())) {
-        //     return false;
-        //} 
-
         if ($user_is_seller && $from !== 'from-browse' && !$item->hasBids()) {
             return true;
         }
@@ -562,7 +532,8 @@ class ControllerItem extends Controller {
         // die("arrivé sur place dans controller item ");
         ItemStatus::bid($current_user,$item,$amount);
         
-       $this->redirect("item","open",$item);
+        
+       $this->redirect("item","open",$item, "from-browse");
     }
 
     /* public function buy() : void {
