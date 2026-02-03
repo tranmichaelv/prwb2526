@@ -401,7 +401,7 @@ class ControllerItem extends Controller {
 
         $item = ItemStatus::get_item_by_id($id);
 
-        //$item->getMaxBid();
+        // $item->getMaxBid();
 
         $pictures = $item->get_all_pictures_by_item_id();
         $main_picture_path = null;
@@ -516,7 +516,12 @@ class ControllerItem extends Controller {
             if (!$isClosed && $bid->has_bids()) {
                 return "case8";
             }
-    
+            if (!$isClosed && !$bid->getHasBuyNow() && $bid->getHasBids()) {
+                return "case8";
+            }
+            if (!$isClosed && $bid->getHasBuyNow() && !$bid->getHasBids()) {
+                return "case2";
+            }
             return "";
         }
         
@@ -548,6 +553,7 @@ class ControllerItem extends Controller {
     public function place() : void {
         $current_user = $this->get_user_or_redirect();
         
+        // gérer le cas ou un guest essaye de participer !!! 
         
         if(count($_POST)){
         $item = $_POST['item'];
