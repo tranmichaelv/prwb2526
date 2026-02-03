@@ -106,19 +106,19 @@ class Item extends Model {
 
           // title entre 3 et 255 carac, unique par owner 
         if(mb_strlen($title) < $title_min ||mb_strlen($title) > $title_max ){
-               $errors['title'][] = "Title lenght must be between 3 and 255 characters";
+               $errors['title'][] = "Title lenght must be between $title_min and $title_max characters";
         } elseif (self::title_exists_for_owner($title, $this->owner, $this->id)) {
                $errors['title'][] = "You already have an ad with this title.";
         }
 
         // si desc est remplie -> min 3 carac
         if( $desc !== "" && mb_strlen($desc) < $desc_min ){
-               $errors['description'][] = "Description lenght must be at least 3 characters.";
+               $errors['description'][] = "Description lenght must be at least $desc_min characters.";
         } 
 
         // duration days entre 1 et 365 jours
         if($this->duration_days < 1 || $this->duration_days > 365) {
-               $errors ['duration_days'][] = "Duration days must be between 1 and 365";
+               $errors ['duration_days'][] = "Duration days must be between $dur_days_min and $dur_days_max";
         }
 
         // valeur ne peut pas etre nétagif
