@@ -174,7 +174,7 @@ class ControllerItem extends Controller {
             $errors = $item->persist();
 
         if (empty($errors)) {
-            $this->redirect("item","open",$item->get_id());
+            $this->redirect("item","open",$item->get_id(), "from-items");
         }
     }
 
@@ -380,8 +380,9 @@ class ControllerItem extends Controller {
         
         $id = isset($_GET['param1']) ? (int) $_GET['param1'] : null;
         $img_priority = isset($_GET['param3']) ? (int) $_GET['param3'] : 1;
+        
         $from = isset($_GET['param2'] ) ? $_GET['param2'] : null;
-        // var_dump("from", $from);
+        // var_dump("from", $from); die ("controller item itemDetails");
         $errors = [];
         
         if ($id == null) {

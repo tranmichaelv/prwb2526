@@ -5,7 +5,7 @@
 
 <section>
   <div class="panel"> 
-      <div class="title fs-6 fw-bold text-secondary">Pricing : CASE 2 </div>
+      <div class="title fs-6 fw-bold text-secondary text-start">Pricing </div>
       <form method="post" action="item/place/<?= $item->getId() ?>">
           <input type="hidden" name="item" value="<?= $item->getId() ?>">
           

@@ -16,7 +16,7 @@
     <?php 
     $page = "open_item" ; 
     $title = "Item open";
-    $pageBefore = in_array($from, ['from-browse', '']) ? "item/browse" : "item/myItems";
+    $pageBefore = $from === 'from-browse' ? "item/browse" : "item/myItems";
     include("header.php")?>
 
     <!-- Un container de toute la page open item -->
@@ -62,7 +62,7 @@
                     <?php foreach($pictures as $pic):?>
                         <?php if ($from === 'from-browse') : ?>
                             <a href="item/open/<?= $item->getId() ?>/from-browse/<?= $pic["priority"] ?>"><img src="<?=$pic['picture_path'] ?>" alt="item image" class="thumbnail"></a>
-                        <?php elseif ($from === 'from-items') :?>
+                        <?php elseif ($from === 'from-items' || $from === null) :?>
                             <a href="item/open/<?= $item->getId() ?>/from-items/<?= $pic["priority"] ?>"><img src="<?=$pic['picture_path'] ?>" alt="item image" class="thumbnail"></a>
                         <?php endif;?>
                     <?php endforeach; ?>   
@@ -74,10 +74,11 @@
 
         <section>
             <!-- bid-history-container -->
+        <?php if (!empty($bids_history)):?>
            <div class="bids-history">
                 
                 <div class="bids">
-                     <?php if (!empty($bids_history)) :?>
+                    <?php //if (!empty($bids_history)) :?>
                         <div><p>Bid History</p></div>
                         <?php foreach($bids_history as $bid) :?>
                             <div class="bid">
@@ -86,11 +87,16 @@
                                 <p class="date"><?= $bid['created_at']; ?></p>
                             </div>
                         <?php endforeach ?>
-                    <?php else : ?>
-                        
-                    <?php endif ?> 
                 </div>    
             </div>
+         <?php elseif (empty($bids_history) && !$bid->bid_is_closed()):?> 
+            <div class="bids-history">
+                <div class="bids">
+                    <div><p>Bid History</p></div>
+                    <div>No bids yet. Be the first to participate!</div>
+                </div>
+            </div>    
+        <?php endif;?>    
         </section>
 
     </div>
