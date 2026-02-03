@@ -31,8 +31,9 @@ body {
 }
 
 .main-picture img {
-    width: 100%;
-    max-height: 800px;
+    width: 100% ;
+    height: auto;
+    max-height: 400px;
     border-radius: 10px 10px 0 0;
     
 }
@@ -196,9 +197,9 @@ body {
 
 
 
-/* ---- RIGHT PANEL sizing (optionnel) ---- */
+/* ---- RIGHT PANEL sizing ---- */
 .right-container{
-  width: 450px;               /* ajuste si tu veux plus large */
+  width: 450px;               
 }
 
 /* ---- Pricing panel ---- */
@@ -206,33 +207,8 @@ body {
   background: #2f2f2f;
   border-radius: 10px;
   padding: 14px;
-  color: #fff;
-  border: 1px solid rgba(255,255,255,.06);
+  border: none;
 }
-
-
-.bid-label-price {
-  display: flex;
-}
-
-.current-bid-label {
-  width: 50%;
-  font-weight: 600;
-}
-
-.current-bid-price {
-  width: 50%;
-  text-align: end;
-  font-weight: 600;
-  color: #06b463;
-}
-
-.starting-at {
-  font-size: 12px;
-  opacity: 0.6;
-  font-weight: 600;
-}
-
 .divider {
   height: 1px;
   background: rgba(255, 255, 255, 0.359);
@@ -252,12 +228,6 @@ body {
   text-align: end;
 }
 
-.label-price {
-  width: 50%;
-  font-weight: 600;
-  color: whitesmoke;
-}
-
 .buy-price {
   width: 50%;
   text-align: end;
@@ -265,212 +235,14 @@ body {
   color: #06b463;
 }
 
-.oi-top{
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.oi-label{
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0;
-}
-
-.oi-sub{
-  font-size: 12px;
-  opacity: .65;
-  margin-top: 2px;
-}
-
-.oi-price{
-  font-size: 14px;
-  font-weight: 700;
-  color: #06b463; /* vert comme ta capture */
-  white-space: nowrap;
-}
-
-.oi-divider{
-  height: 1px;
-  background: rgba(255, 255, 255, 0.359);
-  margin: 12px 0;
-}
-
-/* ---- Form ---- */
-.oi-form{
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.oi-money{
-  display: flex;
-  align-items: center;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 6px;
-  overflow: hidden;
-  height: 38px;
-}
-
-.oi-money__prefix{
-  width: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: .75;
-  border-right: 1px solid rgba(255,255,255,.12);
-}
-
-.oi-money__input{
-  width: 100%;
-  height: 100%;
-  border: 0;
-  outline: none;
-  background: transparent;
-  color: rgba(255,255,255,.92);
-  padding: 0 12px;
-  font-size: 14px;
-}
-
-/* enlever les flèches sur certains navigateurs (optionnel) */
-.oi-money__input::-webkit-outer-spin-button,
-.oi-money__input::-webkit-inner-spin-button{
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.oi-btn{
-  height: 38px;
-  border: 0;
-  border-radius: 6px;
-  background: #20c997;
-  color: whitesmoke;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.oi-btn:hover{
-  filter: brightness(1.05);
-}
-
-/* ---- Seller card ---- */
-.oi-seller{
-  background: #1f2428;
-  border-radius: 10px;
-  padding: 14px;
-  color: #fff;
-  border: 1px solid rgba(255,255,255,.06);
-}
-
-.oi-seller__title{
-  font-size: 13px;
-  font-weight: 600;
-  opacity: .8;
-  margin-bottom: 10px;
-}
-
-.oi-seller__content{
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.oi-seller__avatar{
-  width: 36px;
-  height: 36px;
+.seller-avatar {
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background: #3a3f44; /* gris comme sur l’image */
-}
-
-.oi-seller__name{
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.oi-seller__role{
-  font-size: 12px;
-  opacity: .6;
-}
-
-/* petites variantes de texte */
-.oi-sub--spaced{
-  margin-top: 10px;
-  color: whitesmoke;
-}
-
-.oi-sub--muted{
-  color: whitesmoke;
-  font-weight: 600;
-}
-
-/* bouton outline "Buy now" */
-.oi-btn--outline{
-  background: transparent;
-  border: 1px solid rgba(59,130,246,.9); /* bleu */
-  color: rgba(96,165,250,1);             /* bleu clair */
-}
-
-.oi-btn--outline:hover{
-  background: rgba(59,130,246,.08);
-}
-
-/* form plus serré (pour coller à ta capture) */
-.oi-form--tight{
-  margin-top: 10px;
+  margin-bottom: 16px;
 }
 
 
-
-/* ici mon conteneur personalisé */
-
-
-.money-container {
-  display: flex;
-}
- /*
-.title {
-  border : red solid 2px;
-  color :aqua;
-  font-size: 15px;
-  opacity: 0.6;
-  margin-bottom: 10px;
-}
-*/
-.label {
-  border : red solid 2px;
-  color :whitesmoke;
-  font-size: 20px;
-  width: 50%;
-  display: flex;
-}
-
-.price {
-  color :whitesmoke;
-  width: 50%;
-  text-align: end;
-  padding-right: 4px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #06b463; /* vert comme ta capture */
-  white-space: nowrap;
-}
-
-.sub-label {
-  border : violet solid 2px;
-  color : whitesmoke;
-  font-weight: bold;
-  font-size: 12px;
-  opacity: 0.5;
-}
-
-.divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.359);
-  margin: 12px 0;
-}
 
 
 

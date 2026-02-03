@@ -6,9 +6,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" 
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
-
-    <link rel="stylesheet" href="css/OpenItem.css" >
     <link rel="stylesheet" href="css/styles.css" >
+    <link rel="stylesheet" href="css/OpenItem.css" >
+    
     <title>Item images</title>
 </head>
 <body>
@@ -29,13 +29,12 @@
             <!-- main-picture-container -->
             <div class="main-picture">
                 <?php 
-                    // $baseUrl = '/prwb_2526_c05/';
 
-                    // if ($main_picture_path == null) {
-                    //    $src = $baseUrl .  '/uploads/default_image/default_image.png';
-                    //} else {
+                     if ($main_picture_path == null) {
+                        $src = 'uploads/default/default_image.png';
+                    } else {
                         $src = $main_picture_path;
-                    //}
+                    }
                 ?>
 
                 <img src="<?= $src ;?>" alt="Image principale de Item">
@@ -61,19 +60,26 @@
             <div class="additional-images">
                 <?php if (!empty($pictures)) : ?>
                     <?php foreach($pictures as $pic):?>
+                        <?php if ($from === 'from-browse') : ?>
                             <a href="item/open/<?= $item->getId() ?>/from-browse/<?= $pic["priority"] ?>"><img src="<?=$pic['picture_path'] ?>" alt="item image" class="thumbnail"></a>
+                        <?php elseif ($from === 'from-items' || $from === null) :?>
+                            <a href="item/open/<?= $item->getId() ?>/from-items/<?= $pic["priority"] ?>"><img src="<?=$pic['picture_path'] ?>" alt="item image" class="thumbnail"></a>
+                        <?php endif;?>
                     <?php endforeach; ?>   
                 <?php else :?>
+                    <div></div>
                 <?php endif;?>        
             </div>
         </section>
 
         <section>
             <!-- bid-history-container -->
+        <?php if (!empty($bids_history)):?>
            <div class="bids-history">
-                <div><p>Bid History</p></div>
+                
                 <div class="bids">
-                     <?php if (!empty($bids_history)) :?>
+                    <?php //if (!empty($bids_history)) :?>
+                        <div><p>Bid History</p></div>
                         <?php foreach($bids_history as $bid) :?>
                             <div class="bid">
                                 <p class="owner"><?= $bid['pseudo']; ?></p>
@@ -81,11 +87,16 @@
                                 <p class="date"><?= $bid['created_at']; ?></p>
                             </div>
                         <?php endforeach ?>
-                    <?php else : ?>
-                        <p>No bids yet. Be the first to participate!</p>
-                    <?php endif ?> 
                 </div>    
             </div>
+         <?php elseif (empty($bids_history) && !$bid->bid_is_closed()):?> 
+            <div class="bids-history">
+                <div class="bids">
+                    <div><p>Bid History</p></div>
+                    <div>No bids yet. Be the first to participate!</div>
+                </div>
+            </div>    
+        <?php endif;?>    
         </section>
 
     </div>

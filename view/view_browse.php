@@ -13,6 +13,7 @@
 <body>
 
     <?php 
+        $from = 'from-browse';
         $title = "Browser";
         include("header.php");
     ?>

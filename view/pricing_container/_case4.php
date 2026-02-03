@@ -8,7 +8,7 @@ $max_bid = $item->hasBids() ? $item->getMaxBid() : $item->getStartingBid();
 
     <form>
     <div class="panel">
-        <div class="title fs-6 fw-bold text-secondary">Pricing : CASE 4 </div>
+        <div class="title fs-6 fw-bold text-secondary text-start">Pricing</div>
 
         <?php if ($item->isAuction() == false): ?>
         <div class="d-flex justify-content-between align-items-center">

@@ -143,16 +143,11 @@ class ItemSaleStatus extends Model {
 
        return false;
     }
+    
+    public function user_is_owner(int $current_user_id) : bool {
 
-    /*public function closed_unslod() : bool {
-
-        if ()
-    }*/
-
-    public function user_is_owner(User $current_user) : bool {
-
-        $owner = User::get_owner_infos_by_item_id($this->getItemId()); // ajouter la méthode dans le modèle 
-        return $owner["id"] == $current_user->getId();
+        $owner = User::get_owner_infos_by_item_id($this->getItemId()); 
+        return $owner["id"] == $current_user_id;
         
     }
 
