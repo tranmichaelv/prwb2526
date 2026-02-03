@@ -60,9 +60,9 @@
             <div class="additional-images">
                 <?php if (!empty($pictures)) : ?>
                     <?php foreach($pictures as $pic):?>
-                        <?php if ($from === 'from-browse' || $from === null) : ?>
+                        <?php if ($from === 'from-browse') : ?>
                             <a href="item/open/<?= $item->getId() ?>/from-browse/<?= $pic["priority"] ?>"><img src="<?=$pic['picture_path'] ?>" alt="item image" class="thumbnail"></a>
-                        <?php elseif ($from === 'from-items' || $from === null) :?>
+                        <?php elseif ($from === 'from-items') :?>
                             <a href="item/open/<?= $item->getId() ?>/from-items/<?= $pic["priority"] ?>"><img src="<?=$pic['picture_path'] ?>" alt="item image" class="thumbnail"></a>
                         <?php endif;?>
                     <?php endforeach; ?>   

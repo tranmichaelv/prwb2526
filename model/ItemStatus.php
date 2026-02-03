@@ -105,6 +105,8 @@ class ItemStatus extends Model {
                                 ,["owner"=>$userId, "end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]);
     
         $data = $query->fetchAll();
+        // print_r($data);
+        // die();
         return self::fetch_items($data);
     }
 
@@ -169,16 +171,21 @@ class ItemStatus extends Model {
     
             
             // Ajouter les images
-            $items[$item_id]['pictures'][] = [
-                    "path"     => $row["picture_path"],
-                    "priority" => $row["priority"]
-            ];
+            if (!isset($items[$item_id]['pictures'][$row['picture_path']])) {
+                $items[$item_id]['pictures'][$row['picture_path']] = [
+                    'path'     => $row['picture_path'],
+                    'priority' => $row['priority']
+                ];
+            }
+
             
         }
     
         // Converti en objets Item
         $results = [];
         foreach ($items as $item) {
+            $item['pictures'] = array_values($item['pictures']);
+            
             $results[] = new ItemStatus(
                 $item['id'],
                 $item['title'],

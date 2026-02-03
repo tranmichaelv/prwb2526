@@ -533,7 +533,7 @@ class ControllerItem extends Controller {
         $bid = $this->get_bid_status($item->getId());
         $user_is_seller = $bid->user_is_owner($current_user_id);
 
-        if ($user_is_seller && $from !== 'from-browse/' && !$item->hasBids()) {
+        if ($user_is_seller && $from !== 'from-browse' && !$item->hasBids()) {
             return true;
         }
         return false;
@@ -558,19 +558,19 @@ class ControllerItem extends Controller {
         if(count($_POST)){
         $item = $_POST['item'];
         $amount = $_POST['amount'];
-        
+        $from = $_POST['from'] ?? 'from-browse';
             //var_dump($item, " *** ", $amount);die ("arrivé sur place ");
         }else {
             $item=$_GET['param1'];
             $item_pop = ItemStatus::get_item_by_id($item);
             $amount=$item_pop->getBuyNowPrice();
-
+            $from = $_POST['from'] ?? 'from-browse';
             
         }
         
         ItemStatus::bid($current_user,$item,$amount);
         
-       $this->redirect("item","open",$item);
+       $this->redirect("item","open",$item, $from);
 
     }
 
