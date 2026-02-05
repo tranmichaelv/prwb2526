@@ -114,7 +114,7 @@ class ControllerItem extends Controller {
             $item->set_instant_purchase($instant);
             $item->set_sale_price($sale);
 
-        if (isset($_POST)) {
+        if (!empty($_POST)) {
             $errors = $item->persist(); // validation + insert tentative
 
             if (empty($errors)) {
@@ -154,7 +154,7 @@ class ControllerItem extends Controller {
 
         $errors = [];
 
-        if(isset($_POST)){
+        if(!empty($_POST)){
             $item->set_title($_POST['title'] ?? "");
              $item->set_description($_POST['description'] ?? "");
             $item->set_duration_days(isset($_POST['duration']) ? (int)$_POST['duration'] : 7);
@@ -207,7 +207,7 @@ class ControllerItem extends Controller {
 
         $owner = User::get_users_by_id($item->get_owner_id());
 
-        if(isset($_POST)){
+        if(isset($_POST['delete'])){
             $item->delete();
             $this->redirect("item","myItems");
         }
