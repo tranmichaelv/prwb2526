@@ -1,7 +1,7 @@
 <div class="item-wrapper">
     <div class="item-card">
         <?php 
-        $fromWhere = $from === 'from-browse' ? "from-browse" : 'from-items';
+        $fromWhere = $from;
         if($title) ;?>
         <a href="item/open/<?= $item->getId()?>/<?= $fromWhere ?>">
             <div class="image-container">

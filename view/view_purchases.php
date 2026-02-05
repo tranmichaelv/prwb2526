@@ -12,6 +12,7 @@
 <body>
    
     <?php 
+        $from = 'from-purchases';
         $title = "Purchases";
         $pageBefore = "user/profile";
         include("header.php");
