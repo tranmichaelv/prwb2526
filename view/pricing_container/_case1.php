@@ -12,7 +12,7 @@
             <div class="fw-semibold ">Current Bid </div>
             <div class="fw-semibold" style="color: #22c55e;"><?= "€ ".$item->getStartingBid()?></div>
           </div>
-          <div class="starting-at ">Starting at <?= $item->getStartingBid() ?></div>
+          <div class="starting-at fw-semibold text-secondary">Starting at <?= $item->getStartingBid() ?></div>
 
           <div class="divider"></div>
 

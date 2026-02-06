@@ -15,9 +15,9 @@
 
         <div class="divider"></div>
 
-        <?php if ($bid->bid_is_closed()): ?>
+        <?php if ($item->bid_is_closed()): ?>
         <div>Congratulations! You purchased this item for <?= $item->getBuyNowPrice() ?></div>
-        <?php elseif (!$bid->bid_is_closed()) :?>
+        <?php elseif (!$item->bid_is_closed()) :?>
             <?php if ($user_is_guest === false): ?>
                 <button type="submit" class="btn btn-success w-100 fw-semibold" ><i class="bi bi-cart-arrow-down"></i>Buy Now</button>
             <?php else :?>    
