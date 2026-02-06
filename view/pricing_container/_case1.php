@@ -5,14 +5,14 @@
 
 <section>
   <div class="panel"> 
-      <div class="title fs-6 fw-bold text-secondary text-start">Pricing</div>
+      <div class="title fs-6 fw-bold text-secondary text-start">Pricing : 1 </div>
       <form method="post" action="item/place">
           <input type="hidden" name="item" value="<?= $item->getId() ?>">
           <div class="d-flex justify-content-between align-items-center">
             <div class="fw-semibold ">Current Bid </div>
             <div class="fw-semibold" style="color: #22c55e;"><?= "€ ".$item->getStartingBid()?></div>
           </div>
-          <div class="starting-at ">Starting at <?= $item->getStartingBid() ?></div>
+          <div class="starting-at fw-semibold text-secondary">Starting at <?= $item->getStartingBid() ?></div>
 
           <div class="divider"></div>
 

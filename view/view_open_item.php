@@ -89,7 +89,7 @@
                         <?php endforeach ?>
                 </div>    
             </div>
-         <?php elseif (empty($bids_history) && !$bid->bid_is_closed()):?> 
+         <?php elseif (empty($bids_history) && !$item->bid_is_closed()):?> 
             <div class="bids-history">
                 <div class="bids">
                     <div><p>Bid History</p></div>
