@@ -427,17 +427,16 @@ class ItemStatus extends Model {
 
 
     /*========  Renvoie un Objet Item grace à l'ID fourni  ========*/
-    public static function get_item_by_id($id) : ItemStatus {
+    public static function get_item_by_id($id) : ?ItemStatus {
         
-        $errors = [];
         $query = self::execute("SELECT * FROM v_items_status WHERE id = :id", 
         ['id' => $id]
         );
         $Item = $query->fetch(); 
 
         if ($query->rowCount() == 0){
-            $errors [] = "No item found for this id ";
-            die ("Voir la méthode get_item_by_id dans Items Status ");
+            return null;
+            // die ("Voir la méthode get_item_by_id dans Items Status ");
         } else {
             return new ItemStatus(
                 $Item["id"], 
@@ -519,6 +518,143 @@ class ItemStatus extends Model {
         return $pic['picture_path'];
     }
 
+    // Refactorisation a partir d'ici // 
+    // je construie déjà un item complet lors de l'appel de get_item_by_id(),
+    //  donc je peux acceder aux autres méthode 
+    /*
+    public static function get_current_bid_by_item_id($id) : ?ItemStatus {
+
+        $query = self::execute(
+            "SELECT * 
+            FROM v_items_status
+            WHERE id = :id", 
+            ["id" => $id]
+        );
+
+        $results = $query->fetch(PDO::FETCH_ASSOC);
+
+        if ($query->rowCount()==0) {
+            return null;
+        } else {
+            return new ItemStatus(
+                $results["id"], 
+                $results["title"], 
+                $results["description"],
+                $results["owner"],  
+                $results["created_at"],
+                $results["duration_days"], 
+                $results["end_at"],
+                $results["bid_count"],
+                $results["is_direct_sale"], 
+                $results["is_auction"],
+                $results["has_buy_now"],
+                $results["has_bids"],
+                $results["buy_now_reached"],
+                $results["not_purchased_direct_sale"],
+                $results['buy_now_price'],
+                $results['starting_bid'],
+                $results['max_bid']
+            );
+        }
+    }*/
+    
+    public function get_bids_history() : array {
+
+        $query = self::execute(
+            "SELECT 
+                u.id,
+                u.pseudo,
+                b.amount,
+                b.created_at
+                FROM bids b
+                    JOIN users u ON u.id = b.owner
+                WHERE b.item = :id
+                ORDER BY b.created_at DESC;", 
+            ["id" =>$this->getId() ]
+        ); 
+
+        $bids = $query->fetchAll();
+        return $bids ;
+    } 
+
+    public function get_seller_information() : ?array {
+        
+        $query = self::execute(
+            "SELECT u.id, u.pseudo, u.role
+            FROM users u 
+            WHERE u.id = (SELECT v.owner
+                        FROM v_items_status v 
+                        WHERE v.id = :id )",
+            ["id" => $this->getId()]
+        );
+
+        $userInfos = $query->fetch();
+        if (!$userInfos) {
+            return null;
+        } else {
+            return $userInfos;
+        }
+    }
+    
+    public function bid_is_closed() : bool {
+
+        if($this->has_buy_now==0){
+            if(AppTime::get_current_datetime()>$this->end_at){
+                return true;
+            }
+       } else {
+        if($this->isBuyNowReached()==1 || AppTime::get_current_datetime()>$this->end_at )
+            return true;
+        }
+
+       return false;
+    }
+
+    public function user_is_owner(int $current_user_id) : bool {
+
+        $owner = User::get_owner_infos_by_item_id($this->getId()); 
+        return $owner["id"] == $current_user_id;
+        
+    }
+
+    public function buy_now_price_exist() : bool {
+        
+        if ($this->getId() !== null && $this->has_buy_now) {
+            return true;
+        }
+        return false;
+    }
+
+    public function has_bids() : bool {
+    
+        if ($this->has_bids==1) {
+            return true;
+        }
+        return false;
+    } 
+    
+    public function has_buy_now() : bool {
+
+        if ($this->has_buy_now==1) {
+            return true;
+        }
+        return false;
+    }
+    public function buy_now_reached() : bool {
+
+        if ($this->buy_now_reached) {
+            return true;
+        }
+        return false;
+    }
+
+    public function is_auction() : bool {
+
+        if ($this->has_buy_now==0) {
+            return true;
+        }
+        return false;
+    }
     // ========= Faire une enchère ou acheter un Item ========== //
 
     public static function bid($owner,$item_id,$amount) : bool {
