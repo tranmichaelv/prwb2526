@@ -8,8 +8,6 @@ require_once 'model/User.php';
 require_once 'model/Item_pictures.php';
 require_once "utils/Utils.php";
 require_once "model/ItemStatus.php";
-require_once "model/ItemSaleStatus.php";
-
 
 class ControllerItem extends Controller {
 
