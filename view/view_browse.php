@@ -48,7 +48,6 @@
             </div>
         <?php endif; ?>
     <?php endif; ?>
-    <a href="user/logout">disconnect</a>
 
     
 
