@@ -72,7 +72,7 @@ class ControllerUser extends Controller {
         $errors = [];
 
         // si rien n'est encore reçue en POST, alors n'affiche pas les changement
-        if (isset($_POST['current_password']) && isset($_POST['new_password']) && isset($_POST['confirm_new_password'])) {
+        if (isset($_POST['current_password']) || isset($_POST['new_password']) || isset($_POST['confirm_new_password'])) {
             $current_password = $_POST['current_password'];
             $new_password = $_POST['new_password'];
             $confirm_new_password = $_POST['confirm_new_password'];
@@ -221,7 +221,7 @@ class ControllerUser extends Controller {
         $this->admin_login("Boris");
     }
 
-    public function loginAsMarc() : void{
+    public function login_as_marc() : void{
         $this->admin_login("Marc");
     }
 

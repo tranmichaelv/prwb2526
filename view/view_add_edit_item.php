@@ -19,7 +19,7 @@
           
             $page = $mode === "edit" ? "edit_item" : "add_item";
             $title = $mode === "edit" ? "Edit item" : "Add item";
-            $pageBefore = $mode === "edit" ? "item/open/$id/from-items" : "item/browse";
+            $page_before = $mode === "edit" ? "item/open/$id/from-items" : "item/browse";
 
             include("header.php");
         ?>

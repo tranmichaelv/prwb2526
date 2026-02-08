@@ -337,7 +337,7 @@ class User extends Model {
 
             $len = strlen($iban);
 
-            if (!preg_match('/^[A-Z]{2}[0-9]{14}/', $iban) || $len !== 16) {
+            if (!preg_match('/^BE[0-9]{2}\s[0-9]{4}\s[0-9]{4}\s[0-9]{4}/', $iban) || $len !== 16) {
                 $errors[] = "IBAN doit être de forme BE99 9999 9999 9999.";
             }
         }

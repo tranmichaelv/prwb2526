@@ -17,13 +17,13 @@
     $page = "open_item" ; 
     $title = "Item open";
     if($from === 'from-browse') {
-        $pageBefore = "item/browse";
+        $page_before = "item/browse";
     } elseif($from === 'from-items' ) {
-        $pageBefore = "item/myItems";
+        $page_before = "item/myItems";
     }  elseif($from === 'from-sales') {
-        $pageBefore = "item/sales";
+        $page_before = "item/sales";
     } elseif($from === 'from-purchases') {
-        $pageBefore = "item/purchases";
+        $page_before = "item/purchases";
     }
    // $pageBefore = $from === 'from-browse' ? "item/browse" : "item/myItems";
     include("header.php")?>
