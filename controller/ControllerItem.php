@@ -4,7 +4,6 @@ require_once "model/Item.php";
 require_once "model/ItemPicture.php";
 require_once "utils/ImageManager.php";
 require_once 'model/User.php';
-require_once 'model/Item_pictures.php';
 require_once "utils/Utils.php";
 require_once "model/ItemStatus.php";
 
