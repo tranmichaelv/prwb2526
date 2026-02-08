@@ -5,7 +5,17 @@
         if($title) ;?>
         <a href="item/open/<?= $item->getId()?>/<?= $fromWhere ?>">
             <div class="image-container">
-                <img src="<?= $item->get_first_picture_path() ?>" alt="<?= $item->getTitle() ?>" width="300">
+                <?php if ($item->get_first_picture_path()): ?>
+                    <img src="<?= $item->get_first_picture_path() ?>" alt="<?= $item->getTitle() ?>" width="300">
+                    <?php else: ?>
+                        <svg width="300" height="200" style="background:#f5f5f5; border:1px ">
+                            <text x="50%" y="50%" dominant-baseline="middle"
+                                text-anchor="middle" fill="#aaa" font-size="14">
+                                Pas d'image
+                            </text>
+                        </svg>
+                    <?php endif; ?>
+                    
 
                 <?php if ($item->isAuction() && $item->hasBuyNow()): ?>
                     <span class="labels label-buy-now-and-more"><i class="bi bi-bag"></i> Buy Now</span>
