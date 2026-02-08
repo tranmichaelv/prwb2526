@@ -105,8 +105,6 @@ class ItemStatus extends Model {
                                 ,["owner"=>$userId, "end_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]);
     
         $data = $query->fetchAll();
-        // print_r($data);
-        // die();
         return self::fetch_items($data);
     }
 
@@ -208,8 +206,6 @@ class ItemStatus extends Model {
             );
         }
 
-        // print_r($results);
-        // die();
         return $results;
     }
 
@@ -456,13 +452,6 @@ class ItemStatus extends Model {
                 $Item['buy_now_price'],
                 $Item['starting_bid'],
                 $Item['max_bid']
-                // Utils::convert_format_number_for_bids($Item['starting_bid']),
-                // Utils::convert_format_number_for_bids($Item['max_bid']),
-                /*
-                $Item["buy_now_price"],
-                $Item["starting_bid"],
-                $Item["max_bid"] 
-                */
             );
         }
     }

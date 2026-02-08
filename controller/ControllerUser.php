@@ -41,30 +41,14 @@ class ControllerUser extends Controller {
             }
         }
 
+        // savoir si on est en dev ou pas 
         $is_dev = Configuration::is_dev();
-        // $is_dev = false;
         (new View("login"))->show(["email" => $email, "password" => $password, "errors" => $errors, "is_dev" => $is_dev]);
     }
 
-    // -------- Change Password --------
-    public function change_password() : void{
-        $this->require_login();
-        $user = $this->get_user_or_false();
-        $page = "change_password";
-        
-        $current_password = '';
-        $new_password = '';
-        $confirm_new_password = '';
-        $errors = [];
-
-        if (isset($_POST['current_password']) && isset($_POST['new_password']) && isset($_POST['confirm_new_password'])) {
-            $current_password = $_POST['current_password'];
-            $new_password = $_POST['new_password'];
-            $confirm_new_password = $_POST['confirm_new_password'];
-
-            $errors = $user->validate_change_password($current_password, $new_password , $confirm_new_password);
-
-            $has_errors = false;
+    // verifie si il y a des erreurs, si non alors persist
+    private function check_errors_then_persist(User $user, array $errors) : void{
+        $has_errors = false;
             foreach ($errors as $field_errors) {
                 if (!empty($field_errors)) {
                     $has_errors = true;
@@ -75,6 +59,27 @@ class ControllerUser extends Controller {
                 $user->persist();
                 $this->redirect("user", "profile");
             }
+    }
+
+    // -------- Change Password --------
+    public function change_password() : void{
+        $user = $this->get_user_or_redirect();
+        $page = "change_password";
+        
+        $current_password = '';
+        $new_password = '';
+        $confirm_new_password = '';
+        $errors = [];
+
+        // si rien n'est encore reçue en POST, alors n'affiche pas les changement
+        if (isset($_POST['current_password']) && isset($_POST['new_password']) && isset($_POST['confirm_new_password'])) {
+            $current_password = $_POST['current_password'];
+            $new_password = $_POST['new_password'];
+            $confirm_new_password = $_POST['confirm_new_password'];
+
+            $errors = $user->validate_change_password($current_password, $new_password , $confirm_new_password);
+
+            $this->check_errors_then_persist($user, $errors);
         }
 
         (new View("change_password"))->show(["user" => $user, 
@@ -88,11 +93,11 @@ class ControllerUser extends Controller {
 
     // -------- Edit Profile --------
     public function edit_profile() : void{
-        $this->require_login();
-        $user = $this->get_user_or_false();
+        $user = $this->get_user_or_redirect();
         $page = "edit_profile";
         $errors = [];
 
+        // si rien n'est encore reçue en POST, alors n'affiche pas les changement
         if (isset($_POST['full_name']) || isset($_POST['username']) || isset($_POST['email']) || isset($_POST['iban'])) {
             $full_name = $_POST['full_name'] ?? $user->getFullName();
             $username = $_POST['username'] ?? $user->getPseudo();
@@ -101,17 +106,7 @@ class ControllerUser extends Controller {
             
             $errors = $user->validate_update($full_name, $username, $email, $iban);
             
-            $has_errors = false;
-            foreach ($errors as $field_errors) {
-                if (!empty($field_errors)) {
-                    $has_errors = true;
-                }
-            }
-
-            if(!$has_errors){
-                $user->persist();
-                $this->redirect("user", "profile");
-            }
+            $this->check_errors_then_persist($user, $errors);
         }
         
         (new View("edit_profile"))->show(["user" => $user, "page" =>  $page, "errors" => $errors]);
@@ -119,8 +114,7 @@ class ControllerUser extends Controller {
 
     // -------- Profile --------
     public function profile() : void{
-        $this->require_login();
-        $user = $this->get_user_or_false();
+        $user = $this->get_user_or_redirect();
         $page = "profile";
 
         (new View("profile"))->show(["user" => $user, "page" =>  $page]);
@@ -128,8 +122,7 @@ class ControllerUser extends Controller {
 
     // -------- Mangage Profile Picture --------
     public function manage_profile_picture() : void{
-        $this->require_login();
-        $user = $this->get_user_or_false();
+        $user = $this->get_user_or_redirect();
         $page = "manage_profile_picture";
         $errors = [];
 
@@ -209,15 +202,6 @@ class ControllerUser extends Controller {
                                     "errors" => $errors
                                 ]);
     }
-
-
-    // -------- Doit être connecté --------
-    private function require_login(): void {
-        if (!$this->user_logged()) {
-            $this->redirect("user", "login");
-        }
-    }
-
 
     // -------- For Debug Purpose --------
     private function admin_login($nom) : void {

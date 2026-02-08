@@ -2,7 +2,6 @@
 require_once "framework/Controller.php";
 require_once "model/Item.php";
 require_once "model/ItemPicture.php";
-// require_once "utils/Apptime.php";
 require_once "utils/ImageManager.php";
 require_once 'model/User.php';
 require_once 'model/Item_pictures.php';
@@ -19,94 +18,87 @@ class ControllerItem extends Controller {
     public function browse() : void {
         $user = $this->get_user_or_false();
         $page = "browse";
-        // Si user n'est pas vide, connecte au browser de l'user sinon "guest login"
+
+        // Si user n'est pas vide, connecte au browser de l'user 
         if($user){
-            $items_other = $user->get_my_other_items();    
-            $items_user = $user->get_my_bids_items();
+                    $items_other = $user->get_my_other_items();    
+                    $items_user = $user->get_my_bids_items();
 
-            (new View("browse"))->show(["items" => $items_other, 
-                                        "items_user" => $items_user, 
-                                        "user" => $user, 
-                                        "page" => $page
-                                    ]);
-        } else{
-            $all_items = ItemStatus::get_all_items();
+                    (new View("browse"))->show(["items" => $items_other, 
+                                                "items_user" => $items_user, 
+                                                "user" => $user, 
+                                                "page" => $page
+                                            ]);
+        } 
+        // sinon se connecte en tant que guest 
+        else{
+                $all_items = ItemStatus::get_all_items();
 
-            (new View("browse"))->show(["all_items" => $all_items, 
-                                        "user" => $user, 
-                                        "page" => $page
-                                    ]);
+                (new View("browse"))->show(["all_items" => $all_items, 
+                                            "user" => $user, 
+                                            "page" => $page
+                                        ]);
         }
     }
 
     // Page item/myIems
     public function list() : void {
-        $user = $this->get_user_or_false();
+        // doit être connecté pour voir la page sinon redirect
+        $user = $this->get_user_or_redirect();
+        $page = "list";
 
-        if($user){
-            $page = "list";
-            $active_items = $user->get_list();   
-            $closed_unsold_items = $user->get_my_closed_unsold_items();
-            $sold_items = $user->get_my_sold_items();
+        $active_items = $user->get_list();   
+        $closed_unsold_items = $user->get_my_closed_unsold_items();
+        $sold_items = $user->get_my_sold_items();
 
-            (new View("list"))->show(["active_items" => $active_items, 
-                                    "closed_unsold_items" => $closed_unsold_items, 
-                                    "sold_items" => $sold_items, "user" => $user, 
-                                    "page" => $page
-                                    ]);
-        } else {
-            $this->redirect("user", "login");
-        }
+        (new View("list"))->show(["active_items" => $active_items, 
+                                "closed_unsold_items" => $closed_unsold_items, 
+                                "sold_items" => $sold_items, "user" => $user, 
+                                "page" => $page
+                                ]);
+        
     }
 
     // Page item/sales
     public function sales() : void {
-        $user = $this->get_user_or_false();
-
-        if($user){
+        // doit être connecté pour voir la page sinon redirect
+        $user = $this->get_user_or_redirect();
         $page = "sales";
+        
         $sales = $user->get_my_sales(); 
         $top_person = $user->get_my_purchases_top_bidder();  
-       
         $total_and_average = $user->get_my_sales_total_and_average(); 
+
         (new View("sales"))->show(["sales" => $sales, 
-                                   "top_person" => $top_person, 
-                                   "total_and_average"=> $total_and_average, 
-                                   "user" => $user, 
-                                   "page" => $page
+                                "top_person" => $top_person, 
+                                "total_and_average"=> $total_and_average, 
+                                "user" => $user, 
+                                "page" => $page
                                 ]);
-        } else {
-            $this->redirect("user", "login");
-        }
+        
     }
 
     // Page item/purchases
     public function purchases() : void {
-        $user = $this->get_user_or_false();
+        // doit être connecté pour voir la page sinon redirect
+        $user = $this->get_user_or_redirect();
+        $page = "purchases";
 
-        if($user){
-            $page = "purchases";
-            $purchases = $user->get_my_purchases();   
-            $top_person = $user->get_my_purchases_top_seller();
+        $purchases = $user->get_my_purchases();   
+        $top_person = $user->get_my_purchases_top_seller();
+        $total_and_average = $user->get_my_purchases_total_and_average(); 
 
-            $total_and_average = $user->get_my_purchases_total_and_average(); 
-            (new View("purchases"))->show(["purchases" => $purchases, 
-                                           "top_person" => $top_person, 
-                                           "total_and_average"=> $total_and_average, 
-                                           "user" => $user, 
-                                           "page" => $page
-                                        ]);
-        } else {
-            $this->redirect("user", "login");
-        }
+        (new View("purchases"))->show(["purchases" => $purchases, 
+                                        "top_person" => $top_person, 
+                                        "total_and_average"=> $total_and_average, 
+                                        "user" => $user, 
+                                        "page" => $page
+                                    ]);
+
     }
 
     public function add() : void {
-       $user = $this->get_user_or_false();
-        if (!$user) {
-            $this->redirect("user", "login");
-            return;
-        }
+        $user = $this->get_user_or_redirect();
 
         $errors = [];
         $owner = $user->getId();
@@ -157,12 +149,7 @@ class ControllerItem extends Controller {
     }
 
     public function edit() : void {
-
-        $user = $this->get_user_or_false();
-        if (!$user) {
-            $this->redirect("user", "login");
-            return;
-        }
+        $user = $this->get_user_or_redirect();
 
         $id = $_GET['param1'] ?? null;
 
@@ -212,11 +199,7 @@ class ControllerItem extends Controller {
     }
 
     public function delete(): void {
-        $user = $this->get_user_or_false();
-        if (!$user) {
-            $this->redirect("user", "login");
-            return;
-        }
+        $user = $this->get_user_or_redirect();
 
         $id = $_GET["param1"] ?? null;
         if($id === null || !is_numeric($id)){
@@ -262,11 +245,8 @@ class ControllerItem extends Controller {
     }
 
     public function upload_images(): void {
-        $user = $this->get_user_or_false();
-        if (!$user) {
-            $this->redirect("user", "login");
-            return;
-        }
+        $user = $this->get_user_or_redirect();
+        
         $itemId = (int)($_GET["param1"] ?? 0);
         $item = Item::get_by_id($itemId);
         if ($item === null) $this->redirect("item");
