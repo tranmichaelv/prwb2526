@@ -13,7 +13,7 @@
 <form action="user/change_password" method="post">
     <?php 
         $title = "Change password";
-        $pageBefore = "user/profile";
+        $page_before = "user/profile";
         $href = "user/change_password";
         include("header.php");
     ?>

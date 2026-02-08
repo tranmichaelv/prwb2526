@@ -588,11 +588,11 @@ class ItemStatus extends Model {
             ["id" => $this->getId()]
         );
 
-        $userInfos = $query->fetch();
-        if (!$userInfos) {
+        $user_infos = $query->fetch();
+        if (!$user_infos) {
             return null;
         } else {
-            return $userInfos;
+            return $user_infos;
         }
     }
     

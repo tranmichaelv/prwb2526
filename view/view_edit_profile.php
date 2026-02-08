@@ -13,7 +13,7 @@
 <form action="user/edit_profile" method="post">
     <?php 
         $title = "Edit profile";
-        $pageBefore = "user/profile";
+        $page_before = "user/profile";
         $href = "user/edit_profile";
         include("header.php");
     ?>

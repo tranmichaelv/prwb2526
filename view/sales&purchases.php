@@ -1,4 +1,4 @@
-<?php $stats = $totalAndAverage[0]; ?>
+<?php $stats = $total_and_average[0]; ?>
 
 <div class="title-purchases-or-sales">
     <?php if($page == "purchases"): ?>
@@ -42,11 +42,11 @@
     <div class="info-box">
         <?php if($page == "purchases"): ?>
             <p class="info-title">TOP SELLER</p>
-            <p class="top-seller"><?= $topPerson ?></p>
+            <p class="top-seller"><?= $top_person ?></p>
             <p class="info-desc">Who you've bought from the most</p>
         <?php else: ?>
             <p class="info-title">TOP BIDDER</p>
-            <p class="top-seller"><?= $topPerson ?></p>
+            <p class="top-seller"><?= $top_person ?></p>
             <p class="info-desc">Most recurring winning bidder</p>
         <?php endif; ?>
     </div>

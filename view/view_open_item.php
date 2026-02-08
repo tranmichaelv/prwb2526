@@ -16,7 +16,7 @@
     <?php 
     $page = "open_item" ; 
     $title = "Item open";
-    $pageBefore = $from === 'from-browse' ? "item/browse" : "item/myItems";
+    $page_before = $from === 'from-browse' ? "item/browse" : "item/list";
     include("header.php")?>
 
     <!-- Un container de toute la page open item -->

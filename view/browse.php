@@ -7,11 +7,6 @@
             <div class="image-container">
                 <img src="<?= $item->getPictures()[0]['path'] ?>" alt="<?= $item->getTitle() ?>" width="300">
 
-                <?php
-                    $buyNow = floatval(str_replace(',', '.', $item->getBuyNowPrice()));
-                    $startingBid = floatval(str_replace(',', '.', $item->getStartingBid()));
-                ?>
-
                 <?php if ($item->isAuction() && $item->hasBuyNow()): ?>
                     <span class="labels label-buy-now-and-more"><i class="bi bi-bag"></i> Buy Now</span>
                     <span class="labels label-auction-and-more"><i class="bi bi-piggy-bank"></i> Auction</span>

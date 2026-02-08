@@ -14,7 +14,7 @@
     <?php 
         $from = 'from-sales';
         $title = "Sales";
-        $pageBefore = "user/profile";
+        $page_before = "user/profile";
         include("header.php");
     ?>
 

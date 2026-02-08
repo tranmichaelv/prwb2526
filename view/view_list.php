@@ -43,9 +43,6 @@
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
-
-    <a href="user/logout">disconnect</a>
-
     
 
     <footer> 

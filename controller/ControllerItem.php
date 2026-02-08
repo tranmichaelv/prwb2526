@@ -24,24 +24,35 @@ class ControllerItem extends Controller {
             $items_other = $user->get_my_other_items();    
             $items_user = $user->get_my_bids_items();
 
-            (new View("browse"))->show(["items" => $items_other, "items_user" => $items_user, "user" => $user, "page" => $page]);
+            (new View("browse"))->show(["items" => $items_other, 
+                                        "items_user" => $items_user, 
+                                        "user" => $user, 
+                                        "page" => $page
+                                    ]);
         } else{
             $all_items = ItemStatus::get_all_items();
 
-            (new View("browse"))->show(["all_items" => $all_items, "user" => $user, "page" => $page]);
+            (new View("browse"))->show(["all_items" => $all_items, 
+                                        "user" => $user, 
+                                        "page" => $page
+                                    ]);
         }
     }
 
     // Page item/myIems
-    public function myItems() : void {
+    public function list() : void {
         $user = $this->get_user_or_false();
 
-        $page = "myItems";
-        $active_items = $user->get_my_items();   
+        $page = "list";
+        $active_items = $user->get_list();   
         $closed_unsold_items = $user->get_my_closed_unsold_items();
         $sold_items = $user->get_my_sold_items();
 
-        (new View("list"))->show(["active_items" => $active_items, "closed_unsold_items" => $closed_unsold_items, "sold_items" => $sold_items, "user" => $user, "page" => $page]);
+        (new View("list"))->show(["active_items" => $active_items, 
+                                  "closed_unsold_items" => $closed_unsold_items, 
+                                  "sold_items" => $sold_items, "user" => $user, 
+                                  "page" => $page
+                                ]);
     }
 
     // Page item/sales
@@ -51,10 +62,15 @@ class ControllerItem extends Controller {
         if($user){
         $page = "sales";
         $sales = $user->get_my_sales(); 
-        $topPerson = $user->get_my_purchases_top_bidder();  
+        $top_person = $user->get_my_purchases_top_bidder();  
        
-        $totalAndAverage = $user->get_my_sales_total_and_average(); 
-        (new View("sales"))->show(["sales" => $sales, "topPerson" => $topPerson, "totalAndAverage"=> $totalAndAverage, "user" => $user, "page" => $page]);
+        $total_and_average = $user->get_my_sales_total_and_average(); 
+        (new View("sales"))->show(["sales" => $sales, 
+                                   "top_person" => $top_person, 
+                                   "total_and_average"=> $total_and_average, 
+                                   "user" => $user, 
+                                   "page" => $page
+                                ]);
         } else {
             $this->redirect("user", "login");
         }
@@ -67,10 +83,15 @@ class ControllerItem extends Controller {
         if($user){
             $page = "purchases";
             $purchases = $user->get_my_purchases();   
-            $topPerson = $user->get_my_purchases_top_seller();
+            $top_person = $user->get_my_purchases_top_seller();
 
-            $totalAndAverage = $user->get_my_purchases_total_and_average(); 
-            (new View("purchases"))->show(["purchases" => $purchases, "topPerson" => $topPerson, "totalAndAverage"=> $totalAndAverage, "user" => $user, "page" => $page]);
+            $total_and_average = $user->get_my_purchases_total_and_average(); 
+            (new View("purchases"))->show(["purchases" => $purchases, 
+                                           "top_person" => $top_person, 
+                                           "total_and_average"=> $total_and_average, 
+                                           "user" => $user, 
+                                           "page" => $page
+                                        ]);
         } else {
             $this->redirect("user", "login");
         }
@@ -195,19 +216,19 @@ class ControllerItem extends Controller {
 
         $id = $_GET["param1"] ?? null;
         if($id === null || !is_numeric($id)){
-            $this->redirect("item","myItems");
+            $this->redirect("item","list");
         }
 
         $item = Item::get_by_id($id);
         if($item === null){
-            $this->redirect("item","myItems");
+            $this->redirect("item","list");
         }
 
         $owner = User::get_users_by_id($item->get_owner_id());
 
         if(isset($_POST['delete'])){
             $item->delete();
-            $this->redirect("item","myItems");
+            $this->redirect("item","list");
         }
         (new View("delete_item"))->show([
             "item" => $item,
