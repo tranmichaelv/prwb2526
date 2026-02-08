@@ -37,16 +37,16 @@
         <section class="item-content">
             <!-- main-picture-container -->
             <div class="main-picture">
-                <?php 
-
-                     if ($main_picture_path == null) {
-                        $src = 'uploads/items/default/default_image_1_thumbnail.jpg';
-                    } else {
-                        $src = $main_picture_path;
-                    }
-                ?>
-
-                <img src="<?= $src ;?>" alt="Image principale de Item">
+                <?php if ($main_picture_path == null): ?>
+                    <svg width="690" height="350" style="background:#f5f5f5; border:1px ">
+                        <text x="50%" y="50%" dominant-baseline="middle"
+                            text-anchor="middle" fill="#aaa" font-size="14">
+                            Pas d'image
+                        </text>
+                    </svg>
+                <?php else: ?>
+                    <img src="<?= $main_picture_path ?>" alt="Image principale de Item">
+                <?php endif; ?>
             </div>
 
             <div class="item-infos">
