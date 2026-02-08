@@ -19,7 +19,7 @@
     if($from === 'from-browse') {
         $page_before = "item/browse";
     } elseif($from === 'from-items' ) {
-        $page_before = "item/myItems";
+        $page_before = "item/list";
     }  elseif($from === 'from-sales') {
         $page_before = "item/sales";
     } elseif($from === 'from-purchases') {
@@ -71,11 +71,11 @@
                     <?php foreach($pictures as $pic):?>
                         <?php if ($from === 'from-browse') : ?>
                             <a href="item/open/<?= $item->getId() ?>/from-browse/<?= $pic["priority"] ?>"><img src="<?=$pic['picture_path'] ?>" alt="item image" class="thumbnail"></a>
-                        <?php elseif ($from === 'from-items' || $from === null) :?>
+                        <?php elseif ($from === 'from-items') :?>
                             <a href="item/open/<?= $item->getId() ?>/from-items/<?= $pic["priority"] ?>"><img src="<?=$pic['picture_path'] ?>" alt="item image" class="thumbnail"></a>
-                         <?php elseif ($from === 'from-sales' || $from === null) :?>
+                         <?php elseif ($from === 'from-sales') :?>
                             <a href="item/open/<?= $item->getId() ?>/from-sales/<?= $pic["priority"] ?>"><img src="<?=$pic['picture_path'] ?>" alt="item image" class="thumbnail"></a>
-                         <?php elseif ($from === 'from-purchases' || $from === null) :?>
+                         <?php elseif ($from === 'from-purchases') :?>
                             <a href="item/open/<?= $item->getId() ?>/from-purchases/<?= $pic["priority"] ?>"><img src="<?=$pic['picture_path'] ?>" alt="item image" class="thumbnail"></a>        
                         <?php endif;?>
                     <?php endforeach; ?>   
