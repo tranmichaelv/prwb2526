@@ -134,7 +134,7 @@ class ControllerItem extends Controller {
             if (empty($errors)) {
                 // redirection vers Open Item
                 // plus tard
-                $this->redirect("item","open", $item->get_id());
+                $this->redirect("item","open", $item->get_id(), "from-items");
             }
         }
 
@@ -380,11 +380,9 @@ class ControllerItem extends Controller {
     /*------------ Ici le contenur de open Item ----------------*/
 
     public function open() : void {
-
         $id = isset($_GET['param1']) ? (int) $_GET['param1'] : null;
         $img_priority = isset($_GET['param3']) ? (int) $_GET['param3'] : 1;
         $from = isset($_GET['param2'] ) ? $_GET['param2'] : null;
-        // var_dump("from", $from); die ("controller item itemDetails");
         $errors = [];
         $main_picture_path = null;
         $user_can_edit = false;

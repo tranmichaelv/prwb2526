@@ -14,7 +14,7 @@
     <?php 
             $page = "manage_images";
             $title = "Manage Images";
-            $page_before = "item/open/" . $item->get_id();
+            $pageBefore = "item/open/" . $item->get_id()."/from-items";
             include("header.php");
     ?>
  <div class="container">
