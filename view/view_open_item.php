@@ -19,7 +19,7 @@
     if($from === 'from-browse') {
         $page_before = "item/browse";
     } elseif($from === 'from-items' ) {
-        $page_before = "item/myItems";
+        $page_before = "item/list";
     }  elseif($from === 'from-sales') {
         $page_before = "item/sales";
     } elseif($from === 'from-purchases') {
