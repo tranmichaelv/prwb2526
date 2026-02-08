@@ -38,7 +38,7 @@
             <!-- main-picture-container -->
             <div class="main-picture">
                 <?php if ($main_picture_path == null): ?>
-                    <svg width="690" height="350" style="background:#f5f5f5; border:1px ">
+                    <svg width=100% height="500" style="background:#f5f5f5; border:1px ">
                         <text x="50%" y="50%" dominant-baseline="middle"
                             text-anchor="middle" fill="#aaa" font-size="14">
                             Pas d'image
