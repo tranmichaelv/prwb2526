@@ -43,16 +43,20 @@ class ControllerItem extends Controller {
     public function list() : void {
         $user = $this->get_user_or_false();
 
-        $page = "list";
-        $active_items = $user->get_list();   
-        $closed_unsold_items = $user->get_my_closed_unsold_items();
-        $sold_items = $user->get_my_sold_items();
+        if($user){
+            $page = "list";
+            $active_items = $user->get_list();   
+            $closed_unsold_items = $user->get_my_closed_unsold_items();
+            $sold_items = $user->get_my_sold_items();
 
-        (new View("list"))->show(["active_items" => $active_items, 
-                                  "closed_unsold_items" => $closed_unsold_items, 
-                                  "sold_items" => $sold_items, "user" => $user, 
-                                  "page" => $page
-                                ]);
+            (new View("list"))->show(["active_items" => $active_items, 
+                                    "closed_unsold_items" => $closed_unsold_items, 
+                                    "sold_items" => $sold_items, "user" => $user, 
+                                    "page" => $page
+                                    ]);
+        } else {
+            $this->redirect("user", "login");
+        }
     }
 
     // Page item/sales
