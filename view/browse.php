@@ -5,7 +5,7 @@
         if($title) ;?>
         <a href="item/open/<?= $item->getId()?>/<?= $fromWhere ?>">
             <div class="image-container">
-                <img src="<?= $item->getPictures()[0]['path'] ?>" alt="<?= $item->getTitle() ?>" width="300">
+                <img src="<?= $item->get_first_picture_path() ?>" alt="<?= $item->getTitle() ?>" width="300">
 
                 <?php if ($item->isAuction() && $item->hasBuyNow()): ?>
                     <span class="labels label-buy-now-and-more"><i class="bi bi-bag"></i> Buy Now</span>
@@ -27,9 +27,9 @@
 
 
 
-                <?php if (sizeof($item->getPictures()) > 1): ?>
+                <?php if ($item->get_number_of_pics() > 1): ?>
                     <div class="labels-number-of-pictures">
-                        <i class="bi bi-images"></i> <?= sizeof($item->getPictures()) ?> images
+                        <i class="bi bi-images"></i> <?= $item->get_number_of_pics() ?> images
                     </div>
                 <?php endif; ?>
             </div>

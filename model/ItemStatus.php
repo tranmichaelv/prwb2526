@@ -25,7 +25,6 @@ class ItemStatus extends Model {
         private ?string $buy_now_price = null,
         private ?string $starting_bid = null,
         private ?string $max_bid = null,
-        private array $pictures = []
     ) {}
 
     // -------- Getters --------
@@ -45,8 +44,6 @@ class ItemStatus extends Model {
 
     public function getStartingBid(): ?string { return $this->starting_bid; }
 
-    public function getPictures(): array { return $this->pictures; }
-
     public function getEndAt(): string { return $this->end_at; }
 
     public function getBidCount(): int { return $this->bid_count; }
@@ -65,13 +62,10 @@ class ItemStatus extends Model {
 
     public function isNotPurchasedDirectSale(): bool{ return $this->not_purchased_direct_sale; }
 
-    public function setPictures(array $pictures): void { $this->pictures = $pictures; }
-
     // -------- Tout les items disponible --------
     public static function get_all_items(): array{
-        $query = self::execute("SELECT v.*, p.*
+        $query = self::execute("SELECT v.*
                                 FROM v_items_status v
-                                    join item_pictures p on p.item = v.id
                                 where v.end_at > :end_date 
                                 and (
                                         ( is_direct_sale = 1
@@ -88,9 +82,8 @@ class ItemStatus extends Model {
 
     // -------- "Items I'm Participating in" --------
     public static function get_bids_items_from_user(int $userId): array{
-        $query = self::execute("SELECT v.*, p.*
+        $query = self::execute("SELECT v.*
                                 FROM v_items_status v 
-	                                join item_pictures p on p.item = v.id
                                     join bids b on b.item = v.id
                                 where end_at > :end_date
                                 and b.owner = :owner 
@@ -110,9 +103,8 @@ class ItemStatus extends Model {
 
     // -------- "Other Available Items" --------
     public static function get_other_items_from_user(int $userId): array{
-        $query = self::execute("SELECT v.*, p.*
+        $query = self::execute("SELECT v.*
                                 FROM v_items_status v
-	                                join item_pictures p on p.item = v.id
                                 where end_at > :end_date
                                -- Exclure items sur lesquels l'utilisateur a déjà bid
                                 AND NOT EXISTS (
@@ -163,26 +155,14 @@ class ItemStatus extends Model {
                     'buy_now_price' => $row['buy_now_price'],
                     'starting_bid'  => $row['starting_bid'],
                     'max_bid'       => $row['max_bid'],
-                    'pictures'      => []
                 ];
             }
-    
-            
-            // Ajouter les images
-            if (!isset($items[$item_id]['pictures'][$row['picture_path']])) {
-                $items[$item_id]['pictures'][$row['picture_path']] = [
-                    'path'     => $row['picture_path'],
-                    'priority' => $row['priority']
-                ];
-            }
-
             
         }
     
         // Converti en objets Item
         $results = [];
         foreach ($items as $item) {
-            $item['pictures'] = array_values($item['pictures']);
             
             $results[] = new ItemStatus(
                 $item['id'],
@@ -202,7 +182,6 @@ class ItemStatus extends Model {
                 Utils::convert_format_number_for_bids($item['buy_now_price']),
                 Utils::convert_format_number_for_bids($item['starting_bid']),
                 Utils::convert_format_number_for_bids($item['max_bid']),
-                $item['pictures']
             );
         }
 
@@ -217,10 +196,11 @@ class ItemStatus extends Model {
 
     // -------- "My Active Items" --------
     public static function get_user_items(int $userId) : array {
-        $query = self::execute("SELECT v.*, p.*
+        // $query = self::execute("SELECT v.*, p.*
+        $query = self::execute("SELECT v.*
                                 FROM v_items_status v
                                     join users u on u.id = v.owner
-                                    join item_pictures p on p.item = v.id
+                                    -- join item_pictures p on p.item = v.id
                                 where end_at > :current_date
                                 and u.id = :id
                                 and v.id not in(SELECT v.id
@@ -235,10 +215,9 @@ class ItemStatus extends Model {
 
     // -------- "My Closed Unsold Items" --------
     public static function get_user_closed_unsold_items(int $userId) : array {
-        $query = self::execute("SELECT v.*, p.*
+        $query = self::execute("SELECT v.*
                                 FROM v_items_status v
                                     join users u on u.id = v.owner
-                                    join item_pictures p on p.item = v.id
                                 where end_at <= :current_date
                                 and u.id = :id 
                                 and v.has_bids = false 
@@ -254,10 +233,9 @@ class ItemStatus extends Model {
 
     // -------- "My Sold Items" --------
     public static function get_user_sold_items(int $userId) : array {
-        $query = self::execute("SELECT v.*, p.*
+        $query = self::execute("SELECT v.*
                                 FROM v_items_status v
                                     join users u on u.id = v.owner
-                                    join item_pictures p on p.item = v.id
                                 where end_at <= :current_date
                                 and u.id = :id
                                 and v.has_bids != false
@@ -289,9 +267,8 @@ class ItemStatus extends Model {
 
     // -------- "My Purchases" --------
     public static function get_user_purchases(int $userId) : array {
-        $query = self::execute("SELECT v.*, p.*
+        $query = self::execute("SELECT v.*
                                 FROM v_items_status v
-                                    join item_pictures p on p.item = v.id
                                     join bids b on b.item = v.id and v.max_bid = b.amount
                                 where ((v.end_at <= :current_date and v.bid_count > 0)
                                 or (( v.is_direct_sale = 1
@@ -355,9 +332,8 @@ class ItemStatus extends Model {
 
     // -------- "My Completed Sales" --------
     public static function get_user_completed_sales(int $userId) : array {
-        $query = self::execute("SELECT v.*, p.*
+        $query = self::execute("SELECT v.*
                                 FROM v_items_status v
-                                    join item_pictures p on p.item = v.id
                                     join bids b on b.item = v.id and v.max_bid = b.amount
                                 where ((v.end_at <= :current_date and v.bid_count > 0)
                                 or (( v.is_direct_sale = 1
@@ -505,6 +481,24 @@ class ItemStatus extends Model {
 
         $pic = $query->fetch();
         return $pic['picture_path'];
+    }
+
+    public function get_first_picture_path() : ?string {
+
+        $query = self::execute(
+            "SELECT ip.picture_path
+            FROM item_pictures ip 
+            WHERE ip.priority = 1 
+            AND ip.item = :item", 
+            ["item" => $this->getId()]
+        );
+
+        $pic = $query->fetchColumn();
+        return $pic;
+    }
+
+    public function get_number_of_pics() : int{
+        return count(ItemPicture::get_by_item($this->getId()));
     }
 
     // Refactorisation a partir d'ici // 
