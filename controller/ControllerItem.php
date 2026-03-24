@@ -557,6 +557,16 @@ class ControllerItem extends Controller {
 
     }
 
+    public function validate_title_service() : void {
+        $res = "false"; 
+        $id = isset($_GET['param1']) ? (int) $_GET['param1'] : null;
+        if ($id !== null) {
+            $item = Item::get_by_id($id); 
+            $res = $item->title_exists_for_owner($item->get_title(),$item->get_owner_id(),$item->get_id());
+        }
+        echo $res;   
+    }
+
 }
 
 

@@ -290,7 +290,7 @@ private function validate_sale_mode(array &$errors): ?array {
 
 
     //  Vérifie si un titre existe déjà pour un owner
-    private static function title_exists_for_owner(string $title, int $owner, ?int $exclude_id = null) : bool {
+    public static function title_exists_for_owner(string $title, int $owner, ?int $exclude_id = null) : bool {
           $sql = "SELECT COUNT(*) AS cnt FROM items
                WHERE owner = :owner AND title = :title";
           
@@ -313,4 +313,6 @@ private function validate_sale_mode(array &$errors): ?array {
           $abs = abs($value);
           return $abs < 100000000 && round($abs,2) == $abs;
     }
+
+
 }

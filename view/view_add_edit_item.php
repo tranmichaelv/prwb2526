@@ -33,7 +33,8 @@
             <input type="text" name ="title"
                 class="<?= !empty($errors['title'] ?? []) ? 'input-error' : '' ?>"
                 placeholder="Ex: iphone 13 Pro Max 256GB"
-                value="<?= $item->get_title() ?>">
+                value="<?= $item->get_title() ?>" 
+                id = "title">
 
              <?php if (!empty($errors['title'] ?? [])): ?>
                   <ul class="field-errors">
