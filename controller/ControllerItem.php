@@ -13,6 +13,50 @@ class ControllerItem extends Controller {
         $this->browse();
     }
 
+    public function get_item_pictures_service() : void {
+
+        
+        $user = $this->get_user_or_false();
+        if (!$user) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized"]);
+            return;
+
+        }
+
+        $id = $_GET["param1"] ?? null;
+        if($id === null || !is_numeric($id)) {
+            http_response_code(400);
+            echo json_encode(["error" => "Bad request"]);
+            return;
+        }
+
+        $item = Item::get_by_id($id);
+        if($item === null) {
+            http_response_code(404);
+            echo json_encode(["error" => "Item not found"]);
+            return;
+        }
+
+        $pictures = ItemPicture::get_by_item($id);
+
+        $result = [];
+
+        foreach($pictures as $index => $picture) {
+            $result[] = [
+                "id" => $picture->get_item(),
+                "src" => $picture->get_picture_path(),
+                "thumbnail_src" => preg_replace('/\.jpg$/', '_thumbnail.jpg', $picture->get_picture_path()),
+                "position" => $index
+            ];
+        }
+
+        echo json_encode([
+            "pictures" => $result
+        ]);
+
+    }
+
      // Page item/browse
     public function browse() : void {
         $user = $this->get_user_or_false();
