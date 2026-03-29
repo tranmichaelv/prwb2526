@@ -14,8 +14,6 @@ class ControllerItem extends Controller {
     }
 
     public function get_item_pictures_service() : void {
-
-        
         $user = $this->get_user_or_false();
         if (!$user) {
             http_response_code(401);
