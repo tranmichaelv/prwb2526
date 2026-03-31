@@ -27,16 +27,18 @@
                         <tr><td><a href="user/signup">New here ? Click here to subsribe !</a></td></tr>
                     </tbody>
 
-                    <tfoot>
-                        <tr><th>For Debug Purpose</th></tr>
-                        <tr><td><a href="user/loginAsBoris">Login as boverhaegen@epfc.eu</a></td></tr>
-                        <tr><td><a href="user/loginAsMarc">Login as mamichel@epfc.eu</a></td></tr>
-                        <tr><td><a href="user/loginAsQuentin">Login as quhouben@epfc.eu</a></td></tr>
-                        <tr><td><a href="user/loginAsXavier">Login as xapigeolet@epfc.eu</a></td></tr>
-                        <tr><td><a href="setup">Restore original data</a></td></tr>
-                        <tr><td><a href="setup/export">Backup personal data</a></td></tr>
-                        <tr><td><a href="setup/restore">Restore personal data</a></td></tr>
-                    </tfoot>
+                    <?php if($is_dev): ?>
+                        <tfoot>
+                            <tr><th>For Debug Purpose</th></tr>
+                            <tr><td><a href="user/login_as_boris">Login as boverhaegen@epfc.eu</a></td></tr>
+                            <tr><td><a href="user/login_as_marc">Login as mamichel@epfc.eu</a></td></tr>
+                            <tr><td><a href="user/login_as_quentin">Login as quhouben@epfc.eu</a></td></tr>
+                            <tr><td><a href="user/login_as_xavier">Login as xapigeolet@epfc.eu</a></td></tr>
+                            <tr><td><a href="setup">Restore original data</a></td></tr>
+                            <tr><td><a href="setup/export">Backup personal data</a></td></tr>
+                            <tr><td><a href="setup/restore">Restore personal data</a></td></tr>
+                        </tfoot>
+                    <?php endif; ?>
                 </table>
             </form>
         </div>

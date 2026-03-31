@@ -3,7 +3,7 @@ $isAuction = $item->isAuction();
 ?>
 
   <div class="panel"> 
-      <div class="title fs-6 fw-bold text-secondary">Pricing : CASE 5 </div>
+      <div class="title fs-6 fw-bold text-secondary text-start">Pricing : 5</div>
       <form method="post" action="item/place">
           <input type="hidden" name="item" value="<?= $item->getId() ?>">
           <?php if ($isAuction == true): ?>

@@ -40,69 +40,73 @@ class ControllerUser extends Controller {
                 $this->log_user(User::get_users_by_email($email));
             }
         }
-        (new View("login"))->show(["email" => $email, "password" => $password, "errors" => $errors]);
+
+        // savoir si on est en dev ou pas 
+        $is_dev = Configuration::is_dev();
+        (new View("login"))->show(["email" => $email, "password" => $password, "errors" => $errors, "is_dev" => $is_dev]);
     }
 
-    // -------- Change Password --------
-    public function change_password(){
-        $this->require_login();
-        $user = $this->get_user_or_false();
-        $page = "change_password";
-        
-        $currentPassword = '';
-        $newPassword = '';
-        $confirmNewPassword = '';
-        $errors = [];
-
-        if (isset($_POST['current_password']) && isset($_POST['new_password']) && isset($_POST['confirm_new_password'])) {
-            $currentPassword = $_POST['current_password'];
-            $newPassword = $_POST['new_password'];
-            $confirmNewPassword = $_POST['confirm_new_password'];
-
-            $errors = $user->validate_change_password($currentPassword, $newPassword , $confirmNewPassword);
-
-            $hasErrors = false;
-            foreach ($errors as $fieldErrors) {
-                if (!empty($fieldErrors)) {
-                    $hasErrors = true;
+    // verifie si il y a des erreurs, si non alors persist
+    private function check_errors_then_persist(User $user, array $errors) : void{
+        $has_errors = false;
+            foreach ($errors as $field_errors) {
+                if (!empty($field_errors)) {
+                    $has_errors = true;
                 }
             }
             
-            if(!$hasErrors){
+            if(!$has_errors){
                 $user->persist();
                 $this->redirect("user", "profile");
             }
+    }
+
+    // -------- Change Password --------
+    public function change_password() : void{
+        $user = $this->get_user_or_redirect();
+        $page = "change_password";
+        
+        $current_password = '';
+        $new_password = '';
+        $confirm_new_password = '';
+        $errors = [];
+
+        // si rien n'est encore reçue en POST, alors n'affiche pas les changement
+        if (isset($_POST['current_password']) || isset($_POST['new_password']) || isset($_POST['confirm_new_password'])) {
+            $current_password = $_POST['current_password'];
+            $new_password = $_POST['new_password'];
+            $confirm_new_password = $_POST['confirm_new_password'];
+
+            $errors = $user->validate_change_password($current_password, $new_password , $confirm_new_password);
+
+            $this->check_errors_then_persist($user, $errors);
         }
 
-        (new View("change_password"))->show(["user" => $user, "page" =>  $page, "errors" => $errors, "currentPassword" => $currentPassword, "newPassword" => $newPassword, "confirmNewPassword" => $confirmNewPassword]);
+        (new View("change_password"))->show(["user" => $user, 
+                                             "page" =>  $page, 
+                                             "errors" => $errors, 
+                                             "current_password" => $current_password, 
+                                             "new_password" => $new_password, 
+                                             "confirm_new_password" => $confirm_new_password
+                                            ]);
     }
 
     // -------- Edit Profile --------
-    public function edit_profile() {
-        $this->require_login();
-        $user = $this->get_user_or_false();
+    public function edit_profile() : void{
+        $user = $this->get_user_or_redirect();
         $page = "edit_profile";
         $errors = [];
 
+        // si rien n'est encore reçue en POST, alors n'affiche pas les changement
         if (isset($_POST['full_name']) || isset($_POST['username']) || isset($_POST['email']) || isset($_POST['iban'])) {
-            $fullName = $_POST['full_name'] ?? $user->getFullName();
+            $full_name = $_POST['full_name'] ?? $user->getFullName();
             $username = $_POST['username'] ?? $user->getPseudo();
             $email    = $_POST['email'] ?? $user->getEmail();
             $iban     = $_POST['iban'] ?? $user->getIban();
             
-            $errors = $user->validate_update($fullName, $username, $email, $iban);
+            $errors = $user->validate_update($full_name, $username, $email, $iban);
             
-            $hasErrors = false;
-            foreach ($errors as $fieldErrors) {
-                if (!empty($fieldErrors)) {
-                    $hasErrors = true;
-                }
-            }
-
-            if(!$hasErrors){
-                $user->persist();
-                $this->redirect("user", "profile");
-            }
+            $this->check_errors_then_persist($user, $errors);
         }
         
         (new View("edit_profile"))->show(["user" => $user, "page" =>  $page, "errors" => $errors]);
@@ -110,8 +114,7 @@ class ControllerUser extends Controller {
 
     // -------- Profile --------
     public function profile() : void{
-        $this->require_login();
-        $user = $this->get_user_or_false();
+        $user = $this->get_user_or_redirect();
         $page = "profile";
 
         (new View("profile"))->show(["user" => $user, "page" =>  $page]);
@@ -119,8 +122,7 @@ class ControllerUser extends Controller {
 
     // -------- Mangage Profile Picture --------
     public function manage_profile_picture() : void{
-        $this->require_login();
-        $user = $this->get_user_or_false();
+        $user = $this->get_user_or_redirect();
         $page = "manage_profile_picture";
         $errors = [];
 
@@ -177,57 +179,54 @@ class ControllerUser extends Controller {
                 User::validate_password($_POST['password'], $_POST['confirm_password'])
             );
 
-            $hasErrors = false;
-            foreach ($errors as $fieldErrors) {
-                if (!empty($fieldErrors)) {
-                    $hasErrors = true;
+            $has_errors = false;
+            foreach ($errors as $field_errors) {
+                if (!empty($field_errors)) {
+                    $has_errors = true;
                 }
             }
 
-            if(!$hasErrors) {
-                $user = new User(99,$full_name, $email,$pseudo,password_hash($password, PASSWORD_BCRYPT),"user");
+            if(!$has_errors) {
+                $user = new User(Configuration::get("temporary_user_id"),$full_name, $email,$pseudo,password_hash($password, PASSWORD_BCRYPT),"user");
                 $user->persist();
 
                 $this->login();
             }
         }
 
-        (new View("signup"))->show(["email" => $email, "full_name" => $full_name, "pseudo" => $pseudo, "password" => $password, "confirm" => $confirm, "errors" => $errors]);
+        (new View("signup"))->show(["email" => $email, 
+                                    "full_name" => $full_name, 
+                                    "pseudo" => $pseudo, 
+                                    "password" => $password, 
+                                    "confirm" => $confirm, 
+                                    "errors" => $errors
+                                ]);
     }
 
-
-    // -------- Doit être connecté --------
-    private function require_login(): void {
-        if (!$this->user_logged()) {
+    // -------- For Debug Purpose --------
+    private function admin_login($nom) : void {
+        if(Configuration::is_dev()){
+            $user = User::get_users_by_pseudo($nom); 
+            $this->log_user($user);
+        } else {
             $this->redirect("user", "login");
-            exit(); 
         }
     }
 
-
-    // -------- For Debug Purpose --------
-    public function loginAsQuentin() : void{
-        Configuration::is_dev();
-        $user = User::get_users_by_pseudo("Quentin"); 
-        $this->log_user($user);
+    public function login_as_quentin() : void{
+        $this->admin_login("Quentin");
     }
 
-    public function loginAsBoris() : void{
-        Configuration::is_dev();
-        $user = User::get_users_by_pseudo("Boris"); 
-        $this->log_user($user);
+    public function login_as_boris() : void{
+        $this->admin_login("Boris");
     }
 
-    public function loginAsMarc() : void{
-        Configuration::is_dev();
-        $user = User::get_users_by_pseudo("Marc"); 
-        $this->log_user($user);
+    public function login_as_marc() : void{
+        $this->admin_login("Marc");
     }
 
-    public function loginAsXavier() : void{
-        Configuration::is_dev();
-        $user = User::get_users_by_pseudo("Xavier"); 
-        $this->log_user($user);
+    public function login_as_xavier() : void{
+        $this->admin_login("Xavier");
     }
 }
 

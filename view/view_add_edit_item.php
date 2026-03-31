@@ -19,7 +19,7 @@
           
             $page = $mode === "edit" ? "edit_item" : "add_item";
             $title = $mode === "edit" ? "Edit item" : "Add item";
-            $pageBefore = $mode === "edit" ? "item/open/$id" : "item/browse";
+            $page_before = $mode === "edit" ? "item/open/$id/from-items" : "item/browse";
 
             include("header.php");
         ?>
@@ -85,7 +85,7 @@
                 <input type = "number" name="bid"
                   class="<?= !empty($errors['starting_bid'] ?? []) ? 'input-error' : '' ?>"
                   placeholder="e.g., 50.00"
-                  value="<?= $item->get_starting_bid() !== null ? $item->get_starting_bid() : '' ?>">
+                  value="<?= $item->get_starting_bid() > 0 ? $item->get_starting_bid() : '' ?>">
                  <?php if (!empty($errors['starting_bid'] ?? [])): ?>
                     <ul class="field-errors">
                         <?php foreach ($errors['starting_bid'] as $e): ?>
@@ -100,7 +100,7 @@
                 <input type= "number" name ="buy_now"
                  class="<?= !empty($errors['buy_now_price'] ?? []) ? 'input-error' : '' ?>"
                  placeholder="e.g., 200.00"
-                value="<?= $item->get_instant_purchase() !== null ? $item->get_instant_purchase() : '' ?>"
+                value="<?= $item->get_instant_purchase() !== null ? $item->get_instant_purchase() : '' ?>">
               <?php if (!empty($errors['buy_now_price'] ?? [])): ?>
                   <ul class="field-errors">
                       <?php foreach ($errors['buy_now_price'] as $e): ?>

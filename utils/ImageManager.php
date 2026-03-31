@@ -60,7 +60,7 @@ class ImageManager {
         return $name;
     }
 
-    private static function create_image_from_any(string $path) {
+    private static function create_image_from_any(string $path) : ?GdImage {
         $type = exif_imagetype($path);
 
         if ($type === IMAGETYPE_JPEG) return imagecreatefromjpeg($path);

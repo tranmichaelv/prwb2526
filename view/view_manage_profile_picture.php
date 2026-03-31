@@ -13,7 +13,7 @@
     <form action="user/manage_profile_picture" method="post" enctype="multipart/form-data">
         <?php 
             $title = "Manage profile picture";
-            $pageBefore = "user/profile";
+            $page_before = "user/profile";
             include("header.php");
         ?>
         

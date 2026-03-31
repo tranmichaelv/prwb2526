@@ -13,6 +13,7 @@
 <body>
 
     <?php 
+        $from = 'from-browse';
         $title = "Browser";
         include("header.php");
     ?>
@@ -47,7 +48,6 @@
             </div>
         <?php endif; ?>
     <?php endif; ?>
-    <a href="user/logout">disconnect</a>
 
     
 

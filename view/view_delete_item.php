@@ -30,9 +30,10 @@
         </p>
 
         <div class="buttons">
-            <a class="btn cancel" href="item/open/<?= $item->get_id() ?>">Cancel</a>
+            <a class="btn cancel" href="item/open/<?= $item->get_id() ?>/from-items">Cancel</a>
 
             <form method="post" action="item/delete/<?= $item->get_id() ?>">
+                <input type="hidden" name="delete" value="1">
                 <button type="submit" class="btn danger">Delete</button>
             </form>
         </div>

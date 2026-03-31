@@ -2,14 +2,10 @@
 require_once "framework/Controller.php";
 require_once "model/Item.php";
 require_once "model/ItemPicture.php";
-// require_once "utils/Apptime.php";
 require_once "utils/ImageManager.php";
 require_once 'model/User.php';
-require_once 'model/Item_pictures.php';
 require_once "utils/Utils.php";
 require_once "model/ItemStatus.php";
-require_once "model/ItemSaleStatus.php";
-
 
 class ControllerItem extends Controller {
 
@@ -17,73 +13,136 @@ class ControllerItem extends Controller {
         $this->browse();
     }
 
+    public function get_item_pictures_service() : void {
+        $user = $this->get_user_or_false();
+        if (!$user) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized"]);
+            return;
+
+        }
+
+        $id = $_GET["param1"] ?? null;
+        if($id === null || !is_numeric($id)) {
+            http_response_code(400);
+            echo json_encode(["error" => "Bad request"]);
+            return;
+        }
+
+        $item = Item::get_by_id($id);
+        if($item === null) {
+            http_response_code(404);
+            echo json_encode(["error" => "Item not found"]);
+            return;
+        }
+
+        $pictures = ItemPicture::get_by_item($id);
+
+        $result = [];
+
+        foreach($pictures as $index => $picture) {
+            $result[] = [
+                "id" => $picture->get_item(),
+                "src" => $picture->get_picture_path(),
+                "thumbnail_src" => preg_replace('/\.jpg$/', '_thumbnail.jpg', $picture->get_picture_path()),
+                "position" => $index
+            ];
+        }
+
+        echo json_encode([
+            "pictures" => $result
+        ]);
+
+    }
+
      // Page item/browse
     public function browse() : void {
         $user = $this->get_user_or_false();
         $page = "browse";
-        // Si user n'est pas vide, connecte au browser de l'user sinon "guest login"
+
+        // Si user n'est pas vide, connecte au browser de l'user 
         if($user){
-            $items_other = $user->get_my_other_items();    
-            $items_user = $user->get_my_bids_items();
+                    $items_other = $user->get_my_other_items();    
+                    $items_user = $user->get_my_bids_items();
 
-            (new View("browse"))->show(["items" => $items_other, "items_user" => $items_user, "user" => $user, "page" => $page]);
-        } else{
-            $all_items = ItemStatus::get_all_items();
+                    (new View("browse"))->show(["items" => $items_other, 
+                                                "items_user" => $items_user, 
+                                                "user" => $user, 
+                                                "page" => $page
+                                            ]);
+        } 
+        // sinon se connecte en tant que guest 
+        else{
+                $all_items = ItemStatus::get_all_items();
 
-            (new View("browse"))->show(["all_items" => $all_items, "user" => $user, "page" => $page]);
+                (new View("browse"))->show(["all_items" => $all_items, 
+                                            "user" => $user, 
+                                            "page" => $page
+                                        ]);
         }
     }
 
     // Page item/myIems
-    public function myItems() : void {
-        $user = $this->get_user_or_false();
+    public function list() : void {
+        // doit être connecté pour voir la page sinon redirect
+        $user = $this->get_user_or_redirect();
+        $page = "list";
 
-        $page = "myItems";
-        $active_items = $user->get_my_items();   
+        $active_items = $user->get_list();  
+        // print_r($active_items);
+        // die();
         $closed_unsold_items = $user->get_my_closed_unsold_items();
         $sold_items = $user->get_my_sold_items();
 
-        (new View("list"))->show(["active_items" => $active_items, "closed_unsold_items" => $closed_unsold_items, "sold_items" => $sold_items, "user" => $user, "page" => $page]);
+        (new View("list"))->show(["active_items" => $active_items, 
+                                  "closed_unsold_items" => $closed_unsold_items, 
+                                  "sold_items" => $sold_items, 
+                                  "user" => $user, 
+                                  "page" => $page
+                                ]);
+        
     }
 
     // Page item/sales
     public function sales() : void {
-        $user = $this->get_user_or_false();
-
-        if($user){
+        // doit être connecté pour voir la page sinon redirect
+        $user = $this->get_user_or_redirect();
         $page = "sales";
+        
         $sales = $user->get_my_sales(); 
-        $topPerson = $user->get_my_purchases_top_bidder();  
-       
-        $totalAndAverage = $user->get_my_sales_total_and_average(); 
-        (new View("sales"))->show(["sales" => $sales, "topPerson" => $topPerson, "totalAndAverage"=> $totalAndAverage, "user" => $user, "page" => $page]);
-        } else {
-            $this->redirect("user", "login");
-        }
+        $top_person = $user->get_my_purchases_top_bidder();  
+        $total_and_average = $user->get_my_sales_total_and_average(); 
+
+        (new View("sales"))->show(["sales" => $sales, 
+                                "top_person" => $top_person, 
+                                "total_and_average"=> $total_and_average, 
+                                "user" => $user, 
+                                "page" => $page
+                                ]);
+        
     }
 
     // Page item/purchases
     public function purchases() : void {
-        $user = $this->get_user_or_false();
+        // doit être connecté pour voir la page sinon redirect
+        $user = $this->get_user_or_redirect();
+        $page = "purchases";
 
-        if($user){
-            $page = "purchases";
-            $purchases = $user->get_my_purchases();   
-            $topPerson = $user->get_my_purchases_top_seller();
+        $purchases = $user->get_my_purchases();   
+        $top_person = $user->get_my_purchases_top_seller();
+        $total_and_average = $user->get_my_purchases_total_and_average(); 
 
-            $totalAndAverage = $user->get_my_purchases_total_and_average(); 
-            (new View("purchases"))->show(["purchases" => $purchases, "topPerson" => $topPerson, "totalAndAverage"=> $totalAndAverage, "user" => $user, "page" => $page]);
-        } else {
-            $this->redirect("user", "login");
-        }
+        (new View("purchases"))->show(["purchases" => $purchases, 
+                                        "top_person" => $top_person, 
+                                        "total_and_average"=> $total_and_average, 
+                                        "user" => $user, 
+                                        "page" => $page
+                                    ]);
+
     }
 
     public function add() : void {
-       $user = $this->get_user_or_false();
-        if (!$user) {
-            $this->redirect("user", "login");
-            return;
-        }
+        $user = $this->get_user_or_redirect();
 
         $errors = [];
         $owner = $user->getId();
@@ -114,13 +173,13 @@ class ControllerItem extends Controller {
             $item->set_instant_purchase($instant);
             $item->set_sale_price($sale);
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (!empty($_POST)) {
             $errors = $item->persist(); // validation + insert tentative
 
             if (empty($errors)) {
                 // redirection vers Open Item
                 // plus tard
-                $this->redirect("item","open", $item->get_id());
+                $this->redirect("item","open", $item->get_id(), "from-items");
             }
         }
 
@@ -134,12 +193,7 @@ class ControllerItem extends Controller {
     }
 
     public function edit() : void {
-
-        $user = $this->get_user_or_false();
-        if (!$user) {
-            $this->redirect("user", "login");
-            return;
-        }
+        $user = $this->get_user_or_redirect();
 
         $id = $_GET['param1'] ?? null;
 
@@ -154,7 +208,7 @@ class ControllerItem extends Controller {
 
         $errors = [];
 
-        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+        if(!empty($_POST)){
             $item->set_title($_POST['title'] ?? "");
              $item->set_description($_POST['description'] ?? "");
             $item->set_duration_days(isset($_POST['duration']) ? (int)$_POST['duration'] : 7);
@@ -174,7 +228,7 @@ class ControllerItem extends Controller {
             $errors = $item->persist();
 
         if (empty($errors)) {
-            $this->redirect("item","open",$item->get_id());
+            $this->redirect("item","open",$item->get_id(), "from-items");
         }
     }
 
@@ -189,21 +243,23 @@ class ControllerItem extends Controller {
     }
 
     public function delete(): void {
+        $user = $this->get_user_or_redirect();
+
         $id = $_GET["param1"] ?? null;
         if($id === null || !is_numeric($id)){
-            $this->redirect("item","myItems");
+            $this->redirect("item","list");
         }
 
         $item = Item::get_by_id($id);
         if($item === null){
-            $this->redirect("item","myItems");
+            $this->redirect("item","list");
         }
 
         $owner = User::get_users_by_id($item->get_owner_id());
 
-        if($_SERVER["REQUEST_METHOD"] === "POST"){
+        if(isset($_POST['delete'])){
             $item->delete();
-            $this->redirect("item","myItems");
+            $this->redirect("item","list");
         }
         (new View("delete_item"))->show([
             "item" => $item,
@@ -233,11 +289,8 @@ class ControllerItem extends Controller {
     }
 
     public function upload_images(): void {
-        $user = $this->get_user_or_false();
-        if (!$user) {
-            $this->redirect("user", "login");
-            return;
-        }
+        $user = $this->get_user_or_redirect();
+        
         $itemId = (int)($_GET["param1"] ?? 0);
         $item = Item::get_by_id($itemId);
         if ($item === null) $this->redirect("item");
@@ -372,85 +425,49 @@ class ControllerItem extends Controller {
     /*------------ Ici le contenur de open Item ----------------*/
 
     public function open() : void {
-        $this->itemDetails();
-    } 
-
-    public function itemDetails(): void {
-        
-        
         $id = isset($_GET['param1']) ? (int) $_GET['param1'] : null;
         $img_priority = isset($_GET['param3']) ? (int) $_GET['param3'] : 1;
         $from = isset($_GET['param2'] ) ? $_GET['param2'] : null;
-        // var_dump("from", $from);
         $errors = [];
-        
+        $main_picture_path = null;
+        $user_can_edit = false;
+        $user_is_guest = false;
+
         if ($id == null) {
             $errors[] = "Le controller a besoin d'un id pour charger la vue open item";
         }
         if ($from == null) {
-            $errors[] = "Le controller a besoin de savoir from-browse/items";
+            $errors[] = "L'information from est manquante";
         }
-        $current_user = $this->get_user_or_false();
 
         $item = ItemStatus::get_item_by_id($id);
-
-        //$item->getMaxBid();
-
+        $seller = User::get_users_by_id($item->getOwner());
+        // $bid = $this->get_bid_status($id);
         $pictures = $item->get_all_pictures_by_item_id();
-        $main_picture_path = null;
+        $bids_history = $item->get_bids_history();
+        $current_user = $this->get_user_or_false();
+
         if ($img_priority === 1) { 
             $main_picture_path = $item->get_main_picture_by_item_id();
         } else {
             $main_picture_path = $item->get_picture_by_priority($img_priority,$item->getId());
-    
         }
-        // $main_picture_path = $item->get_main_picture_by_item_id();
-       
-       
-        $bid = $this->get_bid_status($id);
-    
-        $seller = User::get_users_by_id($item->getOwner());
-        
-        // var_dump($seller->getPicturePath()); die();
-        
-        
-       
-        // var_dump();
-        // die ();
-        $item->getStartingBid();
-        // $item->getStartingBid();
-        // $lastBider = $bid->get_bids_history()['0']['pseudo'];
-        // var_dump($lastBider); die ();
-        
-        // $status = $this->get_bid_status($id);
-        $bids_history = $bid->get_bids_history();
-        // var_dump($bids_history); 
-        // var_dump();
-
-        // var_dump($bids_history['0']['pseudo']);
-        // die;
-
+        //  $item->getId();
         // --------------- gestion des différents cas ---------------- //
-        $user_can_edit = false;
-        $user_is_guest = false;
         if ($current_user instanceof User) {
-            // donc un utilisateur est connecté et je change rien dans get case 
-            $pricing_case = $this->get_case($item->getId(), $current_user->getId());
+            $pricing_case = $this->get_case($current_user->getId(), $item);
             $user_can_edit = $this->user_can_edit($from, $item, $current_user->getId());
-        
         } else {
-            $pricing_case = $this->get_case($item->getId(), null);
+            $pricing_case = $this->get_case(null, $item);
             $user_is_guest = true;
         }
         // $pricing_case = $this->get_case($item->getId(), $current_user->getId());
-    
-        
-        
+
         (new View("open_item"))->show([
             "item" => $item, 
             "main_picture_path" => $main_picture_path,
             "pictures" => $pictures,
-            "bid" => $bid, 
+            /*"bid" => $bid*/ 
             "seller" => $seller, 
             "pricing_case" => $pricing_case, 
             "can_edit" => $user_can_edit,
@@ -459,12 +476,14 @@ class ControllerItem extends Controller {
             "user_is_guest" => $user_is_guest,
             "bids_history" => $bids_history
         ]);
-    }
+    } 
 
-    private function get_case(int $item_id,?int $current_user_id) : string {
-        $bid = $this->get_bid_status($item_id);
+    // public function itemDetails(): void {}
 
-        $isClosed = $bid->bid_is_closed();
+    private function get_case(?int $current_user_id, ItemStatus $item) : string {
+        // $bid = $this->get_bid_status($item_id);
+
+        $isClosed = $item->bid_is_closed();
         
        // $isAuction = $bid->is_auction();
         //$isAuction = $item->isAuction();
@@ -473,22 +492,22 @@ class ControllerItem extends Controller {
         // $hasBuyNow = $bid->has_buy_now();
         // $topBider = ItemStatus::get_top_bidder($current_user->getId());
         
-        if(count($bid->get_bids_history())!=0){
+        if(count($item->get_bids_history())!=0){
 
-            $lastBiderId = $bid->get_bids_history()['0']['id'];
+            $lastBiderId = $item->get_bids_history()['0']['id'];
         }
 
         // $buyNowReached = $bid->buy_now_reached();
         if ($current_user_id !== null ) {
-            $userIsSeller = $bid->user_is_owner($current_user_id);
-            if (!$isClosed && !$userIsSeller && !$bid->getHasBuyNow() && !$bid->getHasBids()){
+            $userIsSeller = $item->user_is_owner($current_user_id);
+            if (!$isClosed && !$userIsSeller && !$item->hasBuyNow() && !$item->has_bids()){
                 return "case1";
             }
         
-            if (!$isClosed && !$userIsSeller && $bid->getHasBids() && $bid->getHasBuyNow()) {
+            if (!$isClosed && !$userIsSeller && $item->has_bids() && $item->hasBuyNow()) {
                 return "case2";
             } 
-            if (!$isClosed && !$userIsSeller && $bid->getIsDirectSale()) {
+            if (!$isClosed && !$userIsSeller && $item->isDirectSale()) {
                 return "case3";
             } 
             if (!$isClosed && $userIsSeller) {
@@ -500,51 +519,57 @@ class ControllerItem extends Controller {
             if ($isClosed && $userIsSeller) {
                 return "case6";
             }
-            if (!$isClosed && !$userIsSeller && !$bid->gethasBids() && $bid->has_buy_now()) {
+            if (!$isClosed && !$userIsSeller && !$item->has_bids() && $item->has_buy_now()) {
                 return "case7";
             } 
-            if (!$isClosed && $bid->has_bids()) {
+            if (!$isClosed && $item->has_bids()) {
                 return "case8";
             }
             return"";
         } else {
 
             // si j'arrive ici c'est qu'aucun user n'est connecté 
-             if (!$isClosed && !$bid->getHasBuyNow() && !$bid->getHasBids()){
+             if (!$isClosed && !$item->has_buy_now() && !$item->has_bids()){
                 return "case1";
             }
-            if (!$isClosed && $bid->getHasBids() && $bid->getHasBuyNow()) {
+            if (!$isClosed && $item->has_bids() && $item->has_buy_now()) {
                 return "case2";
             } 
-            if (!$isClosed && $bid->getIsDirectSale()) {
+            if (!$isClosed && $item->isDirectSale()) {
                 return "case3";
             } 
-            if (!$isClosed && $bid->has_bids()) {
+            if (!$isClosed && $item->has_bids()) {
                 return "case8";
             }
-    
+            if (!$isClosed && !$item->has_buy_now() && $item->has_bids()) {
+                return "case8";
+            }
+            if (!$isClosed && $item->has_buy_now() && !$item->has_bids()) {
+                return "case2";
+            }
             return "";
         }
         
     }
 
-    private function user_can_edit($from, $item,int $current_user_id) : bool {
+    private function user_can_edit($from, ItemStatus $item,int $current_user_id) : bool {
 
-        $bid = $this->get_bid_status($item->getId());
-        $user_is_seller = $bid->user_is_owner($current_user_id);
+        // $bid = $this->get_bid_status($item->getId());
+        $user_is_seller = $item->user_is_owner($current_user_id);
 
-        if ($user_is_seller && $from !== 'from-browse/' && !$item->hasBids()) {
+        if ($user_is_seller && $from !== 'from-browse' && !$item->hasBids()) {
             return true;
         }
         return false;
         
     }
 
+    /*
     private function get_bid_status(int $id): ItemSaleStatus {
         
         // $bid = ItemSaleStatus::get_current_bid_by_item_id($id);
         return ItemSaleStatus::get_current_bid_by_item_id($id);
-    }
+    }*/
     
 
     private function get_current_time(): ?string {
@@ -552,25 +577,25 @@ class ControllerItem extends Controller {
     }
 
     public function place() : void {
+        // gérer le cas ou un guest essaye de participer !!! 
         $current_user = $this->get_user_or_redirect();
-        
         
         if(count($_POST)){
         $item = $_POST['item'];
         $amount = $_POST['amount'];
-        
+        $from = $_POST['from'] ?? 'from-browse';
             //var_dump($item, " *** ", $amount);die ("arrivé sur place ");
         }else {
             $item=$_GET['param1'];
             $item_pop = ItemStatus::get_item_by_id($item);
             $amount=$item_pop->getBuyNowPrice();
-
+            $from = $_POST['from'] ?? 'from-browse';
             
         }
         
         ItemStatus::bid($current_user,$item,$amount);
         
-       $this->redirect("item","open",$item);
+       $this->redirect("item","open",$item, $from);
 
     }
 
