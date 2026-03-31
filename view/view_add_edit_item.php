@@ -8,6 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/add_edit_item.css">
+    <script src="lib/jquery-4.0.0.min.js" type="text/javascript"></script>
+    <script src="scripts/validation_item.js" type="text/javascript"></script>
+    <!-- <script src="scripts/friends_vjs.js" type="text/javascript"></script> -->
 </head>
     
 <body class="page-add-edit-item">
@@ -34,8 +37,8 @@
                 class="<?= !empty($errors['title'] ?? []) ? 'input-error' : '' ?>"
                 placeholder="Ex: iphone 13 Pro Max 256GB"
                 value="<?= $item->get_title() ?>" 
-                id = "title">
-
+                id = "item_title">
+            <small id="err_title"></small>
              <?php if (!empty($errors['title'] ?? [])): ?>
                   <ul class="field-errors">
                       <?php foreach ($errors['title'] as $e): ?>
@@ -49,8 +52,9 @@
             <textarea name="description"
                 class="<?= !empty($errors['description'] ?? []) ? 'input-error' : '' ?>"
                 rows="5"
-                placeholder="Describe your item in detail..."><?= $item->get_description() ?></textarea>
-              
+                placeholder="Describe your item in detail..." 
+                id = "item_description"><?= $item->get_description() ?></textarea>
+                <small id="err_description"></small>
                 <?php if (!empty($errors['description'] ?? [])): ?>
                   <ul class="field-errors">
                       <?php foreach ($errors['description'] as $e): ?>
@@ -63,8 +67,9 @@
             <label>Sale Duration(days)*</label>
             <input type="number" name ="duration"
               class="<?= !empty($errors['duration_days'] ?? []) ? 'input-error' : '' ?>"          
-              value="<?= $item->get_duration_days() ?>">
-
+              value="<?= $item->get_duration_days() ?>"
+              id="sale_duration">
+              <small id="err_sale_duration"></small>
              <?php if (!empty($errors['duration_days'] ?? [])): ?>
                 <ul class="field-errors">
                     <?php foreach ($errors['duration_days'] as $e): ?>
@@ -86,7 +91,9 @@
                 <input type = "number" name="bid"
                   class="<?= !empty($errors['starting_bid'] ?? []) ? 'input-error' : '' ?>"
                   placeholder="e.g., 50.00"
-                  value="<?= $item->get_starting_bid() > 0 ? $item->get_starting_bid() : '' ?>">
+                  value="<?= $item->get_starting_bid() > 0 ? $item->get_starting_bid() : '' ?>"
+                  id="starting_bid">
+                  <small id="err_starting_bid"></small>
                  <?php if (!empty($errors['starting_bid'] ?? [])): ?>
                     <ul class="field-errors">
                         <?php foreach ($errors['starting_bid'] as $e): ?>
@@ -101,7 +108,9 @@
                 <input type= "number" name ="buy_now"
                  class="<?= !empty($errors['buy_now_price'] ?? []) ? 'input-error' : '' ?>"
                  placeholder="e.g., 200.00"
-                value="<?= $item->get_instant_purchase() !== null ? $item->get_instant_purchase() : '' ?>">
+                value="<?= $item->get_instant_purchase() !== null ? $item->get_instant_purchase() : '' ?>"
+                id="instant_purchase_price">
+                <small id="err_instant_purchase_price"></small>
               <?php if (!empty($errors['buy_now_price'] ?? [])): ?>
                   <ul class="field-errors">
                       <?php foreach ($errors['buy_now_price'] as $e): ?>
@@ -118,7 +127,9 @@
               <div class="form-group"> 
                 <label>Sale Price</label>
                 <input type ="number" name="sale_price" placeholder="e.g., 150.00"
-                value="<?= $item->get_sale_price() !== null ? $item->get_sale_price() : '' ?>">
+                value="<?= $item->get_sale_price() !== null ? $item->get_sale_price() : '' ?>"
+                id="sale_price">
+                <small id="err_sale_price"></small>
                 <?php if (!empty($errors['sale_price'] ?? [])): ?>
                   <ul class="field-errors">
                       <?php foreach ($errors['sale_price'] as $e): ?>

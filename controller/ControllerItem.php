@@ -556,7 +556,25 @@ class ControllerItem extends Controller {
        $this->redirect("item","open",$item, $from);
 
     }
+    public function item_validation_constants_service() : void {
+        $res = [];
+        $title_min_length = Configuration::get("title_min_length");
+        $title_max_length = Configuration::get("title_max_length");
+        $description_min_length = Configuration::get("description_min_length");
+        $duration_days_min = Configuration::get("duration_days_min");
+        $duration_days_max = Configuration::get("duration_days_max");
 
+        $res["title_min_length"] = $title_min_length; 
+        $res["title_max_length"] = $title_max_length; 
+        $res["description_min_length"] = $description_min_length; 
+        $res["duration_days_min"] = $duration_days_min; 
+        $res["duration_days_max"] = $duration_days_max; 
+        
+        echo json_encode([
+            "constants" => $res
+        ]); 
+
+    }
     public function validate_title_service() : void {
         $res = "false"; 
         $id = isset($_GET['param1']) ? (int) $_GET['param1'] : null;
@@ -564,7 +582,9 @@ class ControllerItem extends Controller {
             $item = Item::get_by_id($id); 
             $res = $item->title_exists_for_owner($item->get_title(),$item->get_owner_id(),$item->get_id());
         }
-        echo $res;   
+        echo json_encode([
+            "exists" => $res
+        ]);   
     }
 
 }
