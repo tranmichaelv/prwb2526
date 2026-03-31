@@ -36,14 +36,14 @@
                 <?php endif; ?>
 
                 <p class = "section-menu-title">Username <sup>*</sup></p>
-                <input id="username" name="username" type="text"  value="<?=$_POST['username'] ?? $user->getPseudo() ?>">
+                <input id="pseudo" name="pseudo" type="text"  value="<?=$_POST['pseudo'] ?? $user->getPseudo() ?>">
                 <p class = "subtitle">This will be your public display name on the platform</p>
-                <?php if (!empty($errors['username'])): ?>
-                    <ul class="error">
-                        <?php foreach ($errors['username'] as $error): ?>
-                            <li><?= $error ?></li>
-                        <?php endforeach; ?>
-                    </ul>
+               <?php if (!empty($errors['pseudo'])): ?>
+                  <ul class="error">
+                    <?php foreach ($errors['pseudo'] as $error): ?>
+                     <li><?= $error ?></li>
+                    <?php endforeach; ?>
+                  </ul>
                 <?php endif; ?>
             </div>
         </div>
