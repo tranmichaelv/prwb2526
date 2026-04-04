@@ -268,6 +268,95 @@ class ControllerUser extends Controller {
     public function login_as_xavier() : void{
         $this->admin_login("Xavier");
     }
+
+    public function get_validation_config_service() : void {
+        echo json_encode([
+            "username_min_length" => Configuration::get("username_min_length"),
+            "username_max_length" => Configuration::get("username_max_length"),
+            "varchar_min_length" => Configuration::get("varchar_min_length"),
+            "varchar_max_length" => Configuration::get("varchar_max_length")
+        ]);
+    }
+
+    public function check_full_name_service() : void {
+        $user = $this->get_user_or_false();
+
+        if(!$user) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized"]);
+            return;
+        }
+
+        $full_name = trim($_GET ['param1'] ?? '');
+
+        if($full_name === '') {
+            http_response_code(400);
+            echo json_encode(["error" => "Full name is required"]);
+            return;
+        }
+
+        $errors = User::validate_full_name_for_update($full_name, $user->getId());
+
+        echo json_encode([
+            "ok" => empty($errors),
+            "errors" => $errors
+        ]);
+
+    }
+
+    public function check_pseudo_service() : void {
+        $user = $this->get_user_or_false();
+
+        if (!$user) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized"]);
+            return;
+        }
+
+        $pseudo = trim($_GET['param1'] ?? '');
+
+        if ($pseudo === '') {
+            http_response_code(400);
+            echo json_encode(["error" => "Pseudo is required"]);
+            return;
+        }
+
+        $errors = User::validate_pseudo_for_update($pseudo, $user->getId());
+
+        echo json_encode([
+            "ok" => empty($errors),
+            "errors" => $errors
+        ]);
+    }
+
+    public function check_email_service() : void {
+        $user = $this->get_user_or_false();
+
+        if (!$user) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized"]);
+            return;
+        }
+
+        $email = trim($_GET['param1'] ?? '');
+
+        if ($email === '') {
+            http_response_code(400);
+            echo json_encode(["error" => "Email is required"]);
+            return;
+        }
+
+        $errors = User::validate_email_for_update($email, $user->getId());
+
+        echo json_encode([
+            "ok" => empty($errors),
+            "errors" => $errors
+        ]);
+    }
+
 }
+
+
+
 
 
