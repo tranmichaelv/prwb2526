@@ -53,14 +53,46 @@ class User extends Model {
 
     // -------- Persist --------
     public function persist() : User {
-        if(self::get_users_by_id($this->id))
-            self::execute("UPDATE users SET full_name=:full_name, email=:email, pseudo=:pseudo, password=:password, role=:role, picture_path=:picture_path, iban=:iban WHERE id=:id ", 
-                          ["id"=>$this->id, "full_name"=>$this->full_name, "email"=>$this->email, "pseudo"=>$this->pseudo, "picture_path"=>$this->picture_path, "password"=>$this->hashed_password, "role"=>$this->role, "iban"=>$this->iban]);
-        else
-            self::execute("INSERT INTO users(full_name, email, pseudo, password, role) VALUES(:full_name, :email, :pseudo, :password, :role)", 
-                          ["full_name"=>$this->full_name, "email"=>$this->email, "pseudo"=>$this->pseudo, "password"=>$this->hashed_password, "role"=>$this->role]);
-        return $this;
+    if (self::get_users_by_id($this->id)) {
+        self::execute(
+            "UPDATE users 
+             SET full_name = :full_name, 
+                 email = :email, 
+                 pseudo = :pseudo, 
+                 password = :password, 
+                 role = :role, 
+                 picture_path = :picture_path, 
+                 iban = :iban 
+             WHERE id = :id",
+            [
+                "id" => $this->id,
+                "full_name" => $this->full_name,
+                "email" => $this->email,
+                "pseudo" => $this->pseudo,
+                "password" => $this->hashed_password,
+                "role" => $this->role,
+                "picture_path" => $this->picture_path,
+                "iban" => $this->iban
+            ]
+        );
+    } else {
+        self::execute(
+            "INSERT INTO users(full_name, email, pseudo, password, role, picture_path, iban) 
+             VALUES(:full_name, :email, :pseudo, :password, :role, :picture_path, :iban)",
+            [
+                "full_name" => $this->full_name,
+                "email" => $this->email,
+                "pseudo" => $this->pseudo,
+                "password" => $this->hashed_password,
+                "role" => $this->role,
+                "picture_path" => $this->picture_path,
+                "iban" => $this->iban
+            ]
+        );
     }
+
+    return $this;
+}
 
 
     // -------- All of the get_users --------
@@ -157,6 +189,11 @@ class User extends Model {
 
         $min_length = Configuration::get("password_min_length");
         $max_length =  Configuration::get("varchar_max_length");
+
+        if ($password === '') {
+            $errors[] = "Password is required.";
+            return $errors;
+        }
         if (strlen($password) < $min_length) {
             $errors[] = "Password length must be at least " . $min_length . " characters.";
         } 
@@ -168,7 +205,9 @@ class User extends Model {
         if (!((preg_match("/[A-Z]/", $password)) && preg_match("/\d/", $password) && preg_match("/[^a-zA-Z0-9]/", $password))) {
             $errors[] = "Password must contain one uppercase letter, one number and one special character.";
         }
-        if ($password != $password_confirm) {
+        if ($password_confirm === '') {
+            $errors[] = "Password confirmation is required.";
+        } elseif ($password !== $password_confirm) {
             $errors[] = "You have to enter twice the same password.";
         }
 
@@ -258,12 +297,7 @@ class User extends Model {
         if (strlen($username) < $min_length || strlen($username) > $max_length) {
             $errors[] = "Username must be between " . $min_length . " and " . $max_length . " characters.";
         }
-
-        // Unicité
-        $errors = array_merge(
-            $errors,
-            self::validate_unicity_pseudo($username)
-        );
+   
         return $errors;
     }
 
@@ -543,21 +577,22 @@ public static function validate_email_for_update(string $email, int $current_use
         }
     }
 
-    public function delete_picture_path() : void{
+    public function delete_picture_path() : void {
         $dir = "uploads/users/" . $this->getId();
-        
-        $files = glob($dir . "/*"); 
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                unlink($file);
+
+        if (is_dir($dir)) {
+            $files = glob($dir . "/*");
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
             }
+            rmdir($dir);
         }
-        rmdir($dir);
 
         $this->setPicturePath(null);
         $this->persist();
     }
-
     // A véririfer sans fonctionnement !
     public static function get_owner_infos_by_item_id(int $id) : array {
 

@@ -216,11 +216,21 @@ class ControllerUser extends Controller {
                 }
             }
 
-            if(!$has_errors) {
-                $user = new User(Configuration::get("temporary_user_id"),$full_name, $email,$pseudo,password_hash($password, PASSWORD_BCRYPT),"user");
+            if (!$has_errors) {
+                $user = new User(
+                    Configuration::get("temporary_user_id"),
+                    $full_name,
+                    $email,
+                    $pseudo,
+                    password_hash($password, PASSWORD_BCRYPT),
+                    "user"
+                );
                 $user->persist();
 
-                $this->login();
+                $saved_user = User::get_users_by_email($email);
+                $this->log_user($saved_user);
+                $this->redirect("item", "browse");
+                return;
             }
         }
 
