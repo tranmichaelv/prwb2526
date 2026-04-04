@@ -664,3 +664,25 @@ a {
 .signup-page .login form .error li{
     text-align: left;
 }
+
+.input-error {
+    border: 1px solid #dc3545 !important;
+}
+
+.input-valid {
+    border: 1px solid #198754 !important;
+}
+
+.error-message {
+    color: #ff4d5f;
+    font-size: 0.95rem;
+    margin-top: 6px;
+    margin-left: 6px;
+    min-height: 18px;
+}
+
+/* Ajoute le petit point devant le message */
+.error-message:not(:empty)::before {
+    content: "• ";
+    margin-right: 4px;
+}
