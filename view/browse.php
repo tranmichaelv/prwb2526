@@ -5,16 +5,16 @@
         if($title) ;?>
         <a href="item/open/<?= $item->getId()?>/<?= $fromWhere ?>">
             <div class="image-container">
-                <?php if ($item->get_first_picture_path()): ?>
-                    <img src="<?= $item->get_first_picture_path() ?>" alt="<?= $item->getTitle() ?>" width="300">
-                    <?php else: ?>
-                        <svg width="300" height="200" style="background:#f5f5f5; border:1px ">
-                            <text x="50%" y="50%" dominant-baseline="middle"
-                                text-anchor="middle" fill="#aaa" font-size="14">
-                                Pas d'image
-                            </text>
-                        </svg>
-                    <?php endif; ?>
+                <?php if ($item->get_first_picture_path() ): ?>
+                    <img src="<?= $item->get_thumbnail()?>" alt="<?= $item->getTitle() ?>" width="300">
+                <?php else: ?>
+                    <svg width="300" height="200" style="background:#f5f5f5; border:1px ">
+                        <text x="50%" y="50%" dominant-baseline="middle"
+                            text-anchor="middle" fill="#aaa" font-size="14">
+                            Pas d'image
+                        </text>
+                    </svg>
+                <?php endif; ?>
                     
 
                 <?php if ($item->isAuction() && $item->hasBuyNow()): ?>
@@ -90,7 +90,7 @@
     <div class="price-and-closeTime">
         <?php if ($page == "purchases" || $page == "sales"): ?>
             <p><i class="bi bi-tag"></i> Paid <?= $item->getMaxBid() ?></p>
-            <p><i class="bi bi-clock"></i> Closed on <?= $item->getEndAt() ?></p>
+            <p><i class="bi bi-clock"></i> Closed on <?= $item->buy_now_reached() ? $item->get_date_buy_now() : $item->getEndAt()?></p>
         <?php endif; ?>
     </div>
 </div>
