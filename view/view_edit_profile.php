@@ -89,6 +89,7 @@
     <footer> 
         <?php include('footer.php'); ?>
     </footer>
-    <script src="scripts/edit_profile.js"></script>
+    <script src="lib\jquery-4.0.0.min.js"></script>
+    <script src="scripts\edit_profile.js"></script>
 </body>
 </html>

@@ -287,7 +287,7 @@ class ControllerUser extends Controller {
             return;
         }
 
-        $full_name = trim($_GET ['param1'] ?? '');
+        $full_name = trim($_POST ['param1'] ?? '');
 
         if($full_name === '') {
             http_response_code(400);
@@ -313,7 +313,7 @@ class ControllerUser extends Controller {
             return;
         }
 
-        $pseudo = trim($_GET['param1'] ?? '');
+        $pseudo = trim($_POST['param1'] ?? '');
 
         if ($pseudo === '') {
             http_response_code(400);
@@ -338,7 +338,7 @@ class ControllerUser extends Controller {
             return;
         }
 
-        $email = trim($_GET['param1'] ?? '');
+        $email = trim($_POST['param1'] ?? '');
 
         if ($email === '') {
             http_response_code(400);

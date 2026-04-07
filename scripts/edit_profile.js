@@ -97,40 +97,57 @@ async function getAsyncError(name) {
     let url = "";
 
     if (name === "full_name") {
-        url = `user/check_full_name_service/${encodeURIComponent(value)}`;
+        url = "user/check_full_name_service";
     } else if (name === "pseudo") {
-        url = `user/check_pseudo_service/${encodeURIComponent(value)}`;
+        url = "user/check_pseudo_service";
     } else if (name === "email") {
-        url = `user/check_email_service/${encodeURIComponent(value)}`;
+        url = "user/check_email_service";
     } else {
         return "";
     }
 
     const currentValue = value;
-    const response = await fetch(url, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: "param1=" + encodeURIComponent(value)
-});
-    const data = await response.json();
 
-    if (fields[name].value.trim() !== currentValue) {
-        return null;
-    }
+    try {
+        let data = await $.post(url, { param1: value }, null, "json");
 
-    if (data.ok) {
+        if (fields[name].value.trim() !== currentValue) {
+            return null;
+        }
+
+        if (data.ok) {
+            return "";
+        }
+
+        if (data.errors && data.errors.length > 0) {
+            return data.errors[0];
+        }
+
+        return "";
+    } catch (e) {
+        if (fields[name].value.trim() !== currentValue) {
+            return null;
+        }
+
+        let data = null;
+
+        if (e.responseJSON) {
+            data = e.responseJSON;
+        } else if (e.responseText) {
+            try {
+                data = JSON.parse(e.responseText);
+            } catch (e) {
+                data = null;
+            }
+        }
+
+        if (data && data.errors && data.errors.length > 0) {
+            return data.errors[0];
+        }
+
         return "";
     }
-
-    if (data.errors && data.errors.length > 0) {
-        return data.errors[0];
-    }
-
-    return "";
 }
-
     async function validateField(name) {
         if (!touched[name]) {
             clearField(name);
