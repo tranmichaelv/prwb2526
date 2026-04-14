@@ -557,33 +557,55 @@ class ControllerItem extends Controller {
 
     }
     public function item_validation_constants_service() : void {
-        $res = [];
-        $title_min_length = Configuration::get("title_min_length");
-        $title_max_length = Configuration::get("title_max_length");
-        $description_min_length = Configuration::get("description_min_length");
-        $duration_days_min = Configuration::get("duration_days_min");
-        $duration_days_max = Configuration::get("duration_days_max");
-
-        $res["title_min_length"] = $title_min_length; 
-        $res["title_max_length"] = $title_max_length; 
-        $res["description_min_length"] = $description_min_length; 
-        $res["duration_days_min"] = $duration_days_min; 
-        $res["duration_days_max"] = $duration_days_max; 
-        
         echo json_encode([
-            "constants" => $res
+            "title_min_length" => Configuration::get("title_min_length"),
+            "title_max_length" => Configuration::get("title_max_length"),
+            "description_min_length" => Configuration::get("description_min_length"),
+            "duration_days_min" => Configuration::get("duration_days_min"),
+            "duration_days_max" => Configuration::get("duration_days_max") 
         ]); 
 
     }
     public function validate_title_service() : void {
-        $res = "false"; 
-        $id = isset($_GET['param1']) ? (int) $_GET['param1'] : null;
+        $user = $this->get_user_or_false();
+        
+        if (!$user) {
+            echo json_encode(["exists_already" => false]);
+            return;
+        }
+        $res = false; 
+        $id = $_POST['id'] ?? null;
+        $title = isset($_POST['title']) ? trim(mb_strtolower($_POST['title'])) : '';
+
+        if ($id === "" || $id === "0") {
+            $id = null;
+        }
+        
+
+        // si c'est un edit
         if ($id !== null) {
             $item = Item::get_by_id($id); 
-            $res = $item->title_exists_for_owner($item->get_title(),$item->get_owner_id(),$item->get_id());
+            
+            if (!$item) {
+                echo json_encode(["exists_already" => false]);
+                return;
+            }
+            // var_dump($item); die();
+            $res = Item::title_exists_for_owner(
+                $title,
+                $item->get_owner_id(),
+                $item->get_id()
+            );
+        } 
+        // si c'est un add 
+        else {
+            $res = Item::title_exists_for_owner(
+                $title,
+                $user->getId()
+            );
         }
         echo json_encode([
-            "exists" => $res
+            "exists_already" => $res
         ]);   
     }
 

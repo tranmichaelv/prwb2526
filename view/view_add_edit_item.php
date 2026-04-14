@@ -33,11 +33,14 @@
             
          <div class="form-group"> 
             <label>Item Title*</label>
+            <input type="hidden" value="<?= $item->get_id()?>" id="item_id">
             <input type="text" name ="title"
                 class="<?= !empty($errors['title'] ?? []) ? 'input-error' : '' ?>"
                 placeholder="Ex: iphone 13 Pro Max 256GB"
                 value="<?= $item->get_title() ?>" 
-                id = "item_title">
+                id = "item_title"  
+                oninput="check_title()">
+
             <small id="err_title"></small>
              <?php if (!empty($errors['title'] ?? [])): ?>
                   <ul class="field-errors">
@@ -53,7 +56,8 @@
                 class="<?= !empty($errors['description'] ?? []) ? 'input-error' : '' ?>"
                 rows="5"
                 placeholder="Describe your item in detail..." 
-                id = "item_description"><?= $item->get_description() ?></textarea>
+                id = "item_description" 
+                oninput="check_description()"><?= $item->get_description() ?></textarea>
                 <small id="err_description"></small>
                 <?php if (!empty($errors['description'] ?? [])): ?>
                   <ul class="field-errors">
@@ -68,7 +72,8 @@
             <input type="number" name ="duration"
               class="<?= !empty($errors['duration_days'] ?? []) ? 'input-error' : '' ?>"          
               value="<?= $item->get_duration_days() ?>"
-              id="sale_duration">
+              id="sale_duration"
+              oninput="check_sale_duration()">
               <small id="err_sale_duration"></small>
              <?php if (!empty($errors['duration_days'] ?? [])): ?>
                 <ul class="field-errors">
@@ -92,7 +97,8 @@
                   class="<?= !empty($errors['starting_bid'] ?? []) ? 'input-error' : '' ?>"
                   placeholder="e.g., 50.00"
                   value="<?= $item->get_starting_bid() > 0 ? $item->get_starting_bid() : '' ?>"
-                  id="starting_bid">
+                  id="starting_bid"
+                  oninput="check_sale()">
                   <small id="err_starting_bid"></small>
                  <?php if (!empty($errors['starting_bid'] ?? [])): ?>
                     <ul class="field-errors">
@@ -109,7 +115,8 @@
                  class="<?= !empty($errors['buy_now_price'] ?? []) ? 'input-error' : '' ?>"
                  placeholder="e.g., 200.00"
                 value="<?= $item->get_instant_purchase() !== null ? $item->get_instant_purchase() : '' ?>"
-                id="instant_purchase_price">
+                id="instant_purchase_price"
+                oninput="check_sale()">
                 <small id="err_instant_purchase_price"></small>
               <?php if (!empty($errors['buy_now_price'] ?? [])): ?>
                   <ul class="field-errors">
@@ -128,7 +135,8 @@
                 <label>Sale Price</label>
                 <input type ="number" name="sale_price" placeholder="e.g., 150.00"
                 value="<?= $item->get_sale_price() !== null ? $item->get_sale_price() : '' ?>"
-                id="sale_price">
+                id="sale_price" 
+                oninput="check_sale()">
                 <small id="err_sale_price"></small>
                 <?php if (!empty($errors['sale_price'] ?? [])): ?>
                   <ul class="field-errors">
