@@ -686,3 +686,13 @@ a {
     content: "• ";
     margin-right: 4px;
 }
+
+.error {
+    color: red;
+    font-size: 0.85em;
+    min-height: 18px; /* réserve l'espace même sans erreur */
+}
+
+.error p {
+    margin: 2px 0;
+}
