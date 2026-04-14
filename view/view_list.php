@@ -7,6 +7,8 @@
     <base href="<?= $web_root ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
+    <script src="lib/jquery-4.0.0.min.js" type="text/javascript"></script>
+    <script src="scripts/filter_items.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -16,6 +18,9 @@
         $from = "from-items";
         include("header.php");
     ?>
+
+    <?php include('search_box.php'); ?>
+
     
     <?php  if(sizeof($active_items) != 0):?>
         <h1>Active Items</h1>
@@ -44,6 +49,7 @@
         </div>
     <?php endif; ?>
     
+    <?php include('no_result.php'); ?>
 
     <footer> 
         <?php include('footer.php'); ?>

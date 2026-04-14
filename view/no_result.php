@@ -1,0 +1,1 @@
+<p id="no-result" hidden>No item found.</p>

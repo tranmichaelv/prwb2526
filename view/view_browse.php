@@ -8,6 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
+    <script src="lib/jquery-4.0.0.min.js" type="text/javascript"></script>
+    <script src="scripts/filter_items.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -17,6 +19,8 @@
         $title = "Browser";
         include("header.php");
     ?>
+
+    <?php include('search_box.php'); ?>
 
     <?php if($user):?>
         <?php  if(sizeof($items_user) != 0):?>
@@ -49,7 +53,7 @@
         <?php endif; ?>
     <?php endif; ?>
 
-    
+    <?php include('no_result.php'); ?>
 
     <footer> 
         <?php include('footer.php'); ?>
