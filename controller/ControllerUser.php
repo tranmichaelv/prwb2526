@@ -274,7 +274,8 @@ class ControllerUser extends Controller {
             "username_min_length" => Configuration::get("username_min_length"),
             "username_max_length" => Configuration::get("username_max_length"),
             "varchar_min_length" => Configuration::get("varchar_min_length"),
-            "varchar_max_length" => Configuration::get("varchar_max_length")
+            "varchar_max_length" => Configuration::get("varchar_max_length"),
+            "password_min_length" => Configuration::get("password_min_length")
         ]);
     }
 
