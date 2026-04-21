@@ -41,7 +41,7 @@
                 id = "item_title"  
                 oninput="check_title()">
 
-            <small id="err_title"></small>
+            <small class="field-errors-js" id="err_title"></small>
              <?php if (!empty($errors['title'] ?? [])): ?>
                   <ul class="field-errors">
                       <?php foreach ($errors['title'] as $e): ?>
@@ -58,7 +58,7 @@
                 placeholder="Describe your item in detail..." 
                 id = "item_description" 
                 oninput="check_description()"><?= $item->get_description() ?></textarea>
-                <small id="err_description"></small>
+                <small class="field-errors-js" id="err_description"></small>
                 <?php if (!empty($errors['description'] ?? [])): ?>
                   <ul class="field-errors">
                       <?php foreach ($errors['description'] as $e): ?>
@@ -74,7 +74,7 @@
               value="<?= $item->get_duration_days() ?>"
               id="sale_duration"
               oninput="check_sale_duration()">
-              <small id="err_sale_duration"></small>
+              <small class="field-errors-js" id="err_sale_duration"></small>
              <?php if (!empty($errors['duration_days'] ?? [])): ?>
                 <ul class="field-errors">
                     <?php foreach ($errors['duration_days'] as $e): ?>
@@ -99,7 +99,7 @@
                   value="<?= $item->get_starting_bid() > 0 ? $item->get_starting_bid() : '' ?>"
                   id="starting_bid"
                   oninput="check_sale()">
-                  <small id="err_starting_bid"></small>
+                  <small class="field-errors-js" id="err_starting_bid"></small>
                  <?php if (!empty($errors['starting_bid'] ?? [])): ?>
                     <ul class="field-errors">
                         <?php foreach ($errors['starting_bid'] as $e): ?>
@@ -117,7 +117,7 @@
                 value="<?= $item->get_instant_purchase() !== null ? $item->get_instant_purchase() : '' ?>"
                 id="instant_purchase_price"
                 oninput="check_sale()">
-                <small id="err_instant_purchase_price"></small>
+                <small class="field-errors-js" id="err_instant_purchase_price"></small>
               <?php if (!empty($errors['buy_now_price'] ?? [])): ?>
                   <ul class="field-errors">
                       <?php foreach ($errors['buy_now_price'] as $e): ?>
@@ -137,7 +137,7 @@
                 value="<?= $item->get_sale_price() !== null ? $item->get_sale_price() : '' ?>"
                 id="sale_price" 
                 oninput="check_sale()">
-                <small id="err_sale_price"></small>
+                <small class="field-errors-js" id="err_sale_price"></small>
                 <?php if (!empty($errors['sale_price'] ?? [])): ?>
                   <ul class="field-errors">
                       <?php foreach ($errors['sale_price'] as $e): ?>

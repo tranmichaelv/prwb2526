@@ -104,12 +104,26 @@
   box-shadow: 0 0 10px rgba(71, 109, 223, 0.55);
 }
 
-/* Erreurs */
+/* Erreurs js */
 .page-add-edit-item .field-errors{
   margin: 4px 0 0;
   padding-left: 18px;
   color: #f87171;
   font-size: 0.85rem;
+}
+/* Erreurs js */
+.page-add-edit-item .field-errors-js{
+  margin: 4px 0 0;
+  padding-left: 18px;
+  color: #f87171;
+  font-size: 0.85rem;
+}
+.page-add-edit-item .field-errors-js::before {
+  content: "• ";
+  color: #f87171;
+}
+.page-add-edit-item .field-errors-js:empty {
+  display: none;
 }
 
 .page-add-edit-item .input-error{
