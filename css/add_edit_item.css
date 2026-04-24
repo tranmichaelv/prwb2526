@@ -146,6 +146,24 @@
   overflow-y: auto !important;
 }
 
+/* pour popup   */
+.modal-dialog {
+    max-width: 500px;
+}
 
+#leaveModal .modal-content{
+    background: rgba(34,34,34,0.92);
+    color:white;
+    border:1px solid rgba(204,204,204,0.18);
+}
 
+#leaveModal .modal-title,
+#leaveModal .modal-body{
+    color:white;
+}
+
+#leaveModal .btn-close{
+    filter:invert(1);
+}
+/* fin popup    */
 

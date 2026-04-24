@@ -6,6 +6,7 @@
     <title>Add Item</title>
     <base href="<?= $web_root ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/add_edit_item.css">
     <script src="lib/jquery-4.0.0.min.js" type="text/javascript"></script>
@@ -16,7 +17,7 @@
 <body class="page-add-edit-item">
     
 
-      <form method="post" action="<?= $mode === "edit" ? "item/edit/$id" : "item/add" ?>">
+      <form id="itemForm" method="post" action="<?= $mode === "edit" ? "item/edit/$id" : "item/add" ?>">
 
        <?php
           
@@ -150,6 +151,34 @@
         </div>   
     </form>        
     </div>
+         <div class="modal fade" id="leaveModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered ">
+                <div class="modal-content">
+
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Unsaved changes</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+            <div class="modal-body">
+                You have unsaved changes. Leave anyway?
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <button type="button" class="btn btn-primary" id="confirmLeave">
+                    Leave
+                </button>
+            </div>
+
+            </div>
+        </div>
+    </div>               
         <?php include('footer.php'); ?>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="scripts/popup.js" type="text/javascript"></script>
 </body>
 </html>
