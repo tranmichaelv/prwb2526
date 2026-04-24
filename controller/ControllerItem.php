@@ -598,6 +598,58 @@ class ControllerItem extends Controller {
        $this->redirect("item","open",$item, $from);
 
     }
+    public function item_validation_constants_service() : void {
+        echo json_encode([
+            "title_min_length" => Configuration::get("title_min_length"),
+            "title_max_length" => Configuration::get("title_max_length"),
+            "description_min_length" => Configuration::get("description_min_length"),
+            "duration_days_min" => Configuration::get("duration_days_min"),
+            "duration_days_max" => Configuration::get("duration_days_max") 
+        ]); 
+
+    }
+    public function validate_title_service() : void {
+        $user = $this->get_user_or_false();
+        
+        if (!$user) {
+            echo json_encode(["exists_already" => false]);
+            return;
+        }
+        $res = false; 
+        $id = $_POST['id'] ?? null;
+        $title = isset($_POST['title']) ? trim(mb_strtolower($_POST['title'])) : '';
+
+        if ($id === "" || $id === "0") {
+            $id = null;
+        }
+        
+
+        // si c'est un edit
+        if ($id !== null) {
+            $item = Item::get_by_id($id); 
+            
+            if (!$item) {
+                echo json_encode(["exists_already" => false]);
+                return;
+            }
+            // var_dump($item); die();
+            $res = Item::title_exists_for_owner(
+                $title,
+                $item->get_owner_id(),
+                $item->get_id()
+            );
+        } 
+        // si c'est un add 
+        else {
+            $res = Item::title_exists_for_owner(
+                $title,
+                $user->getId()
+            );
+        }
+        echo json_encode([
+            "exists_already" => $res
+        ]);   
+    }
 
 }
 

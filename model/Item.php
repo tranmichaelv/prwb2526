@@ -116,7 +116,7 @@ class Item extends Model {
 
 private function validate_title(array &$errors, string $title, int $title_min, int $title_max): void {
     if (mb_strlen($title) < $title_min || mb_strlen($title) > $title_max) {
-        $errors['title'][] = "Title lenght must be between $title_min and $title_max characters";
+        $errors['title'][] = "Title length must be between $title_min and $title_max characters";
     } elseif (self::title_exists_for_owner($title, $this->owner, $this->id)) {
         $errors['title'][] = "You already have an ad with this title.";
     }
@@ -124,7 +124,7 @@ private function validate_title(array &$errors, string $title, int $title_min, i
 
 private function validate_description(array &$errors, string $desc, int $desc_min): void {
     if ($desc !== "" && mb_strlen($desc) < $desc_min) {
-        $errors['description'][] = "Description lenght must be at least $desc_min characters.";
+        $errors['description'][] = "Description length must be at least $desc_min characters.";
     }
 }
 
@@ -290,7 +290,7 @@ private function validate_sale_mode(array &$errors): ?array {
 
 
     //  Vérifie si un titre existe déjà pour un owner
-    private static function title_exists_for_owner(string $title, int $owner, ?int $exclude_id = null) : bool {
+    public static function title_exists_for_owner(string $title, int $owner, ?int $exclude_id = null) : bool {
           $sql = "SELECT COUNT(*) AS cnt FROM items
                WHERE owner = :owner AND title = :title";
           
@@ -313,4 +313,6 @@ private function validate_sale_mode(array &$errors): ?array {
           $abs = abs($value);
           return $abs < 100000000 && round($abs,2) == $abs;
     }
+
+
 }
