@@ -53,14 +53,46 @@ class User extends Model {
 
     // -------- Persist --------
     public function persist() : User {
-        if(self::get_users_by_id($this->id))
-            self::execute("UPDATE users SET full_name=:full_name, email=:email, pseudo=:pseudo, password=:password, role=:role, picture_path=:picture_path, iban=:iban WHERE id=:id ", 
-                          ["id"=>$this->id, "full_name"=>$this->full_name, "email"=>$this->email, "pseudo"=>$this->pseudo, "picture_path"=>$this->picture_path, "password"=>$this->hashed_password, "role"=>$this->role, "iban"=>$this->iban]);
-        else
-            self::execute("INSERT INTO users(full_name, email, pseudo, password, role) VALUES(:full_name, :email, :pseudo, :password, :role)", 
-                          ["full_name"=>$this->full_name, "email"=>$this->email, "pseudo"=>$this->pseudo, "password"=>$this->hashed_password, "role"=>$this->role]);
-        return $this;
+    if (self::get_users_by_id($this->id)) {
+        self::execute(
+            "UPDATE users 
+             SET full_name = :full_name, 
+                 email = :email, 
+                 pseudo = :pseudo, 
+                 password = :password, 
+                 role = :role, 
+                 picture_path = :picture_path, 
+                 iban = :iban 
+             WHERE id = :id",
+            [
+                "id" => $this->id,
+                "full_name" => $this->full_name,
+                "email" => $this->email,
+                "pseudo" => $this->pseudo,
+                "password" => $this->hashed_password,
+                "role" => $this->role,
+                "picture_path" => $this->picture_path,
+                "iban" => $this->iban
+            ]
+        );
+    } else {
+        self::execute(
+            "INSERT INTO users(full_name, email, pseudo, password, role, picture_path, iban) 
+             VALUES(:full_name, :email, :pseudo, :password, :role, :picture_path, :iban)",
+            [
+                "full_name" => $this->full_name,
+                "email" => $this->email,
+                "pseudo" => $this->pseudo,
+                "password" => $this->hashed_password,
+                "role" => $this->role,
+                "picture_path" => $this->picture_path,
+                "iban" => $this->iban
+            ]
+        );
     }
+
+    return $this;
+}
 
 
     // -------- All of the get_users --------
@@ -264,6 +296,11 @@ class User extends Model {
 
         $min_length = Configuration::get("password_min_length");
         $max_length =  Configuration::get("varchar_max_length");
+
+        if ($password === '') {
+            $errors[] = "Password is required.";
+            return $errors;
+        }
         if (strlen($password) < $min_length) {
             $errors[] = "Password length must be at least " . $min_length . " characters.";
         } 
@@ -275,7 +312,9 @@ class User extends Model {
         if (!((preg_match("/[A-Z]/", $password)) && preg_match("/\d/", $password) && preg_match("/[^a-zA-Z0-9]/", $password))) {
             $errors[] = "Password must contain one uppercase letter, one number and one special character.";
         }
-        if ($password != $password_confirm) {
+        if ($password_confirm === '') {
+            $errors[] = "Password confirmation is required.";
+        } elseif ($password !== $password_confirm) {
             $errors[] = "You have to enter twice the same password.";
         }
 
@@ -307,44 +346,34 @@ class User extends Model {
         return $errors;
     }
 
-    public function validate_update(string $full_name, string $username , string $email, string $iban): array{
+    public function validate_update(string $full_name, string $pseudo, string $email, string $iban): array {
         $errors = [
             "full_name" => [],
-            "username"  => [],
+            "pseudo"    => [],
             "email"     => [],
             "iban"      => []
         ];
 
+        $full_name = trim($full_name);
+        $pseudo = trim($pseudo);
+        $email = trim($email);
+        $iban = trim($iban);
+
         if ($full_name !== $this->getFullName()) {
-            $errors["full_name"] = $this->validate_full_name($full_name);
-
-            if (empty($errors["full_name"])) {
-                $this->setFullName($full_name);
-            }
+            $errors["full_name"] = self::validate_full_name_for_update($full_name, $this->getId());
         }
 
-        if ($username !== $this->getPseudo()) {
-            $errors["username"] = $this->validate_username($username);
-
-            if (empty($errors["username"])) {
-                $this->setPseudo($username);
-            }
+        if ($pseudo !== $this->getPseudo()) {
+            $errors["pseudo"] = self::validate_pseudo_for_update($pseudo, $this->getId());
         }
-        
+
         if ($email !== $this->getEmail()) {
-            $errors["email"] = $this->validate_email($email);
-
-            if (empty($errors["email"])) {
-                $this->setEmail($email);
-            }
+            $errors["email"] = self::validate_email_for_update($email, $this->getId());
         }
-        
-        if ($iban !== $this->getIban()) {
-            $errors["iban"] = $this->validate_iban($iban);
 
-            if (empty($errors["iban"])) {
-                $this->setIban($iban);
-            }
+        $current_iban = $this->getIban() ?? '';
+        if ($iban !== $current_iban) {
+            $errors["iban"] = self::validate_iban($iban);
         }
 
         return $errors;
@@ -375,12 +404,7 @@ class User extends Model {
         if (strlen($username) < $min_length || strlen($username) > $max_length) {
             $errors[] = "Username must be between " . $min_length . " and " . $max_length . " characters.";
         }
-
-        // Unicité
-        $errors = array_merge(
-            $errors,
-            self::validate_unicity_pseudo($username)
-        );
+   
         return $errors;
     }
 
@@ -437,22 +461,21 @@ class User extends Model {
     }
 
     public static function validate_iban(string $iban): array {
-        $errors = [];
+      $errors = [];
 
-        if (!empty($iban)) {
-            $iban = str_replace(" ", "",$iban);
+      if (!empty($iban)) {
+        $iban = str_replace(' ', '', $iban);
 
-            $len = strlen($iban);
-
-            if (!preg_match('/^BE[0-9]{2}\s[0-9]{4}\s[0-9]{4}\s[0-9]{4}/', $iban) || $len !== 16) {
-                $errors[] = "IBAN doit être de forme BE99 9999 9999 9999.";
-            }
+        if (!preg_match('/^BE\d{14}$/', $iban)) {
+            $errors[] = "IBAN doit être de forme BE99 9999 9999 9999.";
         }
-    
-
-        return $errors;
     }
 
+     return $errors;
+    }
+    
+
+    
     public static function validate_photo(array $file) : array {
         $errors = []; 
         if (isset($file['name']) && $file['name'] != '') { 
@@ -481,6 +504,79 @@ class User extends Model {
         return $errors;
     }
 
+    public static function get_users_by_full_name(string $full_name) : User|false {
+      $query = self::execute("SELECT * FROM users WHERE full_name = :full_name", ["full_name" => $full_name]);
+      $data = $query->fetch();
+
+      if ($query->rowCount() == 0) {
+          return false;
+      } else {
+          return new User(
+            $data["id"],
+            $data["full_name"],
+            $data["email"],
+            $data["pseudo"],
+            $data["password"],
+            $data["role"],
+            $data["picture_path"],
+            $data["iban"]
+        );
+      }
+
+    }
+
+    public static function validate_full_name_for_update(string $full_name, int $current_user_id): array {
+    $errors = self::validate_full_name($full_name);
+
+    if (!empty($errors)) {
+        return $errors;
+    }
+
+    $existing = self::get_users_by_full_name($full_name);
+    if ($existing && $existing->getId() !== $current_user_id) {
+        $errors[] = "This full name already exists.";
+    }
+
+    return $errors;
+}
+
+public static function validate_pseudo_for_update(string $pseudo, int $current_user_id): array {
+    $errors = [];
+
+    if ($pseudo === '') {
+        $errors[] = "Username is required.";
+        return $errors;
+    }
+
+    $min_length = Configuration::get("username_min_length");
+    $max_length = Configuration::get("username_max_length");
+
+    if (strlen($pseudo) < $min_length || strlen($pseudo) > $max_length) {
+        $errors[] = "Username must be between " . $min_length . " and " . $max_length . " characters.";
+    }
+
+    $existing = self::get_users_by_pseudo($pseudo);
+    if ($existing && $existing->getId() !== $current_user_id) {
+        $errors[] = "This username already exists.";
+    }
+
+    return $errors;
+}
+
+public static function validate_email_for_update(string $email, int $current_user_id): array {
+    $errors = self::validate_email($email);
+
+    if (!empty($errors)) {
+        return $errors;
+    }
+
+    $existing = self::get_users_by_email($email);
+    if ($existing && $existing->getId() !== $current_user_id) {
+        $errors[] = "This email already exists.";
+    }
+
+    return $errors;
+}
 
     // -------- UNICITY --------
     public static function validate_unicity_pseudo(string $pseudo) : array {
@@ -588,21 +684,22 @@ class User extends Model {
         }
     }
 
-    public function delete_picture_path() : void{
+    public function delete_picture_path() : void {
         $dir = "uploads/users/" . $this->getId();
-        
-        $files = glob($dir . "/*"); 
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                unlink($file);
+
+        if (is_dir($dir)) {
+            $files = glob($dir . "/*");
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
             }
+            rmdir($dir);
         }
-        rmdir($dir);
 
         $this->setPicturePath(null);
         $this->persist();
     }
-
     // A véririfer sans fonctionnement !
     public static function get_owner_infos_by_item_id(int $id) : array {
 
