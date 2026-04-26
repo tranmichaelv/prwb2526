@@ -588,6 +588,18 @@ public static function validate_email_for_update(string $email, int $current_use
         } 
         return $errors;
     }
+
+    public static function validate_unicity_full_name(string $full_name) : array {
+    $errors = [];
+
+    $member = self::get_users_by_full_name($full_name);
+
+    if ($member) {
+        $errors[] = "This full name already exists.";
+    }
+
+    return $errors;
+}
     
 
     private static function check_password(string $clear_password, string $hash) : bool {

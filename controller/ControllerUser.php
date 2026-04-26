@@ -194,9 +194,9 @@ class ControllerUser extends Controller {
                 User::validate_unicity_email($_POST['email'])
             );
 
-            $errors['full_name'] = array_merge(
-                [],
-                User::validate_full_name($_POST['full_name'])
+           $errors['full_name'] = array_merge(
+                User::validate_full_name($_POST['full_name']),
+                User::validate_unicity_full_name($_POST['full_name'])
             );
 
             $errors['pseudo'] = array_merge(
@@ -385,8 +385,12 @@ class ControllerUser extends Controller {
             return;
         }
 
-        $errors = User::validate_full_name($full_name);
+        $errors = array_merge(
+            User::validate_full_name($full_name),
+            User::validate_unicity_full_name($full_name)
+        );
 
+         header('Content-Type: application/json');
         echo json_encode([
             "ok" => empty($errors),
             "errors" => $errors
