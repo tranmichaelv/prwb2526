@@ -261,8 +261,7 @@ class ItemStatus extends Model {
                                                 from v_items_status v
                                                     join users u on u.id = v.owner
                                                 where v.max_bid = v.buy_now_price
-                                                and u.id = :id)
-                                order by end_at;"
+                                                and u.id = :id);"
                                 ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
     
         $data = $query->fetchAll();
@@ -270,9 +269,26 @@ class ItemStatus extends Model {
     }
 
     public static function get_user_sold_items(int $userId) : array {
+<<<<<<< HEAD
         return self::sortItemsByRelevantDate(
             ItemStatus::sold($userId)
         );
+=======
+        $list = ItemStatus::sold($userId);
+        usort($list, function($a, $b) {
+            $dateA = $a->buy_now_reached() 
+                ? $a->get_date_buy_now() 
+                : $a->getEndAt();
+        
+            $dateB = $b->buy_now_reached() 
+                ? $b->get_date_buy_now() 
+                : $b->getEndAt();
+        
+            // tri décroissant 
+            return strtotime($dateB) - strtotime($dateA);
+        });
+        return $list;
+>>>>>>> 8f1ff32444103de9d771a299131ee141818c7700
     }
 
     public function getTimeLeft() : array{
@@ -308,9 +324,37 @@ class ItemStatus extends Model {
     }
 
     public static function get_user_purchases(int $userId) : array {
+<<<<<<< HEAD
         return self::sortItemsByRelevantDate(
             ItemStatus::purchases($userId)
         );
+=======
+        $list = ItemStatus::purchases($userId);
+        // echo ('AVANT:');
+        // foreach ($list as $item) {
+        //     var_dump($item->getTitle()); // adapte si besoin
+        // }
+        usort($list, function($a, $b) {
+            $dateA = $a->buy_now_reached() 
+                ? $a->get_date_buy_now() 
+                : $a->getEndAt();
+        
+            $dateB = $b->buy_now_reached() 
+                ? $b->get_date_buy_now() 
+                : $b->getEndAt();
+        
+            // tri décroissant 
+            return strtotime($dateB) - strtotime($dateA);
+        });
+        // echo(" ");
+        // echo(" ");
+        // echo ('APRES:');
+        // foreach ($list as $item) {
+        //     var_dump($item->getTitle()); // adapte si besoin
+        // }
+        // die();
+        return $list;
+>>>>>>> 8f1ff32444103de9d771a299131ee141818c7700
     }
 
     // -------- "TOTAL SPENT $$ AVERAGE TICKET PURCHASES" --------
@@ -379,11 +423,29 @@ class ItemStatus extends Model {
     }
 
     public static function get_user_completed_sales(int $userId) : array {
+<<<<<<< HEAD
         return self::sortItemsByRelevantDate(
             ItemStatus::user_completed_sales($userId)
         );
     }
 
+=======
+        $list = ItemStatus::user_completed_sales($userId);
+        usort($list, function($a, $b) {
+            $dateA = $a->buy_now_reached() 
+                ? $a->get_date_buy_now() 
+                : $a->getEndAt();
+        
+            $dateB = $b->buy_now_reached() 
+                ? $b->get_date_buy_now() 
+                : $b->getEndAt();
+        
+            // tri décroissant 
+            return strtotime($dateB) - strtotime($dateA);
+        });
+        return $list;
+    }
+>>>>>>> 8f1ff32444103de9d771a299131ee141818c7700
 
     // -------- "TOP BUYER" --------
     public static function get_top_bidder(int $userId) : string {
@@ -732,4 +794,34 @@ class ItemStatus extends Model {
         return $this->get_bids_history()[0]['created_at'];
     }
 
+    public function get_thumbnail() : string {
+        $dir = "uploads/items/" . $this->getId() . "/";
+
+        $files = glob($dir . '*');
+       
+        return $files[1] ?? '';
+    }
+
+    public function get_date_buy_now() : string{
+        return $this->get_bids_history()[0]['created_at'];
+    }
+
+    // public function get_bids_history() : array {
+
+    //     $query = self::execute(
+    //         "SELECT 
+    //             u.id,
+    //             u.pseudo,
+    //             b.amount,
+    //             b.created_at
+    //             FROM bids b
+    //                 JOIN users u ON u.id = b.owner
+    //             WHERE b.item = :id
+    //             ORDER BY b.created_at DESC;", 
+    //         ["id" =>$this->getId() ]
+    //     ); 
+
+    //     $bids = $query->fetchAll();
+    //     return $bids ;
+    // } 
 }
