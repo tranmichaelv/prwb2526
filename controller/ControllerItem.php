@@ -533,6 +533,29 @@ class ControllerItem extends Controller {
         $this->redirect("item","manage_images",$itemId);
     }
 
+    public function move_picture_service() : void {
+        $itemId = (int)($_POST["param1"] ?? 0);
+        $priority = (int)($_POST["param2"] ??0);
+        $dir = $_POST["param3"] ?? "";
+
+        if ($itemId <= 0 || $priority <= 0 || !in_array($dir, ["left", "right"])) {
+            http_response_code(400);
+            echo json_encode(["error" => "Bad request"]);
+            return;
+        }
+
+        if ($dir === "left" && $priority > 1) {
+            ItemPicture::swap_priority($itemId, $priority, $priority - 1);
+        } else if ($dir === "right") {
+            $max = ItemPicture::get_max_priority($itemId);
+
+            if ($priority < $max) {
+                ItemPicture::swap_priority($itemId, $priority, $priority + 1);
+            }
+        }
+
+        echo json_encode(["success" => true]);
+    }
     public function delete_picture(): void {
         $itemId = (int)($_GET["param1"] ?? 0);
         $priority = (int)($_GET["param2"] ?? 0);

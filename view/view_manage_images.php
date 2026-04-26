@@ -11,8 +11,8 @@
 
     <link rel="stylesheet" href="css/manage_images.css">
     <link rel="stylesheet" href="css/styles.css">
-    
-    
+    <script src="lib/jquery-4.0.0.min.js" type="text/javascript"></script>
+    <script src="scripts/manage_dynamic_images.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -48,7 +48,7 @@
     <h2>Current Images</h2>
 
              <?php $maxPriority = count($pictures); ?>
-            <input type="hidden" id="item_id" value="<?= $item->get_id() ?>">
+            <input type="hidden" id="item_id" value="<?= $item->get_id(); ?>">
              <div class="grid" id="pictures-container">
             
                 <?php foreach ($pictures as $p): ?>
@@ -93,17 +93,6 @@
             </template>
 
     </div>
-     <div class="modal fade" id="deletePictureModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content delete-modal">
-                <div class="modal-header">
-                    <h5 class="modal-title"> Delete image </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-                    Are you sure you want to delete this image?
-                </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
