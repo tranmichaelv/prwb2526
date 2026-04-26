@@ -1,9 +1,10 @@
 <div class="item-wrapper">
     <div class="item-card">
         <?php 
-        $fromWhere = $from;
+        $fromWhere = $from ?? 'from-browse';
+        $title = $title ?? 'Browser';
         if($title) ;?>
-        <a href="item/open/<?= $item->getId()?>/<?= $fromWhere ?>">
+        <a href="item/open/<?= $item->getId() ?>/<?= $fromWhere ?><?= $encoded ? '/' . $encoded : '' ?>">
             <div class="image-container">
                 <?php if ($item->get_first_picture_path() ): ?>
                     <img src="<?= $item->get_thumbnail()?>" alt="<?= $item->getTitle() ?>" width="300">
@@ -50,21 +51,21 @@
 
                 <div class="price-labels">
                     <?php if ($item->isAuction() && $item->hasBuyNow()): ?>
-                        <p class="price-buy-now"><?= $item->getBuyNowPrice() ?></p>
+                        <p class="price-buy-now">€ <?= $item->getBuyNowPrice() ?></p>
                         <?php if ($item->hasBids()): ?>
                             <div class="label-current-bid">
                                 <p>Current bid</p>
-                                <p class="current-bid"><?= $item->getMaxBid() ?></p>
+                                <p class="current-bid">€ <?= $item->getMaxBid() ?></p>
                             </div>
                         <?php endif; ?>
                     <?php elseif ($item->isDirectSale()): ?>
-                        <p class="price-buy-now"><?= $item->getBuyNowPrice() ?></p>
+                        <p class="price-buy-now">€ <?= $item->getBuyNowPrice() ?></p>
                     <?php else: ?>
-                        <p class="price-auction"><?= $item->getStartingBid() ?></p>
+                        <p class="price-auction">€ <?= $item->getStartingBid() ?></p>
                         <?php if ($item->hasBids()): ?>
                             <div class="label-current-bid">
                                 <p>Current bid</p>
-                                <p class="current-bid"><?= $item->getMaxBid() ?></p>
+                                <p class="current-bid">€ <?= $item->getMaxBid() ?></p>
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>

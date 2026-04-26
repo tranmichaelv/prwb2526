@@ -129,4 +129,83 @@ class ItemPicture extends Model {
     
     }
 
+    public static function change_priority(string $picture_path, int $priority): void {
+        self::execute("UPDATE item_pictures SET priority = :priority WHERE picture_path = :picture_path",
+        [":picture_path" => $picture_path, ":priority" => $priority]);
+    }
+
+    public static function change_priority_middle(int $item): void {
+    // try{
+    //     self::execute("UPDATE item_pictures SET priority = priority * 1000 WHERE item = :item ",
+    //     [":item" => $item]);
+    // } catch (Exception $e) {
+    //         die($e->getMessage());
+    //     }
+
+    //     echo("change_priority_middle: ok ");
+    // }
+    self::execute("UPDATE item_pictures SET priority = priority * 1000 WHERE item = :item ",
+    [":item" => $item]);
+    }
+    public static function get_by_item_and_priority(int $itemId, int $priority) : ?ItemPicture {
+        $stmt = self::execute(
+            "SELECT * FROM item_pictures WHERE item = :item AND priority = :p",
+            [
+                ":item" => $itemId, 
+                ":p" => $priority
+            ]
+        );
+
+        $row = $stmt->fetch();
+
+        if (!$row) {
+            return null;
+        }
+
+        return new ItemPicture(
+            item: $row["item"],
+            priority: $row["priority"],
+            picture_path: $row["picture_path"]
+        );
+    }
+
+    public static function reindex_after_delete(int $itemId, int $deletedPriority): void {
+        self::execute(
+            "UPDATE item_pictures
+            SET priority = priority - 1
+            WHERE item = :item
+            AND priority > :priority",
+            [
+                ":item" => $itemId,
+                ":priority" => $deletedPriority
+            ]
+        );
+    }
+
+    public static function update_order(int $itemId, array $oldPriorities): void {
+    $newPriority = 1;
+
+    foreach ($oldPriorities as $oldPriority) {
+        self::execute(
+            "UPDATE item_pictures
+             SET priority = :temp
+             WHERE item = :item AND priority = :old_priority",
+            [
+                ":temp" => -$newPriority,
+                ":item" => $itemId,
+                ":old_priority" => (int)$oldPriority
+            ]
+        );
+
+        $newPriority++;
+    }
+
+    self::execute(
+        "UPDATE item_pictures
+         SET priority = -priority
+         WHERE item = :item AND priority < 0",
+        [":item" => $itemId]
+    );
+}
+
 }

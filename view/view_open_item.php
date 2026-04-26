@@ -25,9 +25,16 @@
     } elseif($from === 'from-purchases') {
         $page_before = "item/purchases";
     }
+    
+    if($encoded){
+        $page_before .= ("/" . $encoded);
+    }
    // $pageBefore = $from === 'from-browse' ? "item/browse" : "item/myItems";
     include("header.php")?>
 
+<div id="open-item-page"
+     data-item-id ="<?= $item->getId() ?>"
+     data-from="<?= $from ?>">
     <!-- Un container de toute la page open item -->
 <div class="page-container d-flex flex-row align-items-start mb-2">
         
@@ -35,7 +42,10 @@
     <div class="left-container d-flex flex-column gap-4 flex-grow-1">
 
         <section class="item-content">
+          <div id="item-gallery-js" style="display:none;"></div>
+
             <!-- main-picture-container -->
+           <div id="item-gallery-nojs"> 
             <div class="main-picture">
                 <?php if ($main_picture_path == null): ?>
                     <svg width=100% height="500" style="background:#f5f5f5; border:1px ">
@@ -60,13 +70,17 @@
                     <p> End : <?= $item->getEndAt(); ?></p>
                 </div>
             </div>
+           </div>
         </section>
         
 
         <section>
             <!-- additional-images-container -->
             <h6 style="color : white">Additional Images</h6>
-            <div class="additional-images">
+
+            <div id="item-thumbnails-js" style="display:none;"></div>
+
+            <div id="item-thumbnails-nojs" class="additional-images">
                 <?php if (!empty($pictures)) : ?>
                     <?php foreach($pictures as $pic):?>
                         <?php if ($from === 'from-browse') : ?>
@@ -158,8 +172,11 @@
         <?php include "_seller_info.php"; ?>
         <?php if ($can_edit == true)  include ("owner_actions.php") ?>
     </div>
-
+ </div>
 </div>
     <?php include("footer.php");?>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="scripts/open_item_carousel.js"></script>
 </body>
 </html>

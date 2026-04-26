@@ -89,90 +89,96 @@ class Item extends Model {
 
 
 
-    public function validate() : array {
+   public function validate(): array {
+    $errors = [];
 
-        $errors = [];
-         
-        $title = trim($this->title);
-        $desc = trim($this->description);
+    $title = trim($this->title);
+    $desc = trim($this->description);
 
-        $title_min    = (int) Configuration::get("title_min_length");
-        $title_max    = (int) Configuration::get("title_max_length");
-        $desc_min     = (int) Configuration::get("description_min_length");
-        $dur_days_min = (int) Configuration::get("duration_days_min");
-        $dur_days_max = (int) Configuration::get("duration_days_max");
+    $title_min    = (int) Configuration::get("title_min_length");
+    $title_max    = (int) Configuration::get("title_max_length");
+    $desc_min     = (int) Configuration::get("description_min_length");
+    $dur_days_min = (int) Configuration::get("duration_days_min");
+    $dur_days_max = (int) Configuration::get("duration_days_max");
 
-        
+    $this->validate_title($errors, $title, $title_min, $title_max);
+    $this->validate_description($errors, $desc, $desc_min);
+    $this->validate_duration_days($errors, $dur_days_min, $dur_days_max);
+    $this->validate_prices($errors);
 
-          // title entre 3 et 255 carac, unique par owner 
-        if(mb_strlen($title) < $title_min ||mb_strlen($title) > $title_max ){
-               $errors['title'][] = "Title lenght must be between $title_min and $title_max characters";
-        } elseif (self::title_exists_for_owner($title, $this->owner, $this->id)) {
-               $errors['title'][] = "You already have an ad with this title.";
-        }
-
-        // si desc est remplie -> min 3 carac
-        if( $desc !== "" && mb_strlen($desc) < $desc_min ){
-               $errors['description'][] = "Description lenght must be at least $desc_min characters.";
-        } 
-
-        // duration days entre 1 et 365 jours
-        if($this->duration_days < $dur_days_min || $this->duration_days > $dur_days_max) {
-               $errors ['duration_days'][] = "Duration days must be between $dur_days_min and $dur_days_max";
-        }
-
-        // valeur ne peut pas etre nétagif
-        if ($this->starting_bid !== null && $this->starting_bid < 0) {
-               $errors['starting_bid'][] = "Starting bid cannot be negatif.";
-        }
-
-
-        if ($this->buy_now_price !== null && $this->buy_now_price < 0) {
-               $errors['buy_now_price'][] = "Buy now price cannot be negatif.";
-        }
-
-        // la valeur doit avoir max 10 chiffres (dont 2 apres la virgule)
-        if ( $this->starting_bid !== null && !self::fits_decimal_10_2($this->starting_bid)) {
-               $errors["starting_bid"][] = "Starting bid is too high.";
-        }
-
-
-        if ( $this->buy_now_price !== null && !self::fits_decimal_10_2($this->buy_now_price)) {
-               $errors['buy_now_price'][] = "Buy now price is too high.";
-        }
-
-        $has_bid = $this->starting_bid !== null && $this->starting_bid > 0;
-        $has_instant = $this->instant_purchase !== null && $this->instant_purchase > 0;
-        $has_sale = $this->sale_price !== null && $this->sale_price > 0;
-
-        if ($has_bid && $has_sale) {
-            $errors['starting_bid'][] = "Cannot create both auction and direct sale.";
-            $errors['sale_price'][]    = "Cannot create both auction and direct sale.";
-         //   return $errors;
-        }
-
-        if($has_bid){
-           // si buy_now est rempli, il doit être > 0 et doit être > starting_bid (si pas null)
-            if($has_instant && $has_bid && $this->instant_purchase <= $this->starting_bid) {
-               $errors['buy_now_price'][] = "Buy now price must be strictly higher than the starting bid";
-            }    
-        
-
-          $this->buy_now_price = $has_instant ? $this->instant_purchase : null;
-
-        } else {
-    
-              if (!$has_sale) {
-               $errors['sale_price'][] = "An ad without a bid must have a buy now price.";
-               return $errors;
-              }
-
-                //  sale_price devient buy_now_price
-               $this->buy_now_price = $this->sale_price;
-          }
-
-        return $errors;
+    $result = $this->validate_sale_mode($errors);
+    if ($result !== null) {
+        return $result;
     }
+
+    return $errors;
+}
+
+private function validate_title(array &$errors, string $title, int $title_min, int $title_max): void {
+    if (mb_strlen($title) < $title_min || mb_strlen($title) > $title_max) {
+        $errors['title'][] = "Title length must be between $title_min and $title_max characters";
+    } elseif (self::title_exists_for_owner($title, $this->owner, $this->id)) {
+        $errors['title'][] = "You already have an ad with this title.";
+    }
+}
+
+private function validate_description(array &$errors, string $desc, int $desc_min): void {
+    if ($desc !== "" && mb_strlen($desc) < $desc_min) {
+        $errors['description'][] = "Description length must be at least $desc_min characters.";
+    }
+}
+
+private function validate_duration_days(array &$errors, int $dur_days_min, int $dur_days_max): void {
+    if ($this->duration_days < $dur_days_min || $this->duration_days > $dur_days_max) {
+        $errors['duration_days'][] = "Duration days must be between $dur_days_min and $dur_days_max";
+    }
+}
+
+private function validate_prices(array &$errors): void {
+    if ($this->starting_bid !== null && $this->starting_bid < 0) {
+        $errors['starting_bid'][] = "Starting bid cannot be negatif.";
+    }
+
+    if ($this->buy_now_price !== null && $this->buy_now_price < 0) {
+        $errors['buy_now_price'][] = "Buy now price cannot be negatif.";
+    }
+
+    if ($this->starting_bid !== null && !self::fits_decimal_10_2($this->starting_bid)) {
+        $errors['starting_bid'][] = "Starting bid is too high.";
+    }
+
+    if ($this->buy_now_price !== null && !self::fits_decimal_10_2($this->buy_now_price)) {
+        $errors['buy_now_price'][] = "Buy now price is too high.";
+    }
+}
+
+private function validate_sale_mode(array &$errors): ?array {
+    $has_bid = $this->starting_bid !== null && $this->starting_bid > 0;
+    $has_instant = $this->instant_purchase !== null && $this->instant_purchase > 0;
+    $has_sale = $this->sale_price !== null && $this->sale_price > 0;
+
+    if ($has_bid && $has_sale) {
+        $errors['starting_bid'][] = "Cannot create both auction and direct sale.";
+        $errors['sale_price'][] = "Cannot create both auction and direct sale.";
+    }
+
+    if ($has_bid) {
+        if ($has_instant && $has_bid && $this->instant_purchase <= $this->starting_bid) {
+            $errors['buy_now_price'][] = "Buy now price must be strictly higher than the starting bid";
+        }
+
+        $this->buy_now_price = $has_instant ? $this->instant_purchase : null;
+    } else {
+        if (!$has_sale) {
+            $errors['sale_price'][] = "An ad without a bid must have a buy now price.";
+            return $errors;
+        }
+
+        $this->buy_now_price = $this->sale_price;
+    }
+
+    return null;
+}
 
     public function persist(): array {
      $errors =$this->validate();
@@ -281,8 +287,10 @@ class Item extends Model {
        return $item;
     }
 
+
+
     //  Vérifie si un titre existe déjà pour un owner
-    private static function title_exists_for_owner(string $title, int $owner, ?int $exclude_id = null) : bool {
+    public static function title_exists_for_owner(string $title, int $owner, ?int $exclude_id = null) : bool {
           $sql = "SELECT COUNT(*) AS cnt FROM items
                WHERE owner = :owner AND title = :title";
           
@@ -305,4 +313,6 @@ class Item extends Model {
           $abs = abs($value);
           return $abs < 100000000 && round($abs,2) == $abs;
     }
+
+
 }

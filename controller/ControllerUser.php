@@ -92,25 +92,55 @@ class ControllerUser extends Controller {
     }
 
     // -------- Edit Profile --------
-    public function edit_profile() : void{
-        $user = $this->get_user_or_redirect();
-        $page = "edit_profile";
-        $errors = [];
+   public function edit_profile() : void {
+    $user = $this->get_user_or_redirect();
+    $page = "edit_profile";
 
-        // si rien n'est encore reçue en POST, alors n'affiche pas les changement
-        if (isset($_POST['full_name']) || isset($_POST['username']) || isset($_POST['email']) || isset($_POST['iban'])) {
-            $full_name = $_POST['full_name'] ?? $user->getFullName();
-            $username = $_POST['username'] ?? $user->getPseudo();
-            $email    = $_POST['email'] ?? $user->getEmail();
-            $iban     = $_POST['iban'] ?? $user->getIban();
-            
-            $errors = $user->validate_update($full_name, $username, $email, $iban);
-            
-            $this->check_errors_then_persist($user, $errors);
+    $errors = [
+        "full_name" => [],
+        "pseudo" => [],
+        "email" => [],
+        "iban" => []
+    ];
+
+    if (isset($_POST['full_name']) || isset($_POST['pseudo']) || isset($_POST['email']) || isset($_POST['iban'])) {
+        $full_name = trim($_POST['full_name'] ?? $user->getFullName());
+        $pseudo    = trim($_POST['pseudo'] ?? $user->getPseudo());
+        $email     = trim($_POST['email'] ?? $user->getEmail());
+        $iban      = trim($_POST['iban'] ?? ($user->getIban() ?? ''));
+
+        $errors = $user->validate_update($full_name, $pseudo, $email, $iban);
+
+        $has_errors = false;
+        foreach ($errors as $field_errors) {
+            if (!empty($field_errors)) {
+                $has_errors = true;
+                break;
+            }
         }
-        
-        (new View("edit_profile"))->show(["user" => $user, "page" =>  $page, "errors" => $errors]);
+
+        if (!$has_errors) {
+            $user->setFullName($full_name);
+            $user->setPseudo($pseudo);
+            $user->setEmail($email);
+            $user->setIban($iban === '' ? null : str_replace(' ', '', $iban));
+
+            try {
+                $user->persist();
+                $this->redirect("user", "profile");
+                return;
+            } catch (Exception $e) {
+                $errors["email"][] = "Unable to save profile.";
+            }
+        }
     }
+
+    (new View("edit_profile"))->show([
+        "user" => $user,
+        "page" => $page,
+        "errors" => $errors
+    ]);
+}
 
     // -------- Profile --------
     public function profile() : void{
@@ -186,11 +216,21 @@ class ControllerUser extends Controller {
                 }
             }
 
-            if(!$has_errors) {
-                $user = new User(Configuration::get("temporary_user_id"),$full_name, $email,$pseudo,password_hash($password, PASSWORD_BCRYPT),"user");
+            if (!$has_errors) {
+                $user = new User(
+                    Configuration::get("temporary_user_id"),
+                    $full_name,
+                    $email,
+                    $pseudo,
+                    password_hash($password, PASSWORD_BCRYPT),
+                    "user"
+                );
                 $user->persist();
 
-                $this->login();
+                $saved_user = User::get_users_by_email($email);
+                $this->log_user($saved_user);
+                $this->redirect("item", "browse");
+                return;
             }
         }
 
@@ -228,6 +268,155 @@ class ControllerUser extends Controller {
     public function login_as_xavier() : void{
         $this->admin_login("Xavier");
     }
+
+    public function get_validation_config_service() : void {
+        echo json_encode([
+            "username_min_length" => Configuration::get("username_min_length"),
+            "username_max_length" => Configuration::get("username_max_length"),
+            "varchar_min_length" => Configuration::get("varchar_min_length"),
+            "varchar_max_length" => Configuration::get("varchar_max_length"),
+            "password_min_length" => Configuration::get("password_min_length")
+        ]);
+    }
+
+    public function check_full_name_service() : void {
+        $user = $this->get_user_or_false();
+
+        if(!$user) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized"]);
+            return;
+        }
+
+        $full_name = trim($_POST ['param1'] ?? '');
+
+        if($full_name === '') {
+            http_response_code(400);
+            echo json_encode(["error" => "Full name is required"]);
+            return;
+        }
+
+        $errors = User::validate_full_name_for_update($full_name, $user->getId());
+
+        echo json_encode([
+            "ok" => empty($errors),
+            "errors" => $errors
+        ]);
+
+    }
+
+    public function check_pseudo_service() : void {
+        $user = $this->get_user_or_false();
+
+        if (!$user) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized"]);
+            return;
+        }
+
+        $pseudo = trim($_POST['param1'] ?? '');
+
+        if ($pseudo === '') {
+            http_response_code(400);
+            echo json_encode(["error" => "Pseudo is required"]);
+            return;
+        }
+
+        $errors = User::validate_pseudo_for_update($pseudo, $user->getId());
+
+        echo json_encode([
+            "ok" => empty($errors),
+            "errors" => $errors
+        ]);
+    }
+
+    public function check_email_service() : void {
+        $user = $this->get_user_or_false();
+
+        if (!$user) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized"]);
+            return;
+        }
+
+        $email = trim($_POST['param1'] ?? '');
+
+        if ($email === '') {
+            http_response_code(400);
+            echo json_encode(["error" => "Email is required"]);
+            return;
+        }
+
+        $errors = User::validate_email_for_update($email, $user->getId());
+
+        echo json_encode([
+            "ok" => empty($errors),
+            "errors" => $errors
+        ]);
+    }
+
+    public function check_email_signup_service() : void {
+        $email = trim($_POST["param1"] ?? "");
+
+        if($email === '') {
+            http_response_code(400);
+            echo json_encode(["error" => "Email is required"]);
+            return;
+        }
+
+        $errors = array_merge(
+            User::validate_email($email),
+            User::validate_unicity_email($email)
+        );
+        
+
+        echo json_encode([
+            "ok" => empty($errors),
+            "errors" => $errors
+        ]);
+    }
+
+    public function check_full_name_signup_service() : void {
+        $full_name = trim($_POST['param1'] ?? '');
+
+        if ($full_name === '') {
+            http_response_code(400);
+            echo json_encode(["error" => "Full name is required"]);
+            return;
+        }
+
+        $errors = User::validate_full_name($full_name);
+
+        echo json_encode([
+            "ok" => empty($errors),
+            "errors" => $errors
+        ]);
+    }
+
+    public function check_pseudo_signup_service() : void {
+        $pseudo = trim($_POST['param1'] ?? '');
+
+        if ($pseudo === '') {
+            http_response_code(400);
+            echo json_encode(["error" => "Pseudo is required"]);
+            return;
+        }
+
+        $errors = array_merge(
+            User::validate_username($pseudo),
+            User::validate_unicity_pseudo($pseudo)
+        );
+
+        echo json_encode([
+            "ok" => empty($errors),
+            "errors" => $errors
+        ]);
+    }
+
+
 }
+
+
+
 
 

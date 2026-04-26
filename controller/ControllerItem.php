@@ -6,6 +6,7 @@ require_once "utils/ImageManager.php";
 require_once 'model/User.php';
 require_once "utils/Utils.php";
 require_once "model/ItemStatus.php";
+require_once "utils/Search_criteria.php";
 
 class ControllerItem extends Controller {
 
@@ -13,10 +14,60 @@ class ControllerItem extends Controller {
         $this->browse();
     }
 
+    // public function index() : void {
+    //     session_destroy();
+    //     session_start();
+    //     echo("ok");
+    // }
+
+    public function get_item_pictures_service() : void {
+        $user = $this->get_user_or_false();
+        if (!$user) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized"]);
+            return;
+
+        }
+
+        $id = $_GET["param1"] ?? null;
+        if($id === null || !is_numeric($id)) {
+            http_response_code(400);
+            echo json_encode(["error" => "Bad request"]);
+            return;
+        }
+
+        $item = Item::get_by_id($id);
+        if($item === null) {
+            http_response_code(404);
+            echo json_encode(["error" => "Item not found"]);
+            return;
+        }
+
+        $pictures = ItemPicture::get_by_item($id);
+
+        $result = [];
+
+        foreach($pictures as $index => $picture) {
+            $result[] = [
+                "id" => $picture->get_item(),
+                "src" => $picture->get_picture_path(),
+                "thumbnail_src" => preg_replace('/\.jpg$/', '_thumbnail.jpg', $picture->get_picture_path()),
+                "position" => $index
+            ];
+        }
+
+        echo json_encode([
+            "pictures" => $result
+        ]);
+
+    }
+
      // Page item/browse
     public function browse() : void {
         $user = $this->get_user_or_false();
         $page = "browse";
+        $encoded = isset($_GET['param1'] ) ? $_GET['param1'] : null;
+        $query = $encoded ? Search_criteria::url_safe_decode($encoded) : "";
 
         // Si user n'est pas vide, connecte au browser de l'user 
         if($user){
@@ -26,7 +77,8 @@ class ControllerItem extends Controller {
                     (new View("browse"))->show(["items" => $items_other, 
                                                 "items_user" => $items_user, 
                                                 "user" => $user, 
-                                                "page" => $page
+                                                "page" => $page,
+                                                "query" => $query
                                             ]);
         } 
         // sinon se connecte en tant que guest 
@@ -35,8 +87,139 @@ class ControllerItem extends Controller {
 
                 (new View("browse"))->show(["all_items" => $all_items, 
                                             "user" => $user, 
-                                            "page" => $page
+                                            "page" => $page,
+                                            "encoded" => $query
                                         ]);
+        }
+    }
+
+    // public function get_filtered_items() {
+
+    //     $query = trim($_POST["query"] ?? "");
+    //     $user = $this->get_user_or_false();
+    //     $from = 'from-browse';
+    //     $page = "browse";
+    
+    //     if ($query === "") {
+    
+    //         $this->browse();
+    
+    //     } else {
+    
+    //         if ($user) {
+
+    //             $items_bids = $user->get_my_bids_items_filtered($query);
+    //             $items_other = $user->get_my_other_items_filtered($query);
+            
+    //             if (count($items_bids) > 0) {
+    //                 echo "<div class='category-items'>";
+    //                 echo "<h1>Items I'm Participating in</h1>";
+    //                 echo "<div class='items-box'>";
+            
+    //                 foreach ($items_bids as $item) {
+    //                     include "view/browse.php";
+    //                 }
+            
+    //                 echo "</div></div>";
+    //             }
+            
+    //             if (count($items_other) > 0) {
+    //                 echo "<div class='category-items'>";
+    //                 echo "<h1>Other Available Items</h1>";
+    //                 echo "<div class='items-box'>";
+            
+    //                 foreach ($items_other as $item) {
+    //                     include "view/browse.php";
+    //                 }
+            
+    //                 echo "</div></div>";
+    //             }
+            
+    //         } else {
+            
+    //             $items = ItemStatus::get_all_items_filtered($query);
+            
+    //             if (count($items) > 0) {
+    //                 echo "<div class='category-items'>";
+    //                 echo "<h1>Available Items</h1>";
+    //                 echo "<div class='items-box'>";
+            
+    //                 foreach ($items as $item) {
+    //                     include "view/browse.php";
+    //                 }
+            
+    //                 echo "</div></div>";
+    //             }
+    //         }
+            
+    //     }
+    // }
+
+    // public function get_filtered_items() : void {
+
+    //     $query = trim($_POST["query"] ?? "");
+    //     $user = $this->get_user_or_false();
+    //     $from = 'from-browse';
+    //     $page = "browse";
+    
+    //     if ($query === "") {
+    
+    //         $this->browse();
+    
+    //     } else {
+    
+    //         if ($user) {
+
+    //             $items_bids = $user->get_my_bids_items_filtered_as_json($query);
+    //             $items_other = $user->get_my_other_items_filtered_as_json($query);
+            
+            
+    //         } else {
+    //             $items = ItemStatus::get_all_items_filtered_as_json($query);
+            
+    //         }
+    //     }
+    // }
+
+    public function get_filtered_items_browse() : void {
+        $query = trim($_POST["query"] ?? "");
+        $user = $this->get_user_or_false();
+        if($user){
+            $items_json = $user->get_browse_items_filtered_as_json($query);
+        } else {
+            $items_json = ItemStatus::get_browse_items_filtered_as_json($query);
+        }
+        echo $items_json;
+    }
+
+    public function get_filtered_items_list() : void {
+        $query = trim($_POST["query"] ?? "");
+        $user = $this->get_user_or_false();
+        $items_json = $user->get_my_items_filtered_as_json($query);
+        echo $items_json;
+    }
+
+    public function render_items() {
+
+        $items = $_POST['items'] ?? [];
+        $encoded = $_POST['encoded'] ?? null;
+        $page = $_POST['page'] ?? null;
+        $user = $this->get_user_or_false();
+    
+        if($page === "browse"){
+            $page = "browse";
+            $from = "from-browse";
+            $title = "Browser";
+        } else {
+            $page = "list";
+            $from = "from-items";
+            $title = "My items";
+        }
+    
+    
+        foreach ($items as $data) {
+            $item = ItemStatus::get_item_by_id($data['id']);
+            include "view/browse.php";
         }
     }
 
@@ -45,6 +228,8 @@ class ControllerItem extends Controller {
         // doit être connecté pour voir la page sinon redirect
         $user = $this->get_user_or_redirect();
         $page = "list";
+        $encoded = isset($_GET['param1'] ) ? $_GET['param1'] : null;
+        $query = $encoded ? Search_criteria::url_safe_decode($encoded) : "";
 
         $active_items = $user->get_list();  
         // print_r($active_items);
@@ -56,7 +241,8 @@ class ControllerItem extends Controller {
                                   "closed_unsold_items" => $closed_unsold_items, 
                                   "sold_items" => $sold_items, 
                                   "user" => $user, 
-                                  "page" => $page
+                                  "page" => $page,
+                                  "query" => $query
                                 ]);
         
     }
@@ -154,6 +340,7 @@ class ControllerItem extends Controller {
         $user = $this->get_user_or_redirect();
 
         $id = $_GET['param1'] ?? null;
+        $encoded = $_GET['param2'] ?? null;
 
         if ($id === null || !is_numeric($id)) {
             $this->redirect("item");
@@ -195,7 +382,8 @@ class ControllerItem extends Controller {
             "errors" => $errors,
             "item" => $item,
             "id" => $id,
-            "user" => $user
+            "user" => $user,
+            "encoded" => $encoded
         ]);
 
     }
@@ -232,6 +420,7 @@ class ControllerItem extends Controller {
             return;
         }
         $itemId = (int)($_GET["param1"] ?? 0);
+        $encoded = $_GET['param2'] ?? null;
         $item = Item::get_by_id($itemId);
         if($item === null) $this->redirect("item");
 
@@ -242,7 +431,8 @@ class ControllerItem extends Controller {
             "item" => $item,
             "pictures" => $pictures,
             "errors" => [],
-            "user" => $user
+            "user" => $user,
+            "encoded" => $encoded
         ]);
     }
 
@@ -250,6 +440,7 @@ class ControllerItem extends Controller {
         $user = $this->get_user_or_redirect();
         
         $itemId = (int)($_GET["param1"] ?? 0);
+        $encoded = $_GET['param2'] ?? null;
         $item = Item::get_by_id($itemId);
         if ($item === null) $this->redirect("item");
 
@@ -327,7 +518,8 @@ class ControllerItem extends Controller {
             "item" => $item,
             "pictures" => $pictures,
             "errors" => $errors,
-            "user" => $user
+            "user" => $user,
+            "encoded" => $encoded
         ]);
 
 }
@@ -347,9 +539,20 @@ class ControllerItem extends Controller {
         $this->redirect("item","manage_images",$itemId);
     }
 
+    public function move_picture_dd(): void {
+        $pos = $_POST['pos'] ?? [];
+        $itemId = (int)($_GET["param1"] ?? 0);
+
+        ItemPicture::change_priority_middle($itemId);
+        foreach ($pos as $item) {
+            ItemPicture::change_priority($item['id'],(int)$item['priority']);
+        }
+    }
+
     public function delete_picture(): void {
         $itemId = (int)($_GET["param1"] ?? 0);
         $priority = (int)($_GET["param2"] ?? 0);
+        $encoded = $_GET['param3'] ?? null;
 
         $pics = ItemPicture::get_by_item($itemId);
         $toDelete = null;
@@ -376,20 +579,77 @@ class ControllerItem extends Controller {
                 }
             }   
 
-        $this->redirect("item", "manage_images", $itemId);
+        $this->redirect("item", "manage_images", $itemId, $encoded);
     }
 
+    public function move_picture_service(): void {
+    $itemId = (int)($_POST["param1"] ?? 0);
+    $priority = (int)($_POST["param2"] ?? 0);
+    $dir = $_POST["param3"] ?? "";
 
+    if ($itemId <= 0 || $priority <= 0 || !in_array($dir, ["left", "right"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Bad request"]);
+        return;
+    }
+
+    if ($dir === "left" && $priority > 1) {
+        ItemPicture::swap_priority($itemId, $priority, $priority - 1);
+    } else if ($dir === "right") {
+        $max = ItemPicture::get_max_priority($itemId);
+
+        if ($priority < $max) {
+            ItemPicture::swap_priority($itemId, $priority, $priority + 1);
+        }
+    }
+
+    echo json_encode(["success" => true]);
+}
+    public function remove_picture_service() : void {
+        $item_id = (int)($_POST["param1"] ?? 0);
+        $priority = (int)($_POST["param2"] ?? 0);
+
+        if ($item_id <= 0 || $priority <= 0) {
+            http_response_code(400);
+            echo json_encode(["error" => "Bad request"]);
+            return;
+        }
+
+        $picture = ItemPicture::get_by_item_and_priority($item_id, $priority);
+
+        if ($picture === null) {
+            http_response_code(404);
+            echo json_encode(["error" => "Picture not found"]);
+            return;
+        } else {
+            
+            $main = $picture->get_picture_path();
+            $thumb = preg_replace('/\.jpg$/', '_thumbnail.jpg', $main);
+            
+            if (file_exists($main)) unlink($main);
+            if (file_exists($thumb)) unlink($thumb);
+
+
+            $picture->delete();
+            ItemPicture::reindex_after_delete($item_id,$priority);
+        }
+
+        echo json_encode(["success" => true]);
+    }
     /*------------ Ici le contenur de open Item ----------------*/
 
     public function open() : void {
         $id = isset($_GET['param1']) ? (int) $_GET['param1'] : null;
-        $img_priority = isset($_GET['param3']) ? (int) $_GET['param3'] : 1;
+        $img_priority = isset($_GET['param4']) ? (int) $_GET['param'] : 1;
         $from = isset($_GET['param2'] ) ? $_GET['param2'] : null;
         $errors = [];
         $main_picture_path = null;
         $user_can_edit = false;
         $user_is_guest = false;
+
+        $query = trim($_POST["query"] ?? "");
+        $encoded = isset($_GET['param3'] ) ? $_GET['param3'] : null;
+
 
         if ($id == null) {
             $errors[] = "Le controller a besoin d'un id pour charger la vue open item";
@@ -432,7 +692,8 @@ class ControllerItem extends Controller {
             "from" => $from,
             "user" => $current_user,
             "user_is_guest" => $user_is_guest,
-            "bids_history" => $bids_history
+            "bids_history" => $bids_history,
+            "encoded" => $encoded
         ]);
     } 
 
@@ -556,6 +817,89 @@ class ControllerItem extends Controller {
        $this->redirect("item","open",$item, $from);
 
     }
+    public function item_validation_constants_service() : void {
+        echo json_encode([
+            "title_min_length" => Configuration::get("title_min_length"),
+            "title_max_length" => Configuration::get("title_max_length"),
+            "description_min_length" => Configuration::get("description_min_length"),
+            "duration_days_min" => Configuration::get("duration_days_min"),
+            "duration_days_max" => Configuration::get("duration_days_max") 
+        ]); 
+
+    }
+    public function validate_title_service() : void {
+        $user = $this->get_user_or_false();
+        
+        if (!$user) {
+            echo json_encode(["exists_already" => false]);
+            return;
+        }
+        $res = false; 
+        $id = $_POST['id'] ?? null;
+        $title = isset($_POST['title']) ? trim(mb_strtolower($_POST['title'])) : '';
+
+        if ($id === "" || $id === "0") {
+            $id = null;
+        }
+        
+
+        // si c'est un edit
+        if ($id !== null) {
+            $item = Item::get_by_id($id); 
+            
+            if (!$item) {
+                echo json_encode(["exists_already" => false]);
+                return;
+            }
+            // var_dump($item); die();
+            $res = Item::title_exists_for_owner(
+                $title,
+                $item->get_owner_id(),
+                $item->get_id()
+            );
+        } 
+        // si c'est un add 
+        else {
+            $res = Item::title_exists_for_owner(
+                $title,
+                $user->getId()
+            );
+        }
+        echo json_encode([
+            "exists_already" => $res
+        ]);   
+    }
+
+    public function update_pictures_order_service(): void {
+    $user = $this->get_user_or_false();
+
+    if (!$user) {
+        http_response_code(401);
+        echo json_encode(["error" => "Unauthorized"]);
+        return;
+    }
+
+    $itemId = (int)($_POST["item_id"] ?? 0);
+    $priorities = $_POST["priorities"] ?? [];
+
+    if ($itemId <= 0 || !is_array($priorities)) {
+        http_response_code(400);
+        echo json_encode(["error" => "Bad request"]);
+        return;
+    }
+
+    $item = Item::get_by_id($itemId);
+
+    if ($item === null) {
+        http_response_code(404);
+        echo json_encode(["error" => "Item not found"]);
+        return;
+    }
+
+    ItemPicture::update_order($itemId, $priorities);
+
+    echo json_encode(["success" => true]);
+}
 
 }
 

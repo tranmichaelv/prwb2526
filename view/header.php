@@ -22,7 +22,7 @@
 
     <?php if ($show_save): ?>
         <div class="header-right">
-            <button type="submit">
+            <button id="submit-btn" type="submit">
                 <i class="bi bi-floppy"></i>
             </button>
         </div>
