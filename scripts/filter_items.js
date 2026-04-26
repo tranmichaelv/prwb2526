@@ -27,7 +27,7 @@ $(function () {
                     dataType: "json"
                 });
 
-                console.log(items);
+                // console.log(items);
 
                 $("#no-result").toggle(
                     !(items.bids.length || items.other.length || items.all.length)
@@ -107,7 +107,7 @@ async function renderCategory(title, itemsList) {
         page: page
     });
 
-    console.log(rendered);
+    // console.log(rendered);
 
     html += rendered;
 
