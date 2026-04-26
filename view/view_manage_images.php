@@ -6,8 +6,13 @@
     <title>Manage Images</title>
     <base href="<?= $web_root ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="css/manage_images.css">
     <link rel="stylesheet" href="css/styles.css">
+    
+    
 </head>
 
 <body>
@@ -43,8 +48,9 @@
     <h2>Current Images</h2>
 
              <?php $maxPriority = count($pictures); ?>
-
-             <div class="grid">
+            <input type="hidden" id="item_id" value="<?= $item->get_id() ?>">
+             <div class="grid" id="pictures-container">
+            
                 <?php foreach ($pictures as $p): ?>
                     <?php $priority = $p->get_priority(); ?>
 
@@ -72,14 +78,46 @@
                     </div>
 
                 <?php endforeach; ?>
-            </div>   
+            </div>  
+            
+            <template id="picture-template">
+                <div class="thumb">
+                    <img src="" alt="item picture">
+
+                    <div class="actions">
+                        <button type="button" class="btn icon move-left">&#x25C0;</button>
+                        <button type="button" class="btn icon move-right">&#x25B6;</button>
+                        <button type="button" class="btn danger move-delete" title="Delete">X</button>
+                    </div>
+                </div>
+            </template>
 
     </div>
+     <div class="modal fade" id="deletePictureModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content delete-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title"> Delete image </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
 
+                <div class="modal-body">
+                    Are you sure you want to delete this image?
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn danger" id="confirm-delete-picture">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
  </div>
-
      <footer> 
         <?php include('footer.php'); ?>
+        <script src="lib/jquery-4.0.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+         <script src="scripts/manage_dynamic_images.js"></script>
     </footer>
 </body>
 </html>
