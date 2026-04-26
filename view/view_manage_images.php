@@ -157,7 +157,6 @@
  </div>
      <footer> 
         <?php include('footer.php'); ?>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="scripts/manage_dynamic_images.js"></script>
     </footer>
