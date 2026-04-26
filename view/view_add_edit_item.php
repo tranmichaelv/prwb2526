@@ -19,7 +19,6 @@
           
             $page = $mode === "edit" ? "edit_item" : "add_item";
             $title = $mode === "edit" ? "Edit item" : "Add item";
-            var_dump($encoded);
             $page_before = $mode === "edit" ? "item/open/$id/from-items" . ($encoded ? "/" . $encoded : ""): "item/browse";
 
             include("header.php");
