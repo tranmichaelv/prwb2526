@@ -8,6 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/manage_images.css">
     <link rel="stylesheet" href="css/styles.css">
+    <script src="lib/jquery-4.0.0.min.js" type="text/javascript"></script>
+    <script src="scripts/manage_dynamic_images.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -43,8 +45,9 @@
     <h2>Current Images</h2>
 
              <?php $maxPriority = count($pictures); ?>
-
-             <div class="grid">
+            <input type="hidden" id="item_id" value="<?= $item->get_id(); ?>">
+             <div class="grid" id="pictures-container">
+            
                 <?php foreach ($pictures as $p): ?>
                     <?php $priority = $p->get_priority(); ?>
 
@@ -72,7 +75,19 @@
                     </div>
 
                 <?php endforeach; ?>
-            </div>   
+            </div>  
+            
+            <template id="picture-template">
+                <div class="thumb">
+                    <img src="" alt="item picture">
+
+                    <div class="actions">
+                        <button type="button" class="btn icon move-left">&#x25C0;</button>
+                        <button type="button" class="btn icon move-right">&#x25B6;</button>
+                        <button type="button" class="btn danger move-delete" title="Delete">X</button>
+                    </div>
+                </div>
+            </template>
 
     </div>
 
