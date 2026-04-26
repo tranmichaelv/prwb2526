@@ -191,13 +191,7 @@ tbody input{
 
 
 
-.other-items {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-} 
-
-.my-items {
+.items-box {
     display: flex;
     flex-wrap: wrap;
     gap: 18px;

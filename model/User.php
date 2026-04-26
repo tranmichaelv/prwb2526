@@ -146,6 +146,112 @@ class User extends Model {
         return ItemStatus::get_bids_items_from_user($this->getId());
     }
 
+    public function get_browse_items_filtered_as_json(string $query) : string {
+        $query = strtolower($query);
+    
+        $itemsBids = $this->get_my_bids_items();
+        $itemsBidsFiltered = ItemStatus::get_filtered_items($itemsBids, $query);
+    
+        $bids = [];
+    
+        foreach ($itemsBidsFiltered as $item) {
+            $bids[] = $this->formatItem($item);
+        }
+
+        $itemsOther = $this->get_my_other_items();
+        $itemsOtherFiltered = ItemStatus::get_filtered_items($itemsOther, $query);
+    
+        $other = [];
+    
+        foreach ($itemsOtherFiltered as $item) {
+            $other[] = $this->formatItem($item);
+        }
+    
+        $itemsAll = ItemStatus::get_all_items();
+        $itemsAllFiltered = ItemStatus::get_filtered_items($itemsAll, $query);
+    
+        $all = [];
+    
+        foreach ($itemsAllFiltered as $item) {
+            $all[] = $this->formatItem($item);
+        }
+    
+        $encoded = "";
+        if(!empty($query))
+            $encoded = search_criteria::url_safe_encode($query);
+
+        return json_encode([
+            "bids" => $bids,
+            "other" => $other,
+            "all" => $all,
+            "encoded" => $encoded
+        ]);
+    }
+
+    public function get_my_items_filtered_as_json(string $query) : string {
+        $query = strtolower($query);
+    
+        $itemsActive = $this->get_list();
+        $itemsActiveFiltered = ItemStatus::get_filtered_items($itemsActive, $query);
+    
+        $bids = [];
+    
+        foreach ($itemsActiveFiltered as $item) {
+            $bids[] = $this->formatItem($item);
+        }
+    
+        $itemsClosed = $this->get_my_closed_unsold_items();
+        $itemsClosedFiltered = ItemStatus::get_filtered_items($itemsClosed, $query);
+    
+        $other = [];
+    
+        foreach ($itemsClosedFiltered as $item) {
+            $other[] = $this->formatItem($item);
+        }
+    
+        $itemsSold = $this->get_my_sold_items();
+        $itemsSoldFiltered = ItemStatus::get_filtered_items($itemsSold, $query);
+    
+        $all = [];
+    
+        foreach ($itemsSoldFiltered as $item) {
+            $all[] = $this->formatItem($item);
+        }
+
+        $encoded = "";
+        if(!empty($query))
+            $encoded = search_criteria::url_safe_encode($query);
+    
+        return json_encode([
+            "bids" => $bids,
+            "other" => $other,
+            "all" => $all,
+            "encoded" => $encoded
+        ]);
+    }
+
+    private function formatItem($item): array {
+        return [
+            "id" => $item->getId(),
+            "title" => $item->getTitle(),
+            "description" => $item->getDescription(),
+            "owner" => $item->getOwner(),
+            "created_at" => $item->getCreatedAt(),
+            "duration_days" => $item->getDurationDays(),
+            "end_at" => $item->getEndAt(),
+            "bid_count" => $item->getBidCount(),
+            "is_direct_sale" => $item->isDirectSale(),
+            "is_auction" => $item->isAuction(),
+            "has_buy_now" => $item->hasBuyNow(),
+            "has_bids" => $item->hasBids(),
+            "buy_now_reached" => $item->isBuyNowReached(),
+            "not_purchased_direct_sale" => $item->isNotPurchasedDirectSale(),
+            "buy_now_price" => $item->getBuyNowPrice(),
+            "starting_bid" => $item->getStartingBid(),
+            "max_bid" => $item->getMaxBid(),
+        ];
+    }
+
     public function get_list() : array{
         return ItemStatus::get_user_items($this->getId());
     }
@@ -157,6 +263,7 @@ class User extends Model {
     public function get_my_sold_items() : array{
         return ItemStatus::get_user_sold_items($this->getId());
     }
+
 
     public function get_my_sales() : array{
         return ItemStatus::get_user_completed_sales($this->getId());
@@ -645,5 +752,7 @@ public static function validate_email_for_update(string $email, int $current_use
             );
         }
     }
+
+
 
 }

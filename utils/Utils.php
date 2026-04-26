@@ -24,7 +24,7 @@ Class Utils{
         }
 
         $amount = (float) $amount;
-        return ("€ ".number_format($amount,2,',','.'));
+        return (number_format($amount,2,',','.'));
     }
 
     public static function moneyToFloat($value): ?float {

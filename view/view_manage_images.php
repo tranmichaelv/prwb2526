@@ -19,7 +19,7 @@
     <?php 
             $page = "manage_images";
             $title = "Manage Images";
-            $page_before = "item/open/" . $item->get_id()."/from-items";
+            $page_before = "item/open/" . $item->get_id()."/from-items" . ($encoded ? "/" . $encoded : "");
             include("header.php");
     ?>
  <div class="container">

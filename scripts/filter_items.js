@@ -1,48 +1,117 @@
-
+let items;
 let query;
+const user = "<?= $user ? $user->getPseudo() : '' ?>";
 
 $(function () {
     $("#search-box").show();
 
-    const $items = $(".item-wrapper");
-    const $sections = $(".my-items, .other-items");
-    const $titles = $("h1");
 
-    $("#search").on("keyup", function () {
+    $(window).on("pageshow", function () {
+        $("#search").trigger("input");
+    });
 
-        query = $(this).val().toLowerCase().trim();
-        let visibleCount = 0;     
+    $("#search").on("input", async function () {
 
-        // reset 
-        $items.show();
-        $sections.show();
-        $titles.show();
-        $("#no-result").hide();
+        try {
+            const search_query = {query: $("#search").val()};
 
-        // filtre
-        $items.each(function () {
-            let text = $(this).text().toLowerCase();
+            const url = page === "browse"
+                ? "item/get_filtered_items_browse"
+                : "item/get_filtered_items_list";
 
-            if (text.includes(query)) {
-                visibleCount++;
-            } else {
-                $(this).hide();
-            }
-        });
+          
+                items = await $.ajax({
+                    url,
+                    type: "POST",
+                    data: search_query,
+                    dataType: "json"
+                });
 
-        // cache les sections vide
-        $sections.each(function () {
-            let visibleItems = $(this).find(".item-wrapper:visible").length;
+                console.log(items);
 
-            if (visibleItems === 0) {
-                $(this).prev("h1").hide();
-            }
-        });
+                $("#no-result").toggle(
+                    !(items.bids.length || items.other.length || items.all.length)
+                );
+    
+                
+                if (page === "browse") {
+                    displayBrowseItems();
+                } else {
+                    displayMyItems();
+                }
 
-        // aucun résultat global
-        if (visibleCount === 0) {
-            $("#no-result").show();
+        } catch (error) {
+            console.error("AJAX ERROR:", error);
+            console.error("STATUS:", error.status);
+            console.error("RESPONSE:", error.responseText);
+            $("#items-container").html("Error encountered while retrieving the messages!");
         }
     });
+});
 
+async function displayBrowseItems(){
+    let html = "";
+
+    if (user !== "") {
+
+        if (items.bids && items.bids.length > 0) {
+            html += await renderCategory("Items I'm Participating in", items.bids);
+        }
+
+        // Autres items
+        if (items.other && items.other.length > 0) {
+            html += await renderCategory("Other Available Items", items.other);
+        }
+
+    } else {
+
+        if (items.all && items.all.length > 0) {
+            html += await renderCategory("Available Items", items.all);
+        }
+    }
+
+    $("#items-container").html(html);
+    
+}
+
+async function displayMyItems(){
+    let html = "";
+
+    if (items.bids && items.bids.length > 0) {
+        html += await renderCategory("Active Items", items.bids);
+    }
+
+    if (items.other && items.other.length > 0) {
+        html += await renderCategory("Closed Unsold Items", items.other);
+    }
+
+    if (items.all && items.all.length > 0) {
+        html += await renderCategory("Sold Items", items.all);
+    }
+
+    $("#items-container").html(html);
+    
+}
+
+async function renderCategory(title, itemsList) {
+
+    let html = "";
+
+    html += '<div class="category-items">' +
+            `<h1>${title}</h1>` +
+            '<div class="items-box">';
+
+    const rendered = await $.post("item/render_items", {
+        items: itemsList,
+        encoded: items.encoded,
+        page: page
     });
+
+    console.log(rendered);
+
+    html += rendered;
+
+    html += `</div></div>`;
+
+    return html;
+}

@@ -80,6 +80,24 @@ class ItemStatus extends Model {
         return self::fetch_items($data);
     }
 
+    public static function get_filtered_items(array $items, string $query) : array {
+        $list = [];
+        $query = strtolower($query);
+        foreach ($items as $item) {
+
+            $match =
+                str_contains(strtolower($item->getTitle()), $query) ||
+                str_contains(strtolower($item->getDescription()), $query) ||
+                str_contains(strtolower($item->getOwnerName()), $query);
+
+            if ($match) {
+                $list[] = $item;
+            }
+        }
+
+        return $list;
+    }
+
     // -------- "Items I'm Participating in" --------
     public static function get_bids_items_from_user(int $userId): array{
         $query = self::execute("SELECT v.*
@@ -232,7 +250,7 @@ class ItemStatus extends Model {
     }
 
     // -------- "My Sold Items" --------
-    public static function get_user_sold_items(int $userId) : array {
+    public static function sold(int $userId) : array {
         $query = self::execute("SELECT v.*
                                 FROM v_items_status v
                                     join users u on u.id = v.owner
@@ -251,6 +269,12 @@ class ItemStatus extends Model {
         return self::fetch_items($data);
     }
 
+    public static function get_user_sold_items(int $userId) : array {
+        return self::sortItemsByRelevantDate(
+            ItemStatus::sold($userId)
+        );
+    }
+
     public function getTimeLeft() : array{
         return Utils::get_time_left($this->getEndAt(), $this->getDurationDays());
     }
@@ -266,7 +290,7 @@ class ItemStatus extends Model {
     }
 
     // -------- "My Purchases" --------
-    public static function get_user_purchases(int $userId) : array {
+    public static function purchases(int $userId) : array {
         $query = self::execute("SELECT v.*
                                 FROM v_items_status v
                                     join bids b on b.item = v.id and v.max_bid = b.amount
@@ -281,6 +305,12 @@ class ItemStatus extends Model {
         
         $data = $query->fetchAll();
         return self::fetch_items($data);
+    }
+
+    public static function get_user_purchases(int $userId) : array {
+        return self::sortItemsByRelevantDate(
+            ItemStatus::purchases($userId)
+        );
     }
 
     // -------- "TOTAL SPENT $$ AVERAGE TICKET PURCHASES" --------
@@ -331,7 +361,7 @@ class ItemStatus extends Model {
     }
 
     // -------- "My Completed Sales" --------
-    public static function get_user_completed_sales(int $userId) : array {
+    public static function user_completed_sales(int $userId) : array {
         $query = self::execute("SELECT v.*
                                 FROM v_items_status v
                                     join bids b on b.item = v.id and v.max_bid = b.amount
@@ -346,6 +376,12 @@ class ItemStatus extends Model {
         
         $data = $query->fetchAll();
         return self::fetch_items($data);
+    }
+
+    public static function get_user_completed_sales(int $userId) : array {
+        return self::sortItemsByRelevantDate(
+            ItemStatus::user_completed_sales($userId)
+        );
     }
 
 
@@ -668,27 +704,32 @@ class ItemStatus extends Model {
 
     }
 
-    /*
-    public static function buy($owner,$item_id,$amount) : bool {
-        
-        $item = self::get_item_by_id($item_id);
-        $current = $item->getBuyNowPrice();
+    private static function sortItemsByRelevantDate(array $items): array {
+        usort($items, function($a, $b) {
+            return self::getRelevantTimestamp($b) <=> self::getRelevantTimestamp($a);
+        });
 
-        if ($amount >= $current) {
-            self::execute(
-                "INSERT INTO bids (owner, item, created_at, amount) VALUES (:owner, :item, :created_at, :amount)", 
-                [
-                    "owner" => $owner,
-                    "item" => $item_id,
-                    "created_at" => AppTime::get_current_datetime(), 
-                    "amount" => $amount
-                ]
-            );
-            return true;
-        }
-        return false;
-
+        return $items;
     }
-    */
+
+    private static function getRelevantTimestamp($item): int {
+        $date = $item->buy_now_reached()
+            ? $item->get_date_buy_now()
+            : $item->getEndAt();
+
+        return strtotime($date);
+    }
+
+    public function get_thumbnail() : string {
+        $dir = "uploads/items/" . $this->getId() . "/";
+
+        $files = glob($dir . '*');
+       
+        return $files[1] ?? '';
+    }
+
+    public function get_date_buy_now() : string{
+        return $this->get_bids_history()[0]['created_at'];
+    }
 
 }
