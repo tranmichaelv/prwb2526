@@ -25,6 +25,10 @@
     } elseif($from === 'from-purchases') {
         $page_before = "item/purchases";
     }
+    
+    if($encoded){
+        $page_before .= ("/" . $encoded);
+    }
    // $pageBefore = $from === 'from-browse' ? "item/browse" : "item/myItems";
     include("header.php")?>
 

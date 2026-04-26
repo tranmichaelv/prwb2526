@@ -80,6 +80,24 @@ class ItemStatus extends Model {
         return self::fetch_items($data);
     }
 
+    public static function get_filtered_items(array $items, string $query) : array {
+        $list = [];
+        $query = strtolower($query);
+        foreach ($items as $item) {
+
+            $match =
+                str_contains(strtolower($item->getTitle()), $query) ||
+                str_contains(strtolower($item->getDescription()), $query) ||
+                str_contains(strtolower($item->getOwnerName()), $query);
+
+            if ($match) {
+                $list[] = $item;
+            }
+        }
+
+        return $list;
+    }
+
     // -------- "Items I'm Participating in" --------
     public static function get_bids_items_from_user(int $userId): array{
         $query = self::execute("SELECT v.*

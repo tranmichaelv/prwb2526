@@ -15,12 +15,13 @@
         $from = 'from-sales';
         $title = "Sales";
         $page_before = "user/profile";
+        $encoded = $encoded ?? null; 
         include("header.php");
     ?>
 
     <?php include "view/sales&purchases.php"; ?>
 
-    <div class="my-items">
+    <div class="items-box">
         <?php foreach ($sales as $item): ?>
             <?php include "view/browse.php"; ?>
         <?php endforeach;?>
