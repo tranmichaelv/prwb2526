@@ -84,7 +84,7 @@
                         </td>
                     </tr>
                     <tr><td><input type="submit" name="signup" value="Sign Up"></td></tr>
-                    <tr><td><input type="submit" name="cancel" value="Cancel"></td></tr>
+                    <tr><td><input type="submit" name="cancel" value="Cancel" formnovalidate></td></tr>
                 </tbody>
 
             </table>

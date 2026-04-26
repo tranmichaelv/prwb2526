@@ -102,6 +102,9 @@ async function checkFullNameExists() {
 }
 
 function checkAll() {
+    if (document.activeElement.name === "cancel") {
+        return true;
+    }
     let ok = checkEmail();
     ok = checkFullName() && ok;
     ok = checkPseudo() && ok;
