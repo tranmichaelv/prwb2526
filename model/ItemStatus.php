@@ -261,7 +261,8 @@ class ItemStatus extends Model {
                                                 from v_items_status v
                                                     join users u on u.id = v.owner
                                                 where v.max_bid = v.buy_now_price
-                                                and u.id = :id);"
+                                                and u.id = :id)
+                                order by end_at;"
                                 ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
     
         $data = $query->fetchAll();

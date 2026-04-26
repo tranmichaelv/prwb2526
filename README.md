@@ -41,7 +41,8 @@ En développement, donnez les permissions d'écriture aux dossiers uploads et da
 
 ## Notes de version itération 2
 
-...
+Déploiement : User : student-web
+              MDP  : luffy97531-
 
 ## Notes de version itération 3
 
