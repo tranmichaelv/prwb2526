@@ -95,7 +95,7 @@
                     <?php $priority = $p->get_priority(); ?>
 
                     <!-- <div class="thumb" data-id="?= $p->get_picture_path() ?>"> -->
-                    <div class="thumb" data-id="<?= $p->get_picture_path() ?>">
+                    <div class="thumb" data-id="<?= $p->get_picture_path() ?>" data-priority="<?= $priority ?>">
                         <img src="<?= $p->get_picture_path() ?>" alt="item picture">
 
                       <div class="actions">
@@ -158,6 +158,8 @@
      <footer> 
         <?php include('footer.php'); ?>
         <script src="lib/jquery-4.0.0.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="scripts/manage_dynamic_images.js"></script>
     </footer>

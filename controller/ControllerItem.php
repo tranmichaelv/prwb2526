@@ -866,6 +866,37 @@ class ControllerItem extends Controller {
         ]);   
     }
 
+    public function update_pictures_order_service(): void {
+    $user = $this->get_user_or_false();
+
+    if (!$user) {
+        http_response_code(401);
+        echo json_encode(["error" => "Unauthorized"]);
+        return;
+    }
+
+    $itemId = (int)($_POST["item_id"] ?? 0);
+    $priorities = $_POST["priorities"] ?? [];
+
+    if ($itemId <= 0 || !is_array($priorities)) {
+        http_response_code(400);
+        echo json_encode(["error" => "Bad request"]);
+        return;
+    }
+
+    $item = Item::get_by_id($itemId);
+
+    if ($item === null) {
+        http_response_code(404);
+        echo json_encode(["error" => "Item not found"]);
+        return;
+    }
+
+    ItemPicture::update_order($itemId, $priorities);
+
+    echo json_encode(["success" => true]);
+}
+
 }
 
 
