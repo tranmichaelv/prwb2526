@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
     <script src="lib/jquery-4.0.0.min.js" type="text/javascript"></script>
+    <script>
+        page = "<?= $page ?>";
+    </script>
     <script src="scripts/filter_items.js" type="text/javascript"></script>
 </head>
 
@@ -18,40 +21,49 @@
         $from = 'from-browse';
         $title = "Browser";
         include("header.php");
+        $encoded = $encoded ?? null; 
     ?>
 
     <?php include('search_box.php'); ?>
 
-    <?php if($user):?>
-        <?php  if(sizeof($items_user) != 0):?>
-            <h1>Items I'm Participating in</h1>
-            <div class="my-items">
-                <?php foreach ($items_user as $item): ?>
-                    <?php include "view/browse.php"; ?>
-                <?php endforeach; ?>
-            </div>
+    <div id="items-container">
+        <?php if($user):?>
+            <?php  if(sizeof($items_user) != 0):?>
+                <div class="category-items">
+                    <h1>Items I'm Participating in</h1>
+                    <div class="items-box">
+                        <?php foreach ($items_user as $item): ?>
+                            <?php include "view/browse.php"; ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <?php  if(sizeof($items) != 0):?>
+                <div class="category-items">
+                    <h1>Other Available Items</h1>
+                    <div class="items-box">
+                        <?php foreach ($items as $item): ?>
+                            <?php include "view/browse.php"; ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
         <?php endif; ?>
 
-        <?php  if(sizeof($items) != 0):?>
-            <h1>Other Available Items</h1>
-            <div class="other-items">
-                <?php foreach ($items as $item): ?>
-                    <?php include "view/browse.php"; ?>
-                <?php endforeach; ?>
-            </div>
+        <?php if ($user == false): ?>
+            <?php  if(sizeof($all_items) != 0):?>
+                <div class="category-items">
+                    <h1>Available Items</h1>
+                    <div class="items-box">
+                        <?php foreach ($all_items as $item): ?>
+                            <?php include "view/browse.php"; ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
         <?php endif; ?>
-    <?php endif; ?>
-
-    <?php if ($user == false): ?>
-        <?php  if(sizeof($all_items) != 0):?>
-            <h1>Available Items</h1>
-            <div class="other-items">
-                <?php foreach ($all_items as $item): ?>
-                    <?php include "view/browse.php"; ?>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-    <?php endif; ?>
+    </div>
 
     <?php include('no_result.php'); ?>
 
