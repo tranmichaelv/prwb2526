@@ -147,4 +147,38 @@ class ItemPicture extends Model {
     self::execute("UPDATE item_pictures SET priority = priority * 1000 WHERE item = :item ",
     [":item" => $item]);
     }
+    public static function get_by_item_and_priority(int $itemId, int $priority) : ?ItemPicture {
+        $stmt = self::execute(
+            "SELECT * FROM item_pictures WHERE item = :item AND priority = :p",
+            [
+                ":item" => $itemId, 
+                ":p" => $priority
+            ]
+        );
+
+        $row = $stmt->fetch();
+
+        if (!$row) {
+            return null;
+        }
+
+        return new ItemPicture(
+            item: $row["item"],
+            priority: $row["priority"],
+            picture_path: $row["picture_path"]
+        );
+    }
+
+    public static function reindex_after_delete(int $itemId, int $deletedPriority): void {
+    self::execute(
+        "UPDATE item_pictures
+         SET priority = priority - 1
+         WHERE item = :item
+         AND priority > :priority",
+        [
+            ":item" => $itemId,
+            ":priority" => $deletedPriority
+        ]
+    );
+}
 }

@@ -103,3 +103,32 @@ input[type="file"]{
     cursor: not-allowed;
 }
 
+.delete-modal {
+    background: #1f272b;
+    color: white;
+    border: 1px solid #3a444a;
+    border-radius: 8px;
+}
+
+.delete-modal .modal-header,
+.delete-modal .modal-footer {
+    border-color: #3a444a;
+}
+
+.delete-modal .btn-close {
+    filter: invert(1);
+}
+
+.delete-modal .modal-title {
+    font-weight: bold;
+}
+
+.delete-modal .modal-footer .btn {
+    background: #5f6b73;
+    color: white;
+}
+
+.delete-modal .modal-footer .danger {
+    background: #ff4b3e;
+    color: white;
+}
