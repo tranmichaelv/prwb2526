@@ -79,18 +79,26 @@ async function checkPseudoExists() {
 }
 
 async function  checkEmailExists() {
-    const data = await $.post("user/check_email_signup_service/",  {param1: email.val()},  );
+    
+    const data = await $.post("user/check_email_signup_service/",  {param1: email.val()}, null , "json"  );
     if(!data.ok) {
         errEmail.html("<p>Email already exists</p>");
+        return false;
     }
-    
+
+    errEmail.html("");
+    return true;
 }
 
 async function checkFullNameExists() {
-    const data = await $.post("user/check_full_name_signup_service/",  {param1 :fullName.val() } );
+    
+    const data = await $.post("user/check_full_name_signup_service/",  {param1 :fullName.val() }, null , "json" );
     if(!data.ok) {
         errFullName.html("<p> Full Name already exists</p>");
+        return false;
     }
+    errFullName.html("");
+    return true;
 }
 
 function checkAll() {
