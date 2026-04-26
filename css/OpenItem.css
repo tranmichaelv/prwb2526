@@ -1,0 +1,286 @@
+body {
+    background-color: #0A1224;
+
+}
+
+.page-container {
+    /* top  right bottom left */
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    margin : 15px auto;
+    gap: 10px;
+    padding-bottom: 100px;
+    /*border: red solid 5px; */
+}
+
+.item-content {
+    background-color: #2f2f2f;
+    border-radius: 10px;
+    padding: 0;
+    color : white;
+    max-width: 100%;
+}
+
+.left-container {
+    flex: 0 0 70%;
+    max-width: 60%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* ou gap: 16px */
+}
+
+.main-picture img {
+    width: 100% ;
+    height: auto;
+    max-height: 400px;
+    border-radius: 10px 10px 0 0;
+    
+}
+
+.additional-images {
+    display: flex;
+    gap: 10px;          /* espace entre les miniatures */
+    flex-wrap: wrap;     /* si trop d’images, elles passent à la ligne */
+    margin-top: 10px;
+}
+
+.additional-images .thumbnail {
+    width: 100px;         /* largeur miniature */
+    height: 70px;        /* hauteur miniature */
+    object-fit: cover;   /* garde le ratio et coupe si nécessaire */
+    border-radius: 0;  /* coins arrondis */
+    cursor: pointer;     /* pour indiquer que c’est cliquable */
+    border: 2px solid #444; /* bord gris foncé */
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.additional-images .thumbnail:hover {
+    transform: scale(1.1);
+    border-color: #fff; /* effet sur hover */
+}
+
+.item-infos {
+    margin-left : 5px;
+}
+
+.bids-history {
+  background: #1f2428;
+  color: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  width: 100%;
+}
+
+/* Titre */
+.bids-history > div:first-child p {
+  font-weight: 600;
+  opacity: 0.8;
+  margin-bottom: 10px;
+}
+
+/* Liste des bids */
+.bids {
+  background-color: #1f1f1f;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Un bid */
+.bid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Nom */
+.bid .owner {
+  width: 50%;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Montant */
+.bid .amount {
+  width: 50%;
+  text-align: right;
+  color: #2ecc71;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Date (en dessous du nom) */
+.bid .date {
+  width: 100%;
+  font-size: 0.85rem;
+  opacity: 0.6;
+  margin: px 0 0 0;
+}
+
+.menu-time {
+    position: fixed;   
+    bottom: 0;
+    left: 0;
+    width: 100%;      
+    background-color: #222;
+    color: white;
+    padding: 5px 15px;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    box-sizing: border-box;
+    z-index: 1000;
+    min-height: 0px;
+}
+
+.menu {
+    position: fixed;  
+    bottom: 50px;
+    left: 0;
+    width: 100%;       
+    background-color: rgb(13, 24, 53);
+    color: white;
+    padding: 5px 15px;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    box-sizing: border-box;
+    z-index: 2000;
+    margin: auto;
+    padding: 5px 150px;
+    min-height: 70px;
+    border-top: 1px solid rgba(204, 204, 204, 0.2);
+}
+
+.menu a {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;   
+    margin: 0;             
+    font-size: 14px;      
+    color: white; 
+    text-decoration: none;
+}
+
+.menu a i {
+    font-size: 20px;
+    height: 20px;          
+    line-height: 20px;    
+    margin-bottom: 5px;
+}
+
+
+.menu-left {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.menu-right form {
+    display: inline-block;
+}
+
+.menu-right button {
+    padding: 8px 12px;
+    background-color: #555;
+    border: none;
+    color: #fff;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.menu-right button:hover {
+    background-color: #777;
+}
+
+
+
+/* ---- RIGHT PANEL sizing ---- */
+.right-container{
+  width: 450px;               
+}
+
+/* ---- Pricing panel ---- */
+.panel{
+  background: #2f2f2f;
+  border-radius: 10px;
+  padding: 14px;
+  border: none;
+}
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.359);
+  margin: 12px 0;
+}
+
+.buy-label-price {
+  display: flex;
+}
+
+.buy-now-label {
+  width: 50%;
+}
+
+.buy-now-price {
+  width: 50%;
+  text-align: end;
+}
+
+.buy-price {
+  width: 50%;
+  text-align: end;
+  font-weight: 600;
+  color: #06b463;
+}
+
+.seller-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-bottom: 16px;
+}
+
+#item-gallery-js .carousel-inner {
+    height: 500px;
+}
+
+#item-gallery-js .carousel-item {
+    height: 500px;
+    background-color: #2f2f2f;
+}
+
+#item-gallery-js .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+#item-thumbnails-js {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+#item-thumbnails-js .js-thumbnail {
+    width: 90px;
+    height: 120px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    background: white;
+}
+
+#item-thumbnails-js .js-thumbnail.active-thumb {
+    border-color: #0d6efd;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    filter: invert(1);
+}
+

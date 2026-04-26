@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>browse</title>
+    <base href="<?= $web_root ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/styles.css" rel="stylesheet" type="text/css"/>
+</head>
+
+<body>
+   
+    <?php 
+        $from = 'from-purchases';
+        $title = "Purchases";
+        $page_before = "user/profile";
+        $encoded = $encoded ?? null; 
+        include("header.php");
+    ?>
+
+    <?php include "view/sales&purchases.php"; ?>
+
+    <div class="items-box">
+        <?php foreach ($purchases as $item): ?>
+            <?php include "view/browse.php"; ?>
+        <?php endforeach;?>
+    </div>
+    
+
+    <footer> 
+        <?php include('footer.php'); ?>
+    </footer>
+</body>
+</html>
