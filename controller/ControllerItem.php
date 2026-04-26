@@ -436,6 +436,7 @@ class ControllerItem extends Controller {
         $user = $this->get_user_or_redirect();
         
         $itemId = (int)($_GET["param1"] ?? 0);
+        $encoded = $_GET['param2'] ?? null;
         $item = Item::get_by_id($itemId);
         if ($item === null) $this->redirect("item");
 
@@ -513,7 +514,8 @@ class ControllerItem extends Controller {
             "item" => $item,
             "pictures" => $pictures,
             "errors" => $errors,
-            "user" => $user
+            "user" => $user,
+            "encoded" => $encoded
         ]);
 
 }
@@ -533,9 +535,20 @@ class ControllerItem extends Controller {
         $this->redirect("item","manage_images",$itemId);
     }
 
+    public function move_picture_dd(): void {
+        $pos = $_POST['pos'] ?? [];
+        $itemId = (int)($_GET["param1"] ?? 0);
+
+        ItemPicture::change_priority_middle($itemId);
+        foreach ($pos as $item) {
+            ItemPicture::change_priority($item['id'],(int)$item['priority']);
+        }
+    }
+
     public function delete_picture(): void {
         $itemId = (int)($_GET["param1"] ?? 0);
         $priority = (int)($_GET["param2"] ?? 0);
+        $encoded = $_GET['param3'] ?? null;
 
         $pics = ItemPicture::get_by_item($itemId);
         $toDelete = null;
@@ -562,7 +575,7 @@ class ControllerItem extends Controller {
                 }
             }   
 
-        $this->redirect("item", "manage_images", $itemId);
+        $this->redirect("item", "manage_images", $itemId, $encoded);
     }
 
 

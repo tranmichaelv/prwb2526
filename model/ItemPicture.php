@@ -129,4 +129,22 @@ class ItemPicture extends Model {
     
     }
 
+    public static function change_priority(string $picture_path, int $priority): void {
+        self::execute("UPDATE item_pictures SET priority = :priority WHERE picture_path = :picture_path",
+        [":picture_path" => $picture_path, ":priority" => $priority]);
+    }
+
+    public static function change_priority_middle(int $item): void {
+    // try{
+    //     self::execute("UPDATE item_pictures SET priority = priority * 1000 WHERE item = :item ",
+    //     [":item" => $item]);
+    // } catch (Exception $e) {
+    //         die($e->getMessage());
+    //     }
+
+    //     echo("change_priority_middle: ok ");
+    // }
+    self::execute("UPDATE item_pictures SET priority = priority * 1000 WHERE item = :item ",
+    [":item" => $item]);
+    }
 }
