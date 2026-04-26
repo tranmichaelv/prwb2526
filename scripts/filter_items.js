@@ -27,13 +27,12 @@ $(function () {
                     dataType: "json"
                 });
 
-                // console.log(items);
+                console.log("ok");
 
                 $("#no-result").toggle(
                     !(items.bids.length || items.other.length || items.all.length)
                 );
     
-                
                 if (page === "browse") {
                     displayBrowseItems();
                 } else {
@@ -51,7 +50,7 @@ $(function () {
 
 async function displayBrowseItems(){
     let html = "";
-
+    console.log("ok");
     if (user !== "") {
 
         if (items.bids && items.bids.length > 0) {
@@ -64,7 +63,7 @@ async function displayBrowseItems(){
         }
 
     } else {
-
+        console.log("ok");
         if (items.all && items.all.length > 0) {
             html += await renderCategory("Available Items", items.all);
         }

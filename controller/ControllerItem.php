@@ -184,7 +184,11 @@ class ControllerItem extends Controller {
     public function get_filtered_items_browse() : void {
         $query = trim($_POST["query"] ?? "");
         $user = $this->get_user_or_false();
-        $items_json = $user->get_browse_items_filtered_as_json($query);
+        if($user){
+            $items_json = $user->get_browse_items_filtered_as_json($query);
+        } else {
+            $items_json = ItemStatus::get_browse_items_filtered_as_json($query);
+        }
         echo $items_json;
     }
 

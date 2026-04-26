@@ -18,6 +18,18 @@ h1 {
     margin: 10px 0 6px;
 }
 
+#pictures-container .ui-state-highlight {
+    width: 100%;
+    height: 150px; /* adapte à la hauteur de tes .thumb */
+    display: block;
+}
+
+.ui-state-highlight {
+    background: #e6e6e6;   /* ou transparent si tu veux vide */
+    border: none;
+    margin: 0;
+}
+
 .subtitle {
     text-align: left;
     color: #cbd5e1;
