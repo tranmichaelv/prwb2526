@@ -738,7 +738,8 @@ class ItemStatus extends Model {
         $itemsAllFiltered = ItemStatus::get_filtered_items($itemsAll, $query);
     
         $all = [];
-    
+        $bids = [];
+        $other = [];
         foreach ($itemsAllFiltered as $item) {
             $all[] = ItemStatus::formatItem($item);
         }
@@ -748,6 +749,8 @@ class ItemStatus extends Model {
             $encoded = search_criteria::url_safe_encode($query);
 
         return json_encode([
+            "bids" => $bids,
+            "other" => $other,
             "all" => $all,
             "encoded" => $encoded
         ]);

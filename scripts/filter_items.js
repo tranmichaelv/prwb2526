@@ -1,6 +1,5 @@
 let items;
 let query;
-const user = "<?= $user ? $user->getPseudo() : '' ?>";
 
 $(function () {
     $("#search-box").show();
@@ -27,7 +26,7 @@ $(function () {
                     dataType: "json"
                 });
 
-                console.log("ok");
+                // console.log(items);
 
                 $("#no-result").toggle(
                     !(items.bids.length || items.other.length || items.all.length)
@@ -50,9 +49,7 @@ $(function () {
 
 async function displayBrowseItems(){
     let html = "";
-    console.log("ok");
     if (user !== "") {
-
         if (items.bids && items.bids.length > 0) {
             html += await renderCategory("Items I'm Participating in", items.bids);
         }
@@ -63,7 +60,6 @@ async function displayBrowseItems(){
         }
 
     } else {
-        console.log("ok");
         if (items.all && items.all.length > 0) {
             html += await renderCategory("Available Items", items.all);
         }

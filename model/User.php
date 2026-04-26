@@ -171,10 +171,11 @@ class User extends Model {
         if(!empty($query))
             $encoded = search_criteria::url_safe_encode($query);
     
+        $all = [];
         return json_encode([
             "bids" => $bids,
             "other" => $other,
-
+            "all" => $all,
             "encoded" => $encoded
         ]);
     }

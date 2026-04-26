@@ -88,7 +88,7 @@ class ControllerItem extends Controller {
                 (new View("browse"))->show(["all_items" => $all_items, 
                                             "user" => $user, 
                                             "page" => $page,
-                                            "encoded" => $query
+                                            "query" => $query
                                         ]);
         }
     }
