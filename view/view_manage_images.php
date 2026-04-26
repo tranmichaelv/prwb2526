@@ -11,8 +11,6 @@
 
     <link rel="stylesheet" href="css/manage_images.css">
     <link rel="stylesheet" href="css/styles.css">
-    <script src="lib/jquery-4.0.0.min.js" type="text/javascript"></script>
-    <script src="scripts/manage_dynamic_images.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -94,6 +92,18 @@
 
     </div>
 
+    <div class="modal fade" id="deletePictureModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content delete-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    Are you sure you want to delete this image?
+                </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn danger" id="confirm-delete-picture">Delete</button>
@@ -101,12 +111,13 @@
             </div>
         </div>
     </div>
+
  </div>
      <footer> 
         <?php include('footer.php'); ?>
         <script src="lib/jquery-4.0.0.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-         <script src="scripts/manage_dynamic_images.js"></script>
+        <script src="scripts/manage_dynamic_images.js"></script>
     </footer>
 </body>
 </html>
