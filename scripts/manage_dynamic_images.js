@@ -53,6 +53,8 @@ function renderPictures() {
         img.src = picture.src;
 
         const priority = index + 1;
+        const thumb = clone.querySelector(".thumb");
+        thumb.dataset.priority = priority;
 
         const leftButton = clone.querySelector(".move-left");
         const rightButton = clone.querySelector(".move-right");
@@ -84,6 +86,8 @@ function renderPictures() {
         })
         container.appendChild(clone);
     });
+
+    activateSortable();
 }
 
 async function movePicture(priority, direction) {
@@ -109,4 +113,40 @@ async function loadPictures() {
         });
         pictures = data.pictures;
         renderPictures();
+}
+
+function activateSortable() {
+
+    const container = $("#pictures-container");
+
+    if (container.hasClass("ui-sortable")) {
+        container.sortable("destroy");
+    }
+
+    container.sortable({
+        items: ".thumb",
+        placeholder: "thumb-placeholder",
+        tolerance: "pointer",
+
+        update: async function () {
+
+            const priorities = [];
+
+            $("#pictures-container .thumb").each(function () {
+                priorities.push($(this).data("priority"));
+            });
+
+            await $.ajax({
+                url: "item/update_pictures_order_service",
+                method: "POST",
+                data: {
+                    item_id: item_id,
+                    priorities: priorities
+                },
+                dataType: "json"
+            });
+
+            await loadPictures();
+        }
+    });
 }

@@ -152,15 +152,42 @@ class ItemPicture extends Model {
     }
 
     public static function reindex_after_delete(int $itemId, int $deletedPriority): void {
+        self::execute(
+            "UPDATE item_pictures
+            SET priority = priority - 1
+            WHERE item = :item
+            AND priority > :priority",
+            [
+                ":item" => $itemId,
+                ":priority" => $deletedPriority
+            ]
+        );
+    }
+
+    public static function update_order(int $itemId, array $oldPriorities): void {
+    $newPriority = 1;
+
+    foreach ($oldPriorities as $oldPriority) {
+        self::execute(
+            "UPDATE item_pictures
+             SET priority = :temp
+             WHERE item = :item AND priority = :old_priority",
+            [
+                ":temp" => -$newPriority,
+                ":item" => $itemId,
+                ":old_priority" => (int)$oldPriority
+            ]
+        );
+
+        $newPriority++;
+    }
+
     self::execute(
         "UPDATE item_pictures
-         SET priority = priority - 1
-         WHERE item = :item
-         AND priority > :priority",
-        [
-            ":item" => $itemId,
-            ":priority" => $deletedPriority
-        ]
+         SET priority = -priority
+         WHERE item = :item AND priority < 0",
+        [":item" => $itemId]
     );
 }
+
 }
