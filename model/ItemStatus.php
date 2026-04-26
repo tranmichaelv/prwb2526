@@ -732,4 +732,46 @@ class ItemStatus extends Model {
         return $this->get_bids_history()[0]['created_at'];
     }
 
+    public static function get_browse_items_filtered_as_json(string $query) : string {
+        $query = strtolower($query);
+        $itemsAll = ItemStatus::get_all_items();
+        $itemsAllFiltered = ItemStatus::get_filtered_items($itemsAll, $query);
+    
+        $all = [];
+    
+        foreach ($itemsAllFiltered as $item) {
+            $all[] = ItemStatus::formatItem($item);
+        }
+
+        $encoded = "";
+        if(!empty($query))
+            $encoded = search_criteria::url_safe_encode($query);
+
+        return json_encode([
+            "all" => $all,
+            "encoded" => $encoded
+        ]);
+    }
+
+    public static function formatItem($item): array {
+        return [
+            "id" => $item->getId(),
+            "title" => $item->getTitle(),
+            "description" => $item->getDescription(),
+            "owner" => $item->getOwner(),
+            "created_at" => $item->getCreatedAt(),
+            "duration_days" => $item->getDurationDays(),
+            "end_at" => $item->getEndAt(),
+            "bid_count" => $item->getBidCount(),
+            "is_direct_sale" => $item->isDirectSale(),
+            "is_auction" => $item->isAuction(),
+            "has_buy_now" => $item->hasBuyNow(),
+            "has_bids" => $item->hasBids(),
+            "buy_now_reached" => $item->isBuyNowReached(),
+            "not_purchased_direct_sale" => $item->isNotPurchasedDirectSale(),
+            "buy_now_price" => $item->getBuyNowPrice(),
+            "starting_bid" => $item->getStartingBid(),
+            "max_bid" => $item->getMaxBid(),
+        ];
+    }
 }

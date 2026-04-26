@@ -166,24 +166,15 @@ class User extends Model {
         foreach ($itemsOtherFiltered as $item) {
             $other[] = $this->formatItem($item);
         }
-    
-        $itemsAll = ItemStatus::get_all_items();
-        $itemsAllFiltered = ItemStatus::get_filtered_items($itemsAll, $query);
-    
-        $all = [];
-    
-        foreach ($itemsAllFiltered as $item) {
-            $all[] = $this->formatItem($item);
-        }
-    
+
         $encoded = "";
         if(!empty($query))
             $encoded = search_criteria::url_safe_encode($query);
-
+    
         return json_encode([
             "bids" => $bids,
             "other" => $other,
-            "all" => $all,
+
             "encoded" => $encoded
         ]);
     }

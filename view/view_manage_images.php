@@ -18,7 +18,8 @@
 
         $(function (){
             $("#pictures-container").sortable({
-                placeholder: 'ui-state-highlight',
+                placeholder: "ui-state-highlight",
+                forcePlaceholderSize: true,
                 over: function(event, ui) {
                     var cl = ui.item.attr('class');
                     $('.ui-state-highlight').addClass(cl);
