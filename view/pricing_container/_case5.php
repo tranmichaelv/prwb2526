@@ -4,7 +4,7 @@ $isAuction = $item->isAuction();
 
   <div class="panel"> 
       <div class="title fs-6 fw-bold text-secondary text-start">Pricing : 5</div>
-      <form method="post" action="item/place">
+      <form method="post" action="item/place"<?=($encoded ? "/" . $encoded : "")?>>
           <input type="hidden" name="item" value="<?= $item->getId() ?>">
           <?php if ($isAuction == true): ?>
           <div class="d-flex justify-content-between align-items-center">

@@ -7,7 +7,7 @@ $max_bid = $item->hasBids() ? $item->getMaxBid() : $item->getStartingBid();
 <section>
   <div class="panel"> 
       <div class="title fs-6 fw-bold text-secondary text-start">Pricing : 2</div>
-      <form method="post" action="item/place/<?= $item->getId() ?>">
+      <form method="post" action="item/place/<?= $item->getId() ?><?=($encoded ? "/" . $encoded : "")?>">
           <input type="hidden" name="item" value="<?= $item->getId() ?>">
           
           <div class="d-flex justify-content-between align-items-center">

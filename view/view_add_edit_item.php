@@ -17,7 +17,7 @@
 <body class="page-add-edit-item">
     
 
-      <form id="itemForm" method="post" action="<?= $mode === "edit" ? "item/edit/$id" : "item/add" ?>">
+      <form id="itemForm" method="post" action="<?= $mode === "edit" ? "item/edit/$id" . ($encoded ? "/" . $encoded : "") : "item/add" ?>">
 
        <?php
           

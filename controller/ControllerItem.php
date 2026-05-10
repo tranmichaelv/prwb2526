@@ -372,10 +372,10 @@ class ControllerItem extends Controller {
 
             $errors = $item->persist();
 
-        if (empty($errors)) {
-            $this->redirect("item","open",$item->get_id(), "from-items");
+            if (empty($errors)) {
+                $this->redirect("item","open",$item->get_id(), "from-items", $encoded ? $encoded : null);
+            }
         }
-    }
 
         (new View("add_edit_item"))->show([
             "mode" => "edit",
@@ -798,7 +798,9 @@ class ControllerItem extends Controller {
     public function place() : void {
         // gérer le cas ou un guest essaye de participer !!! 
         $current_user = $this->get_user_or_redirect();
-        
+        $item=$_GET['param1']?? null;
+        $encoded = $_GET['param2'] ?? null;
+       
         if(count($_POST)){
         $item = $_POST['item'];
         $amount = $_POST['amount'];
@@ -814,7 +816,7 @@ class ControllerItem extends Controller {
         
         ItemStatus::bid($current_user,$item,$amount);
         
-       $this->redirect("item","open",$item, $from);
+       $this->redirect("item","open",$item, $from, $encoded);
 
     }
     public function item_validation_constants_service() : void {
