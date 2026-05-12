@@ -373,7 +373,7 @@ class ControllerItem extends Controller {
             $errors = $item->persist();
 
             if (empty($errors)) {
-                $this->redirect("item","open",$item->get_id(), "from-items", $encoded ? $encoded : null);
+                $this->redirect("item","open",$item->get_id(), "from-items", $encoded ?? "");
             }
         }
 
@@ -579,7 +579,7 @@ class ControllerItem extends Controller {
                 }
             }   
 
-        $this->redirect("item", "manage_images", $itemId, $encoded);
+        $this->redirect("item", "manage_images", $itemId, $encoded ?? "");
     }
 
     public function move_picture_service(): void {
@@ -816,7 +816,7 @@ class ControllerItem extends Controller {
         
         ItemStatus::bid($current_user,$item,$amount);
         
-       $this->redirect("item","open",$item, $from, $encoded);
+       $this->redirect("item","open",$item, $from,  $encoded ?? "");
 
     }
     public function item_validation_constants_service() : void {
