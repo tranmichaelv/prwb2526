@@ -9,6 +9,7 @@ class Item extends Model {
 
      private ?float $instant_purchase = null;
      private ?float $sale_price = null;  
+     private array $categories = [];
 
     public function __construct(
         private ?int $id,
@@ -85,8 +86,13 @@ class Item extends Model {
           $this->sale_price = $v; 
     }
     
+    public function get_categories() : array {
+        return $this->categories;
+    }
 
-
+    public function set_categories(array $categories): void {
+        $this->categories = $categories;
+    }
 
 
    public function validate(): array {
@@ -105,6 +111,7 @@ class Item extends Model {
     $this->validate_description($errors, $desc, $desc_min);
     $this->validate_duration_days($errors, $dur_days_min, $dur_days_max);
     $this->validate_prices($errors);
+    $this->validate_categories($errors);
 
     $result = $this->validate_sale_mode($errors);
     if ($result !== null) {
@@ -227,6 +234,7 @@ private function validate_sale_mode(array &$errors): ?array {
             ]);
           }
 
+          $this->save_categories();
         return [];
     }
 
@@ -248,8 +256,10 @@ private function validate_sale_mode(array &$errors): ?array {
             
         self::execute("DELETE FROM bids WHERE item = :id", [":id" => $this->id]);
 
+        self::execute("DELETE FROM item_categories WHERE item =:id", [":id" => $this->id]);
+
         self::execute("DELETE FROM items WHERE id = :id", [":id" => $this->id]);
-        
+
         $this->id = null;
     }
 
@@ -312,6 +322,34 @@ private function validate_sale_mode(array &$errors): ?array {
     private static function fits_decimal_10_2(float $value) : bool {
           $abs = abs($value);
           return $abs < 100000000 && round($abs,2) == $abs;
+    }
+
+    private function save_categories() : void {
+        self::execute("DELETE FROM item_categories WHERE item = :item",
+                      [":item" => $this->id]
+        );
+
+        foreach($this->categories as $category_id) {
+            self::execute("INSERT INTO item_categories(item, category)
+                         VALUES (:item, :category)", 
+                         [
+                            ":item" => $this->id,
+                            ":category" => $category_id
+                         ]
+            );
+        }
+    }
+
+    private function validate_categories( array &$errors) : void {
+      
+
+        $categories = $this->categories;
+        $categories_max_choice = Configuration::get("categories_max_choice");
+
+        if(count($categories) > $categories_max_choice) {
+            $errors['categories_choice'][] = "You can select at most $categories_max_choice categories"; 
+        }
+        
     }
 
 
