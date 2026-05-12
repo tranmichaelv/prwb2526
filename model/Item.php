@@ -101,7 +101,7 @@ class Item extends Model {
         $stmt = self::execute($sql, [
             ":item" => $this->id
         ]);
-        
+
         $rows = $stmt->fetchAll();
 
         $categories = [];
@@ -379,5 +379,13 @@ private function validate_sale_mode(array &$errors): ?array {
         
     }
 
+    public function has_category(int $category_id) : bool {
+        foreach($this->get_categories() as $category) {
+            if($category->get_id() === $category_id) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

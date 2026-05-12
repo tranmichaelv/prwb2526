@@ -142,4 +142,27 @@ private static function priority_exists_already(int $priority, ? int $id = null)
     return $stmt->fetchColumn() > 0;
 }
 
+public static function get_all_categories(): array {
+
+    $sql = "SELECT id, name, priority
+            FROM categories
+            ORDER BY name";
+
+    $stmt = self::execute($sql, []);
+
+    $rows = $stmt->fetchAll();
+
+    $categories = [];
+
+    foreach ($rows as $row) {
+        $categories[] = new Category(
+            id: $row["id"],
+            name: $row["name"],
+            priority:$row["priority"]
+        );
+    }
+
+    return $categories;
+}
+
 }

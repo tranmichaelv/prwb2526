@@ -167,3 +167,37 @@
 }
 /* fin popup    */
 
+
+.page-add-edit-item .card.categories {
+  padding: 0;
+  overflow: hidden;
+}
+
+.page-add-edit-item .card.categories h2 {
+  background: #334155;
+  color: white;
+  font-size: 14px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+.page-add-edit-item .card.categories p {
+  color: #9ca3af;
+  font-size: 12px;
+  margin: 12px 12px 10px;
+}
+
+.page-add-edit-item .category-choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 12px;
+  color: white;
+  font-size: 13px;
+}
+
+.page-add-edit-item .category-choice input[type="checkbox"] {
+  width: 13px;
+  height: 13px;
+  margin: 0;
+}

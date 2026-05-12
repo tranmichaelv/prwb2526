@@ -316,6 +316,7 @@ class ControllerItem extends Controller {
 
             $item->set_instant_purchase($instant);
             $item->set_sale_price($sale);
+            $item->set_categories($_POST["categories"] ?? []);
 
         if (!empty($_POST)) {
             $errors = $item->persist(); // validation + insert tentative
@@ -327,11 +328,13 @@ class ControllerItem extends Controller {
             }
         }
 
+        $all_categories = Category::get_all_categories();
         (new View("add_edit_item"))->show([
             "mode" => "add",         
             "errors" => $errors,
             "item" => $item,
-            "user" => $user
+            "user" => $user,
+            "all_categories" => $all_categories
         ]);
 
     }
@@ -369,7 +372,8 @@ class ControllerItem extends Controller {
             $sale_raw = $_POST['sale_price'] ?? '';
             $sale = ($sale_raw === '') ? null : (float)$sale_raw;
             $item->set_sale_price($sale);
-
+            $item->set_categories($_POST["categories"] ?? []);
+            
             $errors = $item->persist();
 
         if (empty($errors)) {
@@ -377,13 +381,15 @@ class ControllerItem extends Controller {
         }
     }
 
+        $all_categories = Category::get_all_categories();
         (new View("add_edit_item"))->show([
             "mode" => "edit",
             "errors" => $errors,
             "item" => $item,
             "id" => $id,
             "user" => $user,
-            "encoded" => $encoded
+            "encoded" => $encoded,
+            "all_categories" => $all_categories
         ]);
 
     }

@@ -148,7 +148,31 @@
              <?php endif; ?>
               </div>  
             </div>
-        </div>   
+        </div>
+        
+        <div class="card categories">
+            <h2>Categories</h2>
+
+            <p>You can select up to 3 categories</p>
+
+            <?php if (!empty($errors['categories_choice'] ?? [])): ?>
+                <ul class="field-errors">
+                    <?php foreach ($errors['categories_choice'] as $e): ?>
+                    <li><?= $e ?></li>
+            <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+
+            <?php foreach ($all_categories as $category): ?>
+                <div class="category-choice">
+                    <input type="checkbox" name="categories[]" value="<?= $category->get_id() ?>"
+                    <?= $item->has_category($category->get_id()) ? "checked" : "" ?> >
+
+                    <label><?= $category->get_name() ?></label>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
     </form>        
     </div>
          <div class="modal fade" id="leaveModal" tabindex="-1">
