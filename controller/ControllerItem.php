@@ -659,6 +659,8 @@ class ControllerItem extends Controller {
         }
 
         $item = ItemStatus::get_item_by_id($id);
+        $item_model = Item::get_by_id($id);
+        $categories = $item_model->get_categories();
         $seller = User::get_users_by_id($item->getOwner());
         // $bid = $this->get_bid_status($id);
         $pictures = $item->get_all_pictures_by_item_id();
@@ -693,7 +695,8 @@ class ControllerItem extends Controller {
             "user" => $current_user,
             "user_is_guest" => $user_is_guest,
             "bids_history" => $bids_history,
-            "encoded" => $encoded
+            "encoded" => $encoded,
+            "categories" => $categories
         ]);
     } 
 

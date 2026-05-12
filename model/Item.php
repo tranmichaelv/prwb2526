@@ -3,6 +3,7 @@
 require_once "framework/Model.php";
 require_once "framework/Configuration.php";
 require_once "utils/AppTime.php";
+require_once "model/Category.php";
 
 
 class Item extends Model {
@@ -87,7 +88,33 @@ class Item extends Model {
     }
     
     public function get_categories() : array {
-        return $this->categories;
+        if ($this->id === null) {
+            return [];
+        }
+
+        $sql = "SELECT c.* 
+                FROM categories c 
+                JOIN item_categories ic ON ic.category = c.id
+                WHERE ic.item = :item
+                ORDER BY c.name";
+
+        $stmt = self::execute($sql, [
+            ":item" => $this->id
+        ]);
+        
+        $rows = $stmt->fetchAll();
+
+        $categories = [];
+
+        foreach($rows as $row) {
+            $categories[] = new Category(
+                id: $row["id"],
+                name: $row["name"],
+                priority: $row["priority"]
+            );
+        }
+
+        return $categories;
     }
 
     public function set_categories(array $categories): void {

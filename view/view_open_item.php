@@ -65,6 +65,14 @@
                 </p>
                 <p> <?= $item->getDescription(); ?></p>
 
+                <div class="categories">
+                    <p>  Categories: </p>
+                    <ul>
+                     <?php foreach ($categories as $category):?>
+                        <li> <?= $category->get_name() ?> </li> 
+                     <?php endforeach; ?> 
+                    </ul> 
+                </div>
                 <div class="startEndBid">
                     <p> start : <?= $item->getCreatedAt(); ?></p>
                     <p> End : <?= $item->getEndAt(); ?></p>
