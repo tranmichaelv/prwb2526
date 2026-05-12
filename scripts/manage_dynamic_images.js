@@ -1,3 +1,4 @@
+// Walid's version
 
 let pictures = [];
 let item_id;
