@@ -720,12 +720,15 @@ class ItemStatus extends Model {
         return strtotime($date);
     }
 
-    public function get_thumbnail() : string {
-        $dir = "uploads/items/" . $this->getId() . "/";
+    public function get_thumbnail(): string {
 
-        $files = glob($dir . '*');
-       
-        return $files[1] ?? '';
+        $firstPicture = $this->get_first_picture_path();
+    
+        $info = pathinfo($firstPicture);
+    
+        return $info['dirname'] . '/' .
+               $info['filename'] . '_thumbnail.' .
+               $info['extension'];
     }
 
     public function get_date_buy_now() : string{
