@@ -690,3 +690,118 @@ a {
 .error p {
     margin: 2px 0;
 }
+
+.category-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.category-field input {
+    width: 100%;
+}
+
+.category-field.has-error input {
+    border: 1px solid #c95b5b;
+}
+
+.field-error {
+    color: #e07878;
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+/* page */
+.page-manage-category {
+    background-color: #07142a;
+    color: white;
+}
+
+/* bloc central */
+.page-manage-category .category-box {
+    max-width: 1100px;
+    margin: 20px auto 100px auto;
+    padding: 15px;
+    background-color: #222;
+    border-radius: 5px;
+}
+
+/* chaque ligne */
+.page-manage-category .category-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+}
+
+/* input + erreur */
+.page-manage-category .category-field {
+    flex: 1;
+}
+
+/* input */
+.page-manage-category input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #1f2929;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 7px;
+}
+
+/* boutons */
+.page-manage-category .btn {
+    padding: 7px 10px;
+    border-radius: 4px;
+    background: transparent;
+    color: white;
+    border: 1px solid #555;
+}
+
+
+.page-manage-category .btn-save {
+    color: #10a37f;
+    border-color: #10a37f;
+}
+
+
+.page-manage-category .btn-delete {
+    color: #d9535f;
+    border-color: #d9535f;
+}
+
+
+.page-manage-category button:disabled {
+    opacity: 0.3;
+}
+
+
+.page-manage-category .field-error {
+    color: #e07878;
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+
+.page-manage-category .category-add-row {
+    display: flex;
+    gap: 5px;   
+}
+
+.page-manage-category .btn-add {
+    background-color: #2f8ee5;
+    color: white;
+}
+
+.page-manage-category .btn:not(:disabled) {
+    cursor: pointer;
+}
+
+/* bouton désactivé */
+.page-manage-category .btn:disabled,
+.page-manage-category button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+

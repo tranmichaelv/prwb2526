@@ -96,23 +96,24 @@ public function persist() : array {
     return [];
 }
 
-public function delete() : array {
+public function delete(): array {
 
-    $sql = "SELECT COUNT(*) FROM item_categories  WHERE category = :id";
-            
-    $stmt = self::execute($sql, [
-        ":id" => $this->id
-    ]);
-
-    $count = $stmt->fetchColumn();
-
-    if ($count > 0) {
-        return [];
+    if ($this->is_used()) {
+        return ["This category is used by one or more items and cannot be deleted."];
     }
+
+    $oldPriority = $this->priority;
 
     self::execute(
         "DELETE FROM categories WHERE id = :id",
         [":id" => $this->id]
+    );
+
+    self::execute(
+        "UPDATE categories
+         SET priority = priority - 1
+         WHERE priority > :priority",
+        [":priority" => $oldPriority]
     );
 
     return [];
@@ -146,7 +147,7 @@ public static function get_all_categories(): array {
 
     $sql = "SELECT id, name, priority
             FROM categories
-            ORDER BY name";
+            ORDER BY priority";
 
     $stmt = self::execute($sql, []);
 
@@ -163,6 +164,55 @@ public static function get_all_categories(): array {
     }
 
     return $categories;
+}
+
+public static function get_by_id(int $id): ?Category {
+
+    $sql = "SELECT id, name, priority
+            FROM categories
+            WHERE id = :id";
+
+    $stmt = self::execute($sql, [
+        ":id" => $id
+    ]);
+
+    $row = $stmt->fetch();
+
+    if (!$row) {
+        return null;
+    }
+
+    return new Category(
+        id: $row["id"],
+        name: $row["name"],
+        priority: $row["priority"]
+    );
+}
+
+public static function swap_priority(int $p1, int $p2) : void {
+
+    self::execute("UPDATE categories SET priority = 0 WHERE priority = :p1",[":p1" => $p1]);
+
+    self::execute("UPDATE categories SET priority = :p1 WHERE priority = :p2",[":p1" => $p1, ":p2" => $p2]);
+
+    self::execute("UPDATE categories SET priority = :p2 WHERE priority = 0",[":p2" => $p2]);
+
+}
+
+public static function get_max_priority(): int {
+        $stmt = self::execute( "SELECT COALESCE(MAX(priority),0) AS max_priority FROM categories", []);
+            
+        $row = $stmt->fetch();
+
+        return $row["max_priority"];
+}
+
+public function is_used() : bool {
+    $sql = "SELECT COUNT(*) FROM item_categories WHERE category = :id";
+
+    $stmt = self::execute($sql,[":id" => $this->id]);
+
+    return $stmt->fetchColumn() > 0;
 }
 
 }
