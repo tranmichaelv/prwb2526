@@ -241,6 +241,14 @@ class User extends Model {
             "buy_now_price" => $item->getBuyNowPrice(),
             "starting_bid" => $item->getStartingBid(),
             "max_bid" => $item->getMaxBid(),
+
+            "time" => $item->getTimeLeft(),
+            "highest_bidder_id" => $item->get_highest_bidder_id(),
+            "owner_name" => $item->getOwnerName(),
+            "number_of_pics" => $item->get_number_of_pics(),
+            "is_bidder" =>  $this->is_bidder($item),
+            "thumbnail" => $item->get_thumbnail(),
+            "first_picture_path" => $item->get_first_picture_path(),
         ];
     }
 

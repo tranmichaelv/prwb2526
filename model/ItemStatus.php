@@ -726,6 +726,15 @@ class ItemStatus extends Model {
     
         $info = pathinfo($firstPicture);
     
+
+        if (
+            !isset($info['dirname']) ||
+            !isset($info['filename']) ||
+            !isset($info['extension'])
+        ) {
+            return "";
+        } 
+
         return $info['dirname'] . '/' .
                $info['filename'] . '_thumbnail.' .
                $info['extension'];
@@ -759,7 +768,18 @@ class ItemStatus extends Model {
         ]);
     }
 
+    public function is_bidder(User $user): bool {
+        $query = self::execute("SELECT b.owner 
+                                FROM bids b
+                                    join items i on b.item = i.id
+                                where i.id = :itemId
+                                and  b.owner = :owner;", ["itemId"=>$this->getId(), "owner"=>$user->getId()]);
+        $result = $query->fetchAll();
+        return !empty($result);
+    }
+
     public static function formatItem($item): array {
+        
         return [
             "id" => $item->getId(),
             "title" => $item->getTitle(),
@@ -778,6 +798,13 @@ class ItemStatus extends Model {
             "buy_now_price" => $item->getBuyNowPrice(),
             "starting_bid" => $item->getStartingBid(),
             "max_bid" => $item->getMaxBid(),
+
+            "time" => $item->getTimeLeft(),
+            "highest_bidder_id" => $item->get_highest_bidder_id(),
+            "owner_name" => $item->getOwnerName(),
+            "number_of_pics" => $item->get_number_of_pics(),
+            "thumbnail" => $item->get_thumbnail(),
+            "first_picture_path" => $item->get_first_picture_path(),
         ];
     }
 }

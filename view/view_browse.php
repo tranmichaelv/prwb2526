@@ -10,8 +10,10 @@
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
     <script src="lib/jquery-4.0.0.min.js" type="text/javascript"></script>
     <script>
-        page = "<?= $page ?>";
-        user = "<?= $user ? $user->getPseudo() : '' ?>";
+        const page = "<?= $page ?>";
+        const user = "<?= $user ? $user->getPseudo() : '' ?>";
+        const currentUserId = <?= $user ? $user->getId() : 'null' ?>;
+        const from = "<?= $from ?>";
     </script>
     <script src="scripts/filter_items.js" type="text/javascript"></script>
 </head>
@@ -19,7 +21,6 @@
 <body>
 
     <?php 
-        $from = 'from-browse';
         $title = "Browser";
         include("header.php");
         $encoded = $encoded ?? null; 

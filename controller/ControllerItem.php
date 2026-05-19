@@ -66,6 +66,7 @@ class ControllerItem extends Controller {
     public function browse() : void {
         $user = $this->get_user_or_false();
         $page = "browse";
+        $from = 'from-browse';
         $encoded = isset($_GET['param1'] ) ? $_GET['param1'] : null;
         $query = $encoded ? Search_criteria::url_safe_decode($encoded) : "";
 
@@ -78,7 +79,8 @@ class ControllerItem extends Controller {
                                                 "items_user" => $items_user, 
                                                 "user" => $user, 
                                                 "page" => $page,
-                                                "query" => $query
+                                                "query" => $query,
+                                                "from" => $from,
                                             ]);
         } 
         // sinon se connecte en tant que guest 
@@ -88,7 +90,8 @@ class ControllerItem extends Controller {
                 (new View("browse"))->show(["all_items" => $all_items, 
                                             "user" => $user, 
                                             "page" => $page,
-                                            "query" => $query
+                                            "query" => $query,
+                                            "from" => $from,
                                         ]);
         }
     }
@@ -228,6 +231,7 @@ class ControllerItem extends Controller {
         // doit être connecté pour voir la page sinon redirect
         $user = $this->get_user_or_redirect();
         $page = "list";
+        $from = "from-items";
         $encoded = isset($_GET['param1'] ) ? $_GET['param1'] : null;
         $query = $encoded ? Search_criteria::url_safe_decode($encoded) : "";
 
@@ -242,7 +246,8 @@ class ControllerItem extends Controller {
                                   "sold_items" => $sold_items, 
                                   "user" => $user, 
                                   "page" => $page,
-                                  "query" => $query
+                                  "query" => $query,
+                                  "from" => $from,
                                 ]);
         
     }
@@ -647,8 +652,8 @@ class ControllerItem extends Controller {
         $user_can_edit = false;
         $user_is_guest = false;
 
-        $query = trim($_POST["query"] ?? "");
-        $encoded = isset($_GET['param3'] ) ? $_GET['param3'] : null;
+
+        $encoded = $_GET['param3'] ?? null;
 
 
         if ($id == null) {
