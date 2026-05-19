@@ -805,3 +805,43 @@ a {
     cursor: not-allowed;
 }
 
+
+#filters-box {
+    width: 90%;
+    margin: 12px auto 25px auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #222;
+    border-radius: 18px;
+    padding: 0 12px;
+    height: 34px;
+}
+
+.search-filter {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-filter input {
+    width: 100%;
+    background-color: #202738;
+    color: white;
+    border: 1px solid #3b4560;
+    border-radius: 4px;
+    padding: 6px 8px;
+    outline: none;
+}
+
+.category-filter select {
+    height: 26px;
+    min-width: 160px;
+    background-color: #202738;
+    color: white;
+    border: 1px solid #3b4560;
+    border-radius: 4px;
+    padding: 3px 8px;
+    outline: none;
+}

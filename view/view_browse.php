@@ -20,14 +20,16 @@
 
     <?php 
         $from = 'from-browse';
-        $title = "Browser";
+        $title = "Browse";
         include("header.php");
         $encoded = $encoded ?? null; 
     ?>
 
-    <?php include('search_box.php'); ?>
-    <?php include('filter_category.php') ?>
-
+    <div id="filters-box" style="display: none;">
+        <?php include('search_box.php'); ?>
+        <?php include('filter_category.php') ?>
+    </div>
+    
     <div id="items-container">
         <?php if($user):?>
             <?php  if(sizeof($items_user) != 0):?>

@@ -2,8 +2,8 @@ let items;
 let query;
 
 $(function () {
-    $("#search-box").show();
-    $("#category-filter-box").show();
+    $("#filters-box").show();
+    
 
 
     $(window).on("pageshow", function () {
