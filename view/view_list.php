@@ -24,6 +24,7 @@
     ?>
 
     <?php include('search_box.php'); ?>
+    <?php include('filter_category.php') ?>
 
     <div id="items-container">
         <?php  if(sizeof($active_items) != 0):?>

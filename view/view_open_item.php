@@ -58,7 +58,8 @@
                     <img src="<?= $main_picture_path ?>" alt="Image principale de Item">
                 <?php endif; ?>
             </div>
-
+           </div> 
+                  
             <div class="item-infos">
                 <p>
                     <h2> <?= $item->getTitle(); ?> </h2>
@@ -78,7 +79,7 @@
                     <p> End : <?= $item->getEndAt(); ?></p>
                 </div>
             </div>
-           </div>
+           
         </section>
         
 

@@ -68,6 +68,7 @@ class ControllerItem extends Controller {
         $page = "browse";
         $encoded = isset($_GET['param1'] ) ? $_GET['param1'] : null;
         $query = $encoded ? Search_criteria::url_safe_decode($encoded) : "";
+        $categories = Category::get_all_categories();
 
         // Si user n'est pas vide, connecte au browser de l'user 
         if($user){
@@ -78,7 +79,8 @@ class ControllerItem extends Controller {
                                                 "items_user" => $items_user, 
                                                 "user" => $user, 
                                                 "page" => $page,
-                                                "query" => $query
+                                                "query" => $query,
+                                                "categories" => $categories
                                             ]);
         } 
         // sinon se connecte en tant que guest 
@@ -88,7 +90,8 @@ class ControllerItem extends Controller {
                 (new View("browse"))->show(["all_items" => $all_items, 
                                             "user" => $user, 
                                             "page" => $page,
-                                            "query" => $query
+                                            "query" => $query,
+                                            "categories" => $categories
                                         ]);
         }
     }
@@ -183,19 +186,21 @@ class ControllerItem extends Controller {
 
     public function get_filtered_items_browse() : void {
         $query = trim($_POST["query"] ?? "");
+        $category_id = intval($_POST["category_id"] ?? 0);
         $user = $this->get_user_or_false();
         if($user){
-            $items_json = $user->get_browse_items_filtered_as_json($query);
+            $items_json = $user->get_browse_items_filtered_as_json($query, $category_id);
         } else {
-            $items_json = ItemStatus::get_browse_items_filtered_as_json($query);
+            $items_json = ItemStatus::get_browse_items_filtered_as_json($query, $category_id);
         }
         echo $items_json;
     }
 
     public function get_filtered_items_list() : void {
         $query = trim($_POST["query"] ?? "");
+        $category_id = intval($_POST["category_id"] ?? 0);
         $user = $this->get_user_or_false();
-        $items_json = $user->get_my_items_filtered_as_json($query);
+        $items_json = $user->get_my_items_filtered_as_json($query, $category_id);
         echo $items_json;
     }
 
@@ -230,6 +235,7 @@ class ControllerItem extends Controller {
         $page = "list";
         $encoded = isset($_GET['param1'] ) ? $_GET['param1'] : null;
         $query = $encoded ? Search_criteria::url_safe_decode($encoded) : "";
+        $categories = Category::get_all_categories();
 
         $active_items = $user->get_list();  
         // print_r($active_items);
@@ -242,7 +248,8 @@ class ControllerItem extends Controller {
                                   "sold_items" => $sold_items, 
                                   "user" => $user, 
                                   "page" => $page,
-                                  "query" => $query
+                                  "query" => $query,
+                                  "categories" => $categories
                                 ]);
         
     }
@@ -880,35 +887,36 @@ class ControllerItem extends Controller {
     }
 
     public function update_pictures_order_service(): void {
-    $user = $this->get_user_or_false();
+        $user = $this->get_user_or_false();
 
-    if (!$user) {
-        http_response_code(401);
-        echo json_encode(["error" => "Unauthorized"]);
-        return;
+        if (!$user) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized"]);
+            return;
+        }
+
+        $itemId = (int)($_POST["item_id"] ?? 0);
+        $priorities = $_POST["priorities"] ?? [];
+
+        if ($itemId <= 0 || !is_array($priorities)) {
+            http_response_code(400);
+            echo json_encode(["error" => "Bad request"]);
+            return;
+        }
+
+        $item = Item::get_by_id($itemId);
+
+        if ($item === null) {
+            http_response_code(404);
+            echo json_encode(["error" => "Item not found"]);
+            return;
+        }
+
+        ItemPicture::update_order($itemId, $priorities);
+
+        echo json_encode(["success" => true]);
     }
 
-    $itemId = (int)($_POST["item_id"] ?? 0);
-    $priorities = $_POST["priorities"] ?? [];
-
-    if ($itemId <= 0 || !is_array($priorities)) {
-        http_response_code(400);
-        echo json_encode(["error" => "Bad request"]);
-        return;
-    }
-
-    $item = Item::get_by_id($itemId);
-
-    if ($item === null) {
-        http_response_code(404);
-        echo json_encode(["error" => "Item not found"]);
-        return;
-    }
-
-    ItemPicture::update_order($itemId, $priorities);
-
-    echo json_encode(["success" => true]);
-}
 
 }
 
