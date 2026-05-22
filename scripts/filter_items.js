@@ -175,7 +175,7 @@ function renderItem(item) {
                 </span>
             `;
 
-        } else (item.is_bidder){
+        } else if (item.is_bidder ) {
 
             bidderLabel = `
                 <span class="bidder">
