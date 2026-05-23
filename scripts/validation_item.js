@@ -10,6 +10,7 @@ let title_max_length;
 let description_min_length;
 let duration_days_min; 
 let duration_days_max;
+let categories_max_choice;
 
 let title;
 let err_title;
@@ -23,6 +24,9 @@ let instant_purchase_price;
 let err_instant_purchase_price;
 let sale_price;
 let err_sale_price;
+let categories_choice;
+let err_categories_choice;
+let categoryLimitModal;
 let raw_id;
 
 document.onreadystatechange = async function () {
@@ -38,6 +42,7 @@ document.onreadystatechange = async function () {
         description_min_length = data.description_min_length;
         duration_days_min = data.duration_days_min; 
         duration_days_max = data.duration_days_max;
+        categories_max_choice = data.categories_max_choice;
 
         raw_id = document.getElementById("item_id").value;
         current_item_id = raw_id === "" || raw_id === "0" ? null : raw_id;
@@ -53,6 +58,16 @@ document.onreadystatechange = async function () {
         err_instant_purchase_price = document.getElementById("err_instant_purchase_price");
         sale_price = document.getElementById("sale_price");
         err_sale_price = document.getElementById("err_sale_price");
+        categories_choice = document.getElementById("item_categories");
+        err_categories_choice = document.getElementById("err_categories_choice");
+        categoryLimitModal = new bootstrap.Modal(document.getElementById("categoryLimitModal"));
+        const categoryCheckboxes = categories_choice.querySelectorAll('input[name="categories[]"]');
+
+        categoryCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener("change", function () {
+                check_categories(this);
+            })
+        })
 
     }
 
@@ -82,7 +97,7 @@ async function check_title() {
     });
 
     if (response.exists_already) {
-        err_title.innerHTML = "Your already have an item with this title.";
+        err_title.innerHTML = "You already have an item with this title.";
         setInvalid(title);
         return false;
     } 
@@ -186,6 +201,25 @@ function check_sale() {
 
     return true;
    
+}
+
+function check_categories(lastChangedCheckbox = null) {
+    err_categories_choice.innerHTML = "";
+
+     const checkedCategories = categories_choice.querySelectorAll('input[name="categories[]"]:checked');
+
+     // si on dépasse la limite du choix de catégories, on décoche le dernier choix
+     if (checkedCategories.length > categories_max_choice) {
+        if (lastChangedCheckbox !== null) {
+            lastChangedCheckbox.checked = false;
+        }
+        categoryLimitModal.show();
+        return false;  
+     }
+
+     
+    return true;
+
 }
 
 function setInvalid(intput, message, errorEl)  {

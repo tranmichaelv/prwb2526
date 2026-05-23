@@ -150,11 +150,12 @@
             </div>
         </div>
         
-        <div class="card categories">
+        <div class="card categories" id="item_categories">
             <h2>Categories</h2>
 
             <p>You can select up to 3 categories</p>
 
+            <small class="field-errors-js" id="err_categories_choice"></small>
             <?php if (!empty($errors['categories_choice'] ?? [])): ?>
                 <ul class="field-errors">
                     <?php foreach ($errors['categories_choice'] as $e): ?>
@@ -200,7 +201,28 @@
 
             </div>
         </div>
-    </div>               
+    </div> 
+    
+    <div class="modal fade" id="categoryLimitModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+            
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Category limit</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body" id="categoryLimitModalBody">
+                    You can select at most 3 categories.
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>      
+                </div>    
+
+            </div>        
+        </div>
+    </div>
         <?php include('footer.php'); ?>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="scripts/popup.js" type="text/javascript"></script>

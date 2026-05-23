@@ -146,26 +146,30 @@
   overflow-y: auto !important;
 }
 
-/* pour popup   */
+/* pour popup */
 .modal-dialog {
     max-width: 500px;
 }
 
-#leaveModal .modal-content{
+#leaveModal .modal-content,
+#categoryLimitModal .modal-content {
     background: rgba(34,34,34,0.92);
-    color:white;
-    border:1px solid rgba(204,204,204,0.18);
+    color: white;
+    border: 1px solid rgba(204,204,204,0.18);
 }
 
 #leaveModal .modal-title,
-#leaveModal .modal-body{
-    color:white;
+#leaveModal .modal-body,
+#categoryLimitModal .modal-title,
+#categoryLimitModal .modal-body {
+    color: white;
 }
 
-#leaveModal .btn-close{
-    filter:invert(1);
+#leaveModal .btn-close,
+#categoryLimitModal .btn-close {
+    filter: invert(1);
 }
-/* fin popup    */
+/* fin popup */
 
 
 .page-add-edit-item .card.categories {

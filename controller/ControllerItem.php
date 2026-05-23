@@ -839,7 +839,8 @@ class ControllerItem extends Controller {
             "title_max_length" => Configuration::get("title_max_length"),
             "description_min_length" => Configuration::get("description_min_length"),
             "duration_days_min" => Configuration::get("duration_days_min"),
-            "duration_days_max" => Configuration::get("duration_days_max") 
+            "duration_days_max" => Configuration::get("duration_days_max"),
+            "categories_max_choice" => Configuration::get("categories_max_choice") 
         ]); 
 
     }
