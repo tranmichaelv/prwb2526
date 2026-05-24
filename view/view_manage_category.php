@@ -24,7 +24,7 @@
         $add_errors = $add_errors ?? [];
     ?>
 
-    <div class="container category-box">
+    <div class="container category-box" id="categories-nojs">
     <?php foreach($categories as $index => $category): ?>
         <form class="category-row" method="post">
             <input type="hidden" name="id" value="<?= $category->get_id() ?>">
@@ -64,6 +64,12 @@
         </div>
         <button type="submit" class="btn btn-add"> + </button> 
     </form>
+    </div>
+
+    <div id="categoriers-js" style="display: none;">
+                
+
+
     </div>
 
 <?php include("footer.php"); ?>

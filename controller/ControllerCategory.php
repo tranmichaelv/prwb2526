@@ -167,4 +167,99 @@ class ControllerCategory extends Controller {
         }
     }
 
+    public function update_categories_order_service(): void {
+       $this->check_admin();
+        $ids = $_POST["ids"] ?? [];
+
+
+        if (!is_array($ids)) {
+            http_response_code(400);
+            echo json_encode(["error" => "Bad request"]);
+            return;
+        }
+
+        Category::update_order($ids);
+
+        echo json_encode(["success" => true]);
+    }
+
+    public function get_categories_service() : void {
+        $this->check_admin();
+
+        echo json_encode([
+            "categories" => Category::get_all_categories_as_array()
+        ]);
+    }
+
+    public function update_name_category_service() : void {
+        $this->check_admin();
+
+        $id = intval($_POST["id"] ?? 0);
+        $name = trim($_POST["name"] ?? "");
+        
+        $category = Category::get_by_id($id);
+
+        if ($category === null) {
+            echo json_encode([
+                "success" => false,
+                "errors" => ["Category not found."]
+            ]);
+            return;
+        }
+
+        $category->set_name($name);
+        $errors = $category->persist();
+
+        echo json_encode([
+            "success" => empty($errors),
+            "errrors" => $errors,
+            "categories" => Category::get_all_categories_as_array()
+        ]);
+    }
+
+    public function add_category_service() : void {
+        $this->check_admin();
+
+        $name = trim($_POST["name"] ?? "");
+        $priority = Category::get_max_priority() + 1;
+
+        $category = new Category(
+            id: null,
+            name: $name,
+            priority: $priority
+        );
+
+        $errors = $category->persist();
+
+        echo json_encode([
+            "success" => empty($errors),
+            "errors" => $errors,
+            "categories" => Category::get_all_categories_as_array()
+        ]);
+
+    }
+
+    public function delete_service(): void {
+        $this->check_admin();
+
+        $id = intval($_POST["id"] ?? 0);
+        $category = Category::get_by_id($id);
+
+        if ($category === null) {
+            echo json_encode([
+                "success" => false,
+                "errors" => ["Category not found."]
+            ]);
+            return;
+        }
+
+        $errors = $category->delete();
+
+        echo json_encode([
+            "success" => empty($errors),
+            "errors" => $errors,
+            "categories" => Category::get_all_categories_as_array()
+        ]);
+    }
+
 }
