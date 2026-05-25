@@ -6,6 +6,7 @@
     <title>Manage categories</title>
     <base href="<?= $web_root ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
 </head>
 
@@ -66,13 +67,46 @@
     </form>
     </div>
 
-    <div id="categoriers-js" style="display: none;">
-                
+    <div id="categories-js" style="display: none;">
+           <div class="manage-categories-box">
+                <div id="categories-list"></div>
+                    
+                    <div id="add-category-row" style="display: none;">
+                        <span class="drag-drop"></span>
+                        <input type="text" id="new-category-name">
+                        <button type="button" id="cancel-add-category" class="btn btn-secondary">Cancel</button>
+                        <small id="add-category-error" class="field-errors-js"></small>
+                    </div>
 
+                    <button type="button" id="show-add-category" class="btn btn-primary">+</button>
+           </div>     
+    </div>
 
+    <div class="modal fade" id="deleteCategoryModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content delete-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body" id="deleteCategoryModalBody">
+                    Are you sure you want to delete this category ?
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn danger" id="confirm-delete-category">Delete</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 <?php include("footer.php"); ?>
+<script src="lib/jquery-4.0.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script><script src="lib/jquery-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="scripts/manage_categories.js"></script>
 
 </body>
 </html>

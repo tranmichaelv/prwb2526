@@ -169,7 +169,7 @@ class ControllerCategory extends Controller {
 
     public function update_categories_order_service(): void {
        $this->check_admin();
-        $ids = $_POST["ids"] ?? [];
+        $ids = $_POST["param1"] ?? [];
 
 
         if (!is_array($ids)) {
@@ -194,8 +194,8 @@ class ControllerCategory extends Controller {
     public function update_name_category_service() : void {
         $this->check_admin();
 
-        $id = intval($_POST["id"] ?? 0);
-        $name = trim($_POST["name"] ?? "");
+        $id = intval($_POST["param1"] ?? 0);
+        $name = trim($_POST["param2"] ?? "");
         
         $category = Category::get_by_id($id);
 
@@ -212,7 +212,7 @@ class ControllerCategory extends Controller {
 
         echo json_encode([
             "success" => empty($errors),
-            "errrors" => $errors,
+            "errors" => $errors,
             "categories" => Category::get_all_categories_as_array()
         ]);
     }
@@ -220,7 +220,7 @@ class ControllerCategory extends Controller {
     public function add_category_service() : void {
         $this->check_admin();
 
-        $name = trim($_POST["name"] ?? "");
+        $name = trim($_POST["param1"] ?? "");
         $priority = Category::get_max_priority() + 1;
 
         $category = new Category(
@@ -239,10 +239,10 @@ class ControllerCategory extends Controller {
 
     }
 
-    public function delete_service(): void {
+    public function delete_category_service(): void {
         $this->check_admin();
 
-        $id = intval($_POST["id"] ?? 0);
+        $id = intval($_POST["param1"] ?? 0);
         $category = Category::get_by_id($id);
 
         if ($category === null) {
@@ -259,6 +259,13 @@ class ControllerCategory extends Controller {
             "success" => empty($errors),
             "errors" => $errors,
             "categories" => Category::get_all_categories_as_array()
+        ]);
+    }
+
+    public function get_validation_config_service() : void {
+        echo json_encode([
+            "category_min_length" => Configuration::get("category_min_length"),
+            "category_max_length" => Configuration::get("category_max_length")     
         ]);
     }
 

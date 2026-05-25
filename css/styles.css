@@ -845,3 +845,96 @@ a {
     padding: 3px 8px;
     outline: none;
 }
+
+.manage-categories-box {
+    width: 85%;
+    margin: 25px auto;
+    background-color: #222;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.category-row-js {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 38px;
+}
+
+.drag-handle {
+    width: 18px;
+    cursor: grab;
+    color: #777;
+    text-align: center;
+}
+
+.category-name-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.category-name,
+.category-count {
+    color: white;
+}
+
+.category-error,
+#add-category-error {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-left: 10px;
+}
+
+.edit-category-input,
+#new-category-name {
+    flex: 1;
+    background-color: #202738;
+    color: white;
+    border: 1px solid #3b4560;
+    border-radius: 4px;
+    padding: 6px 8px;
+    outline: none;
+}
+
+#add-category-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+#add-category-row[style*="display: none"] {
+    display: none !important;
+}
+
+#new-category-name {
+    flex: 1;
+}
+
+#show-add-category {
+    float: right;
+    margin-top: 8px;
+}
+
+.modal-dialog {
+    max-width: 500px;
+}
+
+#leaveModal .modal-content,
+#deleteCategoryModal .modal-content {
+    background: rgba(34,34,34,0.92);
+    color: white;
+    border: 1px solid rgba(204,204,204,0.18);
+}
+
+#deleteCategoryModalBody .modal-title,
+#deleteCategoryModalBody .modal-body {
+    color: white;
+}
+
+#deleteCategoryModal .btn-close,
+#deleteCategoryModal .btn-close {
+    filter: invert(1);
+}

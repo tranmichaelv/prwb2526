@@ -216,7 +216,7 @@ class Category extends Model {
 
         $stmt = self::execute($sql,[":id" => $this->id]);
 
-        return $stmt->fetchColumn() > 0;
+        return $stmt->fetchColumn();
     }
 
 
