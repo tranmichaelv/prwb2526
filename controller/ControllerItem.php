@@ -657,17 +657,14 @@ class ControllerItem extends Controller {
         $encoded =  null;
         $img_priority = 1;
 
-        // if(isset($_GET['param4'])) {
-        //     $encoded = $_GET['param3'];
-        //     $img_priority = (int) $_GET['param4'];
-        // } elseif (isset($_GET['param3'])) {
-        //     $img_priority = (int) $_GET['param3'];
-        // }
+         if(isset($_GET['param4'])) {
+             $encoded = $_GET['param3'];
+             $img_priority = (int) $_GET['param4'];
+         } elseif (isset($_GET['param3'])) {
+             $img_priority = (int) $_GET['param3'];
+         }
 
-        if (isset($_GET['param3'])) {
-            $encoded = $_GET['param3'];
-        }
-
+    
 
         if ($id == null) {
             $errors[] = "Le controller a besoin d'un id pour charger la vue open item";
