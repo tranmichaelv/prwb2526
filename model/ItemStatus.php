@@ -360,7 +360,7 @@ class ItemStatus extends Model {
                                 ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
         
         $data = $query->fetch();
-        return $data["pseudo"];
+        return $data["pseudo"] ?? "";
     }
 
     // -------- "My Completed Sales" --------
@@ -406,7 +406,7 @@ class ItemStatus extends Model {
                                 ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
         
         $data = $query->fetch();
-        return $data["pseudo"];
+        return $data["pseudo"] ?? "";
     }
 
      // -------- "TOTAL REVENUE $$ AVERAGE TICKET SALES" --------
