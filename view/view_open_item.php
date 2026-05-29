@@ -58,19 +58,28 @@
                     <img src="<?= $main_picture_path ?>" alt="Image principale de Item">
                 <?php endif; ?>
             </div>
-
+           </div> 
+                  
             <div class="item-infos">
                 <p>
                     <h2> <?= $item->getTitle(); ?> </h2>
                 </p>
                 <p> <?= $item->getDescription(); ?></p>
 
+                <div class="categories">
+                    <p>  Categories: </p>
+                    <ul>
+                     <?php foreach ($categories as $category):?>
+                        <li> <?= $category->get_name() ?> </li> 
+                     <?php endforeach; ?> 
+                    </ul> 
+                </div>
                 <div class="startEndBid">
                     <p> start : <?= $item->getCreatedAt(); ?></p>
                     <p> End : <?= $item->getEndAt(); ?></p>
                 </div>
             </div>
-           </div>
+           
         </section>
         
 

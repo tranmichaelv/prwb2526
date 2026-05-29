@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>browse</title>
+    <title>My Items</title>
     <base href="<?= $web_root ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
@@ -25,7 +25,11 @@
         $encoded = $encoded ?? null; 
     ?>
 
-    <?php include('search_box.php'); ?>
+    <div id="filters-box" style="display: none;">
+        <?php include('search_box.php'); ?>
+        <?php include('filter_category.php') ?>
+    </div>
+    
 
     <div id="items-container">
         <?php  if(sizeof($active_items) != 0):?>

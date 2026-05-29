@@ -2,17 +2,26 @@ let items;
 let query;
 
 $(function () {
-    $("#search-box").show();
+    $("#filters-box").show();
+    
 
 
     $(window).on("pageshow", function () {
-        $("#search").trigger("input");
+       filterItems();
     });
 
-    $("#search").on("input", async function () {
+    $("#search").on("input", filterItems);
+    $("#category-filter").on("change", filterItems);
+        
+        
+        
+async function filterItems() {
 
         try {
-            const search_query = {query: $("#search").val()};
+            const search_query = {
+                query: $("#search").val(),
+                category_id: $("#category-filter").val() || 0
+            };
 
             const url = page === "browse"
                 ? "item/get_filtered_items_browse"
@@ -44,8 +53,8 @@ $(function () {
             console.error("RESPONSE:", error.responseText);
             $("#items-container").html("Error encountered while retrieving the messages!");
         }
-    });
-});
+    }
+
 
 async function displayBrowseItems(){
     let html = "";

@@ -69,6 +69,7 @@ class ControllerItem extends Controller {
         $from = 'from-browse';
         $encoded = isset($_GET['param1'] ) ? $_GET['param1'] : null;
         $query = $encoded ? Search_criteria::url_safe_decode($encoded) : "";
+        $categories = Category::get_all_categories();
 
         // Si user n'est pas vide, connecte au browser de l'user 
         if($user){
@@ -80,7 +81,7 @@ class ControllerItem extends Controller {
                                                 "user" => $user, 
                                                 "page" => $page,
                                                 "query" => $query,
-                                                "from" => $from,
+                                                "categories" => $categories
                                             ]);
         } 
         // sinon se connecte en tant que guest 
@@ -91,7 +92,7 @@ class ControllerItem extends Controller {
                                             "user" => $user, 
                                             "page" => $page,
                                             "query" => $query,
-                                            "from" => $from,
+                                            "categories" => $categories
                                         ]);
         }
     }
@@ -186,19 +187,21 @@ class ControllerItem extends Controller {
 
     public function get_filtered_items_browse() : void {
         $query = trim($_POST["query"] ?? "");
+        $category_id = intval($_POST["category_id"] ?? 0);
         $user = $this->get_user_or_false();
         if($user){
-            $items_json = $user->get_browse_items_filtered_as_json($query);
+            $items_json = $user->get_browse_items_filtered_as_json($query, $category_id);
         } else {
-            $items_json = ItemStatus::get_browse_items_filtered_as_json($query);
+            $items_json = ItemStatus::get_browse_items_filtered_as_json($query, $category_id);
         }
         echo $items_json;
     }
 
     public function get_filtered_items_list() : void {
         $query = trim($_POST["query"] ?? "");
+        $category_id = intval($_POST["category_id"] ?? 0);
         $user = $this->get_user_or_false();
-        $items_json = $user->get_my_items_filtered_as_json($query);
+        $items_json = $user->get_my_items_filtered_as_json($query, $category_id);
         echo $items_json;
     }
 
@@ -234,6 +237,7 @@ class ControllerItem extends Controller {
         $from = "from-items";
         $encoded = isset($_GET['param1'] ) ? $_GET['param1'] : null;
         $query = $encoded ? Search_criteria::url_safe_decode($encoded) : "";
+        $categories = Category::get_all_categories();
 
         $active_items = $user->get_list();  
         // print_r($active_items);
@@ -247,7 +251,7 @@ class ControllerItem extends Controller {
                                   "user" => $user, 
                                   "page" => $page,
                                   "query" => $query,
-                                  "from" => $from,
+                                  "categories" => $categories
                                 ]);
         
     }
@@ -321,6 +325,7 @@ class ControllerItem extends Controller {
 
             $item->set_instant_purchase($instant);
             $item->set_sale_price($sale);
+            $item->set_categories($_POST["categories"] ?? []);
 
         if (!empty($_POST)) {
             $errors = $item->persist(); // validation + insert tentative
@@ -332,11 +337,13 @@ class ControllerItem extends Controller {
             }
         }
 
+        $all_categories = Category::get_all_categories();
         (new View("add_edit_item"))->show([
             "mode" => "add",         
             "errors" => $errors,
             "item" => $item,
-            "user" => $user
+            "user" => $user,
+            "all_categories" => $all_categories
         ]);
 
     }
@@ -374,7 +381,8 @@ class ControllerItem extends Controller {
             $sale_raw = $_POST['sale_price'] ?? '';
             $sale = ($sale_raw === '') ? null : (float)$sale_raw;
             $item->set_sale_price($sale);
-
+            $item->set_categories($_POST["categories"] ?? []);
+            
             $errors = $item->persist();
 
             if (empty($errors)) {
@@ -382,13 +390,15 @@ class ControllerItem extends Controller {
             }
         }
 
+        $all_categories = Category::get_all_categories();
         (new View("add_edit_item"))->show([
             "mode" => "edit",
             "errors" => $errors,
             "item" => $item,
             "id" => $id,
             "user" => $user,
-            "encoded" => $encoded
+            "encoded" => $encoded,
+            "all_categories" => $all_categories
         ]);
 
     }
@@ -476,7 +486,7 @@ class ControllerItem extends Controller {
              ];
 
              // validation fichier
-             $fileErrores = ImageManager::validate($file);
+             $fileErrors = ImageManager::validate($file);
              if (!empty($fileErrors)) {
                 foreach ($fileErrors as $e) {
                     $errors[] = $names[$i] . " : " . $e;
@@ -557,7 +567,7 @@ class ControllerItem extends Controller {
     public function delete_picture(): void {
         $itemId = (int)($_GET["param1"] ?? 0);
         $priority = (int)($_GET["param2"] ?? 0);
-        $encoded = $_GET['param3'] ?? null;
+        $encoded = $_GET['param3'] ?? "";
 
         $pics = ItemPicture::get_by_item($itemId);
         $toDelete = null;
@@ -574,14 +584,7 @@ class ControllerItem extends Controller {
                 $toDelete->delete();
 
                 // réindexer les priorités 
-                $pics = ItemPicture::get_by_item($itemId);
-                $p = 1;
-                foreach ($pics as $img) {
-                    if ($img->get_priority() !== $p) {
-                        ItemPicture::swap_priority($itemId, $img->get_priority(), $p);
-                    }
-                    $p++;
-                }
+                ItemPicture::reindex_after_delete($itemId, $priority);
             }   
 
         $this->redirect("item", "manage_images", $itemId, $encoded ?? "");
@@ -645,15 +648,22 @@ class ControllerItem extends Controller {
 
     public function open() : void {
         $id = isset($_GET['param1']) ? (int) $_GET['param1'] : null;
-        $img_priority = isset($_GET['param4']) ? (int) $_GET['param'] : 1;
         $from = isset($_GET['param2'] ) ? $_GET['param2'] : null;
         $errors = [];
         $main_picture_path = null;
         $user_can_edit = false;
         $user_is_guest = false;
 
+        $query = trim($_POST["query"] ?? "");
+        $encoded =  null;
+        $img_priority = 1;
 
-        $encoded = $_GET['param3'] ?? null;
+        if(isset($_GET['param4'])) {
+            $encoded = $_GET['param3'];
+            $img_priority = (int) $_GET['param4'];
+        } elseif (isset($_GET['param3'])) {
+            $img_priority = (int) $_GET['param3'];
+        }
 
 
         if ($id == null) {
@@ -664,6 +674,8 @@ class ControllerItem extends Controller {
         }
 
         $item = ItemStatus::get_item_by_id($id);
+        $item_model = Item::get_by_id($id);
+        $categories = $item_model->get_categories();
         $seller = User::get_users_by_id($item->getOwner());
         // $bid = $this->get_bid_status($id);
         $pictures = $item->get_all_pictures_by_item_id();
@@ -698,7 +710,8 @@ class ControllerItem extends Controller {
             "user" => $current_user,
             "user_is_guest" => $user_is_guest,
             "bids_history" => $bids_history,
-            "encoded" => $encoded
+            "encoded" => $encoded,
+            "categories" => $categories
         ]);
     } 
 
@@ -830,7 +843,8 @@ class ControllerItem extends Controller {
             "title_max_length" => Configuration::get("title_max_length"),
             "description_min_length" => Configuration::get("description_min_length"),
             "duration_days_min" => Configuration::get("duration_days_min"),
-            "duration_days_max" => Configuration::get("duration_days_max") 
+            "duration_days_max" => Configuration::get("duration_days_max"),
+            "categories_max_choice" => Configuration::get("categories_max_choice") 
         ]); 
 
     }
@@ -878,35 +892,36 @@ class ControllerItem extends Controller {
     }
 
     public function update_pictures_order_service(): void {
-    $user = $this->get_user_or_false();
+        $user = $this->get_user_or_false();
 
-    if (!$user) {
-        http_response_code(401);
-        echo json_encode(["error" => "Unauthorized"]);
-        return;
+        if (!$user) {
+            http_response_code(401);
+            echo json_encode(["error" => "Unauthorized"]);
+            return;
+        }
+
+        $itemId = (int)($_POST["item_id"] ?? 0);
+        $priorities = $_POST["priorities"] ?? [];
+
+        if ($itemId <= 0 || !is_array($priorities)) {
+            http_response_code(400);
+            echo json_encode(["error" => "Bad request"]);
+            return;
+        }
+
+        $item = Item::get_by_id($itemId);
+
+        if ($item === null) {
+            http_response_code(404);
+            echo json_encode(["error" => "Item not found"]);
+            return;
+        }
+
+        ItemPicture::update_order($itemId, $priorities);
+
+        echo json_encode(["success" => true]);
     }
 
-    $itemId = (int)($_POST["item_id"] ?? 0);
-    $priorities = $_POST["priorities"] ?? [];
-
-    if ($itemId <= 0 || !is_array($priorities)) {
-        http_response_code(400);
-        echo json_encode(["error" => "Bad request"]);
-        return;
-    }
-
-    $item = Item::get_by_id($itemId);
-
-    if ($item === null) {
-        http_response_code(404);
-        echo json_encode(["error" => "Item not found"]);
-        return;
-    }
-
-    ItemPicture::update_order($itemId, $priorities);
-
-    echo json_encode(["success" => true]);
-}
 
 }
 

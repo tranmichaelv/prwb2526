@@ -268,6 +268,9 @@ class ControllerUser extends Controller {
     public function login_as_xavier() : void{
         $this->admin_login("Xavier");
     }
+    public function login_as_admin() : void{
+        $this->admin_login("Admin");
+    }
 
     public function get_validation_config_service() : void {
         echo json_encode([

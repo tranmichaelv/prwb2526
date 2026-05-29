@@ -690,3 +690,251 @@ a {
 .error p {
     margin: 2px 0;
 }
+
+.category-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.category-field input {
+    width: 100%;
+}
+
+.category-field.has-error input {
+    border: 1px solid #c95b5b;
+}
+
+.field-error {
+    color: #e07878;
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+/* page */
+.page-manage-category {
+    background-color: #07142a;
+    color: white;
+}
+
+/* bloc central */
+.page-manage-category .category-box {
+    max-width: 1100px;
+    margin: 20px auto 100px auto;
+    padding: 15px;
+    background-color: #222;
+    border-radius: 5px;
+}
+
+/* chaque ligne */
+.page-manage-category .category-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+}
+
+/* input + erreur */
+.page-manage-category .category-field {
+    flex: 1;
+}
+
+/* input */
+.page-manage-category input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #1f2929;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 7px;
+}
+
+/* boutons */
+.page-manage-category .btn {
+    padding: 7px 10px;
+    border-radius: 4px;
+    background: transparent;
+    color: white;
+    border: 1px solid #555;
+}
+
+
+.page-manage-category .btn-save {
+    color: #10a37f;
+    border-color: #10a37f;
+}
+
+
+.page-manage-category .btn-delete {
+    color: #d9535f;
+    border-color: #d9535f;
+}
+
+
+.page-manage-category button:disabled {
+    opacity: 0.3;
+}
+
+
+.page-manage-category .field-error {
+    color: #e07878;
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+
+.page-manage-category .category-add-row {
+    display: flex;
+    gap: 5px;   
+}
+
+.page-manage-category .btn-add {
+    background-color: #2f8ee5;
+    color: white;
+}
+
+.page-manage-category .btn:not(:disabled) {
+    cursor: pointer;
+}
+
+/* bouton désactivé */
+.page-manage-category .btn:disabled,
+.page-manage-category button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+
+#filters-box {
+    width: 90%;
+    margin: 12px auto 25px auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #222;
+    border-radius: 18px;
+    padding: 0 12px;
+    height: 34px;
+}
+
+.search-filter {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-filter input {
+    width: 100%;
+    background-color: #202738;
+    color: white;
+    border: 1px solid #3b4560;
+    border-radius: 4px;
+    padding: 6px 8px;
+    outline: none;
+}
+
+.category-filter select {
+    height: 26px;
+    min-width: 160px;
+    background-color: #202738;
+    color: white;
+    border: 1px solid #3b4560;
+    border-radius: 4px;
+    padding: 3px 8px;
+    outline: none;
+}
+
+.manage-categories-box {
+    width: 85%;
+    margin: 25px auto;
+    background-color: #222;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.category-row-js {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 38px;
+}
+
+.drag-handle {
+    width: 18px;
+    cursor: grab;
+    color: #777;
+    text-align: center;
+}
+
+.category-name-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.category-name,
+.category-count {
+    color: white;
+}
+
+.category-error,
+#add-category-error {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-left: 10px;
+}
+
+.edit-category-input,
+#new-category-name {
+    flex: 1;
+    background-color: #202738;
+    color: white;
+    border: 1px solid #3b4560;
+    border-radius: 4px;
+    padding: 6px 8px;
+    outline: none;
+}
+
+#add-category-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+#add-category-row[style*="display: none"] {
+    display: none !important;
+}
+
+#new-category-name {
+    flex: 1;
+}
+
+#show-add-category {
+    float: right;
+    margin-top: 8px;
+}
+
+.modal-dialog {
+    max-width: 500px;
+}
+
+#leaveModal .modal-content,
+#deleteCategoryModal .modal-content {
+    background: rgba(34,34,34,0.92);
+    color: white;
+    border: 1px solid rgba(204,204,204,0.18);
+}
+
+#deleteCategoryModalBody .modal-title,
+#deleteCategoryModalBody .modal-body {
+    color: white;
+}
+
+#deleteCategoryModal .btn-close,
+#deleteCategoryModal .btn-close {
+    filter: invert(1);
+}
