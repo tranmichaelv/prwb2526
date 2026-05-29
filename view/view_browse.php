@@ -1,3 +1,6 @@
+<?php
+    $from = "from-browse";
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,7 +24,6 @@
 <body>
 
     <?php 
-        $from = 'from-browse';
         $title = "Browse";
         include("header.php");
         $encoded = $encoded ?? null; 

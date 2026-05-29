@@ -73,7 +73,6 @@ async function displayBrowseItems(){
 
         // Autres items
         if (items.other && items.other.length > 0) {
-            if (items.bids && items.bids.length > 0) {
                 html += "<h1>Other Available Items</h1>" +
                         '<div class="items-box">';
                 
@@ -81,9 +80,7 @@ async function displayBrowseItems(){
                     html += renderItem(item);
                 }
         
-                html += '</div>'
-        
-            }
+                html += '</div>'  
         }
 
     } else {
@@ -395,3 +392,4 @@ function renderItem(item) {
         </div>
     `;
 }
+});
