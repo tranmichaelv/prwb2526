@@ -1,3 +1,6 @@
+<?php
+    $from = "from-browse";
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,8 +13,10 @@
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
     <script src="lib/jquery-4.0.0.min.js" type="text/javascript"></script>
     <script>
-        page = "<?= $page ?>";
-        user = "<?= $user ? $user->getPseudo() : '' ?>";
+        const page = "<?= $page ?>";
+        const user = "<?= $user ? $user->getPseudo() : '' ?>";
+        const currentUserId = <?= $user ? $user->getId() : 'null' ?>;
+        const from = "<?= $from ?>";
     </script>
     <script src="scripts/filter_items.js" type="text/javascript"></script>
 </head>
@@ -19,14 +24,16 @@
 <body>
 
     <?php 
-        $from = 'from-browse';
-        $title = "Browser";
+        $title = "Browse";
         include("header.php");
         $encoded = $encoded ?? null; 
     ?>
 
-    <?php include('search_box.php'); ?>
-
+    <div id="filters-box" style="display: none;">
+        <?php include('search_box.php'); ?>
+        <?php include('filter_category.php') ?>
+    </div>
+    
     <div id="items-container">
         <?php if($user):?>
             <?php  if(sizeof($items_user) != 0):?>

@@ -1,15 +1,21 @@
+<?php
+    $from = "from-items";
+?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>browse</title>
+    <title>My Items</title>
     <base href="<?= $web_root ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
     <script src="lib/jquery-4.0.0.min.js" type="text/javascript"></script>
     <script>
-        page = "<?= $page ?>";
+        const page = "<?= $page ?>";
+        const user = "<?= $user ? $user->getPseudo() : '' ?>";
+        const currentUserId = <?= $user ? $user->getId() : 'null' ?>;
+        const from = "<?= $from ?>";
     </script>
     <script src="scripts/filter_items.js" type="text/javascript"></script>
 </head>
@@ -18,12 +24,15 @@
 
     <?php 
         $title = "My items";
-        $from = "from-items";
         include("header.php");
         $encoded = $encoded ?? null; 
     ?>
 
-    <?php include('search_box.php'); ?>
+    <div id="filters-box" style="display: none;">
+        <?php include('search_box.php'); ?>
+        <?php include('filter_category.php') ?>
+    </div>
+    
 
     <div id="items-container">
         <?php  if(sizeof($active_items) != 0):?>

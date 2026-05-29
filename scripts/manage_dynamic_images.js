@@ -116,38 +116,3 @@ async function loadPictures() {
         renderPictures();
 }
 
-function activateSortable() {
-
-    const container = $("#pictures-container");
-
-    if (container.hasClass("ui-sortable")) {
-        container.sortable("destroy");
-    }
-
-    container.sortable({
-        items: ".thumb",
-        placeholder: "thumb-placeholder",
-        tolerance: "pointer",
-
-        update: async function () {
-
-            const priorities = [];
-
-            $("#pictures-container .thumb").each(function () {
-                priorities.push($(this).data("priority"));
-            });
-
-            await $.ajax({
-                url: "item/update_pictures_order_service",
-                method: "POST",
-                data: {
-                    item_id: item_id,
-                    priorities: priorities
-                },
-                dataType: "json"
-            });
-
-            await loadPictures();
-        }
-    });
-}

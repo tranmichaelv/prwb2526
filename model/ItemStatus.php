@@ -3,6 +3,7 @@ require_once "framework/Model.php";
 require_once "utils/AppTime.php";
 require_once "utils/Utils.php";
 require_once "model/Bids.php";
+require_once "model/Item.php";
 
 
 class ItemStatus extends Model {
@@ -80,17 +81,19 @@ class ItemStatus extends Model {
         return self::fetch_items($data);
     }
 
-    public static function get_filtered_items(array $items, string $query) : array {
+    public static function get_filtered_items(array $items, string $query, int $category_id = 0) : array {
         $list = [];
         $query = strtolower($query);
         foreach ($items as $item) {
 
-            $match =
+            $matchText =
                 str_contains(strtolower($item->getTitle()), $query) ||
                 str_contains(strtolower($item->getDescription()), $query) ||
                 str_contains(strtolower($item->getOwnerName()), $query);
 
-            if ($match) {
+            $matchCategory = self::item_matches_category($item, $category_id);    
+
+            if ($matchText && $matchCategory) {
                 $list[] = $item;
             }
         }
@@ -357,7 +360,7 @@ class ItemStatus extends Model {
                                 ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
         
         $data = $query->fetch();
-        return $data["pseudo"];
+        return $data["pseudo"] ?? "";
     }
 
     // -------- "My Completed Sales" --------
@@ -403,7 +406,7 @@ class ItemStatus extends Model {
                                 ,["id"=>$userId, "current_date" =>(new DateTime(AppTime::get_current_datetime()))->format('Y-m-d H:i:s')]); 
         
         $data = $query->fetch();
-        return $data["pseudo"];
+        return $data["pseudo"] ?? "";
     }
 
      // -------- "TOTAL REVENUE $$ AVERAGE TICKET SALES" --------
@@ -726,6 +729,15 @@ class ItemStatus extends Model {
     
         $info = pathinfo($firstPicture);
     
+
+        if (
+            !isset($info['dirname']) ||
+            !isset($info['filename']) ||
+            !isset($info['extension'])
+        ) {
+            return "";
+        } 
+
         return $info['dirname'] . '/' .
                $info['filename'] . '_thumbnail.' .
                $info['extension'];
@@ -735,10 +747,10 @@ class ItemStatus extends Model {
         return $this->get_bids_history()[0]['created_at'];
     }
 
-    public static function get_browse_items_filtered_as_json(string $query) : string {
+    public static function get_browse_items_filtered_as_json(string $query, int $category_id = 0) : string {
         $query = strtolower($query);
         $itemsAll = ItemStatus::get_all_items();
-        $itemsAllFiltered = ItemStatus::get_filtered_items($itemsAll, $query);
+        $itemsAllFiltered = ItemStatus::get_filtered_items($itemsAll, $query, $category_id);
     
         $all = [];
         $bids = [];
@@ -749,7 +761,10 @@ class ItemStatus extends Model {
 
         $encoded = "";
         if(!empty($query))
-            $encoded = search_criteria::url_safe_encode($query);
+            $encoded = search_criteria::url_safe_encode(json_encode([
+                "query" => $query,
+                "cateogry_id" => $category_id
+        ]));
 
         return json_encode([
             "bids" => $bids,
@@ -759,7 +774,18 @@ class ItemStatus extends Model {
         ]);
     }
 
+    public function is_bidder(User $user): bool {
+        $query = self::execute("SELECT b.owner 
+                                FROM bids b
+                                    join items i on b.item = i.id
+                                where i.id = :itemId
+                                and  b.owner = :owner;", ["itemId"=>$this->getId(), "owner"=>$user->getId()]);
+        $result = $query->fetchAll();
+        return !empty($result);
+    }
+
     public static function formatItem($item): array {
+        
         return [
             "id" => $item->getId(),
             "title" => $item->getTitle(),
@@ -778,6 +804,29 @@ class ItemStatus extends Model {
             "buy_now_price" => $item->getBuyNowPrice(),
             "starting_bid" => $item->getStartingBid(),
             "max_bid" => $item->getMaxBid(),
+
+            "time" => $item->getTimeLeft(),
+            "highest_bidder_id" => $item->get_highest_bidder_id(),
+            "owner_name" => $item->getOwnerName(),
+            "number_of_pics" => $item->get_number_of_pics(),
+            "thumbnail" => $item->get_thumbnail(),
+            "first_picture_path" => $item->get_first_picture_path(),
         ];
+    }
+
+    private static function item_matches_category(ItemStatus $item, int $category_id): bool {
+        if ($category_id === 0) {
+            return true; // All categories
+        }
+
+        $item_model = Item::get_by_id($item->getId());
+
+        foreach ($item_model->get_categories() as $category) {
+            if($category->get_id() === $category_id) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

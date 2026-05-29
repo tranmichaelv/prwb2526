@@ -22,6 +22,20 @@
                     <tbody>
                         <tr><td><i class="bi bi-person"></i> <input id="email" name="email" type="email" placeholder="Email" value="<?= $email ?>"></td></tr>
                         <tr><td><i class="bi bi-key"></i> <input id="password" name="password" type="password" placeholder="••••••" value="<?= $password ?>"></td></tr>
+                        <?php if (count($errors) != 0): ?>
+                        <tr>
+                            <td>
+                                <div class="errors">
+                                    <p>Please correct the following error(s) :</p>
+                                    <ul>
+                                        <?php foreach ($errors as $error): ?>
+                                            <li><?= $error ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
                         <tr><td><input type="submit" name="login" value="Log In"></td></tr>
                         <tr><td><input type="submit" name="guest_login" value="Continue as Guest"></td></tr>
                         <tr><td><a href="user/signup">New here ? Click here to subsribe !</a></td></tr>
@@ -34,6 +48,7 @@
                             <tr><td><a href="user/login_as_marc">Login as mamichel@epfc.eu</a></td></tr>
                             <tr><td><a href="user/login_as_quentin">Login as quhouben@epfc.eu</a></td></tr>
                             <tr><td><a href="user/login_as_xavier">Login as xapigeolet@epfc.eu</a></td></tr>
+                            <tr><td> <a href="user/login_as_admin">Login as admin@epfc.eu</a></td></tr>
                             <tr><td><a href="setup">Restore original data</a></td></tr>
                             <tr><td><a href="setup/export">Backup personal data</a></td></tr>
                             <tr><td><a href="setup/restore">Restore personal data</a></td></tr>
@@ -42,16 +57,6 @@
                 </table>
             </form>
         </div>
-        <?php if (count($errors) != 0): ?>
-            <div class='errors'>
-                <p>Please correct the following error(s) :</p>
-                <ul>
-                    <?php foreach ($errors as $error): ?>
-                        <li><?= $error ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
     </div>
 
     <footer> 

@@ -146,11 +146,11 @@ class User extends Model {
         return ItemStatus::get_bids_items_from_user($this->getId());
     }
 
-    public function get_browse_items_filtered_as_json(string $query) : string {
+    public function get_browse_items_filtered_as_json(string $query, int $category_id = 0) : string {
         $query = strtolower($query);
     
         $itemsBids = $this->get_my_bids_items();
-        $itemsBidsFiltered = ItemStatus::get_filtered_items($itemsBids, $query);
+        $itemsBidsFiltered = ItemStatus::get_filtered_items($itemsBids, $query, $category_id);
     
         $bids = [];
     
@@ -159,7 +159,7 @@ class User extends Model {
         }
 
         $itemsOther = $this->get_my_other_items();
-        $itemsOtherFiltered = ItemStatus::get_filtered_items($itemsOther, $query);
+        $itemsOtherFiltered = ItemStatus::get_filtered_items($itemsOther, $query, $category_id);
     
         $other = [];
     
@@ -180,11 +180,11 @@ class User extends Model {
         ]);
     }
 
-    public function get_my_items_filtered_as_json(string $query) : string {
+    public function get_my_items_filtered_as_json(string $query, int $category_id = 0) : string {
         $query = strtolower($query);
     
         $itemsActive = $this->get_list();
-        $itemsActiveFiltered = ItemStatus::get_filtered_items($itemsActive, $query);
+        $itemsActiveFiltered = ItemStatus::get_filtered_items($itemsActive, $query, $category_id);
     
         $bids = [];
     
@@ -193,7 +193,7 @@ class User extends Model {
         }
     
         $itemsClosed = $this->get_my_closed_unsold_items();
-        $itemsClosedFiltered = ItemStatus::get_filtered_items($itemsClosed, $query);
+        $itemsClosedFiltered = ItemStatus::get_filtered_items($itemsClosed, $query, $category_id);
     
         $other = [];
     
@@ -202,7 +202,7 @@ class User extends Model {
         }
     
         $itemsSold = $this->get_my_sold_items();
-        $itemsSoldFiltered = ItemStatus::get_filtered_items($itemsSold, $query);
+        $itemsSoldFiltered = ItemStatus::get_filtered_items($itemsSold, $query, $category_id);
     
         $all = [];
     
@@ -241,6 +241,14 @@ class User extends Model {
             "buy_now_price" => $item->getBuyNowPrice(),
             "starting_bid" => $item->getStartingBid(),
             "max_bid" => $item->getMaxBid(),
+
+            "time" => $item->getTimeLeft(),
+            "highest_bidder_id" => $item->get_highest_bidder_id(),
+            "owner_name" => $item->getOwnerName(),
+            "number_of_pics" => $item->get_number_of_pics(),
+            "is_bidder" =>  $this->is_bidder($item),
+            "thumbnail" => $item->get_thumbnail(),
+            "first_picture_path" => $item->get_first_picture_path(),
         ];
     }
 

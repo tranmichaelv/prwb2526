@@ -8,28 +8,40 @@ class ImageManager {
     public static function validate(array $file) : array {
         $errors = [];
 
-        if (!isset($file["error"]) || $file["error"] !== UPLOAD_ERR_OK) {
-                $errors[] = "Erreur lors de l'upload.";
-                return $errors;
-            }
-
         $maxMb = (int)Configuration::get("max_upload_mb");
         $maxBytes = $maxMb * 1024 * 1024;
-        if($file["size"] > $maxBytes){
-            $errors[] = "Fichier trop grand";
-        }
 
-        $type = exif_imagetype($file["tmp_name"]);
-            if ($type !== IMAGETYPE_JPEG &&
-                $type !== IMAGETYPE_PNG &&
-                $type !== IMAGETYPE_GIF &&
-                $type !== IMAGETYPE_WEBP) {
-                $errors[] = "Format non supporté (JPEG, PNG, GIF, WEBP).";
-            }
-
+        if (!isset($file["error"])) {
+            $errors[] = "Erreur lors de l'upload.";
             return $errors;
         }
 
+        if ($file["error"] === UPLOAD_ERR_INI_SIZE || $file["error"] === UPLOAD_ERR_FORM_SIZE) {
+            $errors[] = "Fichier trop grand. Taille maximum : " . $maxMb . " MB.";
+            return $errors;
+        }
+
+        if ($file["error"] !== UPLOAD_ERR_OK) {
+            $errors[] = "Erreur lors de l'upload.";
+            return $errors;
+        }
+
+        if ($file["size"] > $maxBytes) {
+            $errors[] = "Fichier trop grand. Taille maximum : " . $maxMb . " MB.";
+            return $errors;
+        }
+
+        $type = exif_imagetype($file["tmp_name"]);
+
+        if ($type !== IMAGETYPE_JPEG &&
+            $type !== IMAGETYPE_PNG &&
+            $type !== IMAGETYPE_GIF &&
+            $type !== IMAGETYPE_WEBP) {
+            $errors[] = "Format non supporté (JPEG, PNG, GIF, WEBP).";
+        }
+
+        return $errors;
+    }
     // crée image main / thumbnail + retourne le chemin de main    
     public static function save_item_image(array $file, int $itemId, string $originalNameNoExt, int $priority) : string {
 
