@@ -225,7 +225,7 @@ function enableDragAndDrop() {
             });
 
             await $.post(
-                "category/update_order_service",
+                "category/update_categories_order_service",
                 { param1: ids },
                 null,
                 "json"
