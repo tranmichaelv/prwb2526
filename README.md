@@ -15,7 +15,7 @@ En développement, donnez les permissions d'écriture aux dossiers uploads et da
 * mamichel@epfc.eu, password "Password1,", utilisateur
 * quhouben@epfc.eu, password "Password1,", utilisateur
 * xapigeolet@epfc.eu, password "Password1,", utilisateur
-* A compléter...
+* admin@epfc.eu, password "Password1," admin
 
 ### Liste des bugs connus
 
@@ -25,9 +25,9 @@ En développement, donnez les permissions d'écriture aux dossiers uploads et da
 
 ### URLs deploiement
 
-* étudiant Nom Prenom :
-  * URL :
-  * Mot de passe :
+* étudiant Nom Prenom : Abajtour Walid
+  * URL : http://infolab.epfc.eu:58328/prwb_2526_c05/user/login
+  * Mot de passe : luffy97531-
 * étudiant Nom Prenom :
   * URL :
   * Mot de passe :
@@ -40,9 +40,6 @@ En développement, donnez les permissions d'écriture aux dossiers uploads et da
 ### Divers
 
 ## Notes de version itération 2
-
-Déploiement : User : student-web
-              MDP  : luffy97531-
 
 ## Notes de version itération 3
 
