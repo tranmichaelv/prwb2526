@@ -362,8 +362,9 @@ class ControllerUser extends Controller {
         $email = trim($_POST["param1"] ?? "");
 
         if($email === '') {
-            http_response_code(400);
-            echo json_encode(["error" => "Email is required"]);
+            echo json_encode([
+                "ok" => false,
+                "error" => "Email is required"]);
             return;
         }
 
@@ -383,8 +384,9 @@ class ControllerUser extends Controller {
         $full_name = trim($_POST['param1'] ?? '');
 
         if ($full_name === '') {
-            http_response_code(400);
-            echo json_encode(["error" => "Full name is required"]);
+            echo json_encode([
+                "ok" => false,
+                "error" => "Full name is required"]);
             return;
         }
 
@@ -404,8 +406,9 @@ class ControllerUser extends Controller {
         $pseudo = trim($_POST['param1'] ?? '');
 
         if ($pseudo === '') {
-            http_response_code(400);
-            echo json_encode(["error" => "Pseudo is required"]);
+            echo json_encode([
+                "ok" => false,
+                "error" => "Pseudo is required"]);
             return;
         }
 
