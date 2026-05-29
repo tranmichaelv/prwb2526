@@ -518,8 +518,13 @@ class ItemStatus extends Model {
             ["priority" => $priority, "item" => $item_id]
         );
 
-        $pic = $query->fetch();
-        return $pic['picture_path'];
+        $data = $query->fetch();
+
+        if ($data === false) {
+            return $this->get_main_picture_by_item_id();
+        }
+
+        return $data["picture_path"];
     }
 
     public function get_first_picture_path() : ?string {
