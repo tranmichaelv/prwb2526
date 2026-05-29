@@ -881,7 +881,8 @@ a {
 }
 
 .category-error,
-#add-category-error {
+#add-category-error,
+.errors {
     color: #dc3545;
     font-size: 0.85rem;
     margin-left: 10px;
