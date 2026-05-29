@@ -654,15 +654,18 @@ class ControllerItem extends Controller {
         $user_can_edit = false;
         $user_is_guest = false;
 
-        $query = trim($_POST["query"] ?? "");
         $encoded =  null;
         $img_priority = 1;
 
-        if(isset($_GET['param4'])) {
+        // if(isset($_GET['param4'])) {
+        //     $encoded = $_GET['param3'];
+        //     $img_priority = (int) $_GET['param4'];
+        // } elseif (isset($_GET['param3'])) {
+        //     $img_priority = (int) $_GET['param3'];
+        // }
+
+        if (isset($_GET['param3'])) {
             $encoded = $_GET['param3'];
-            $img_priority = (int) $_GET['param4'];
-        } elseif (isset($_GET['param3'])) {
-            $img_priority = (int) $_GET['param3'];
         }
 
 
