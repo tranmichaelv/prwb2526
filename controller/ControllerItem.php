@@ -484,7 +484,7 @@ class ControllerItem extends Controller {
              ];
 
              // validation fichier
-             $fileErrores = ImageManager::validate($file);
+             $fileErrors = ImageManager::validate($file);
              if (!empty($fileErrors)) {
                 foreach ($fileErrors as $e) {
                     $errors[] = $names[$i] . " : " . $e;
@@ -565,7 +565,7 @@ class ControllerItem extends Controller {
     public function delete_picture(): void {
         $itemId = (int)($_GET["param1"] ?? 0);
         $priority = (int)($_GET["param2"] ?? 0);
-        $encoded = $_GET['param3'] ?? null;
+        $encoded = $_GET['param3'] ?? "";
 
         $pics = ItemPicture::get_by_item($itemId);
         $toDelete = null;
@@ -582,14 +582,7 @@ class ControllerItem extends Controller {
                 $toDelete->delete();
 
                 // réindexer les priorités 
-                $pics = ItemPicture::get_by_item($itemId);
-                $p = 1;
-                foreach ($pics as $img) {
-                    if ($img->get_priority() !== $p) {
-                        ItemPicture::swap_priority($itemId, $img->get_priority(), $p);
-                    }
-                    $p++;
-                }
+                ItemPicture::reindex_after_delete($itemId, $priority);
             }   
 
         $this->redirect("item", "manage_images", $itemId, $encoded);
@@ -653,7 +646,6 @@ class ControllerItem extends Controller {
 
     public function open() : void {
         $id = isset($_GET['param1']) ? (int) $_GET['param1'] : null;
-        $img_priority = isset($_GET['param4']) ? (int) $_GET['param'] : 1;
         $from = isset($_GET['param2'] ) ? $_GET['param2'] : null;
         $errors = [];
         $main_picture_path = null;
@@ -661,7 +653,15 @@ class ControllerItem extends Controller {
         $user_is_guest = false;
 
         $query = trim($_POST["query"] ?? "");
-        $encoded = isset($_GET['param3'] ) ? $_GET['param3'] : null;
+        $encoded =  null;
+        $img_priority = 1;
+
+        if(isset($_GET['param4'])) {
+            $encoded = $_GET['param3'];
+            $img_priority = (int) $_GET['param4'];
+        } elseif (isset($_GET['param3'])) {
+            $img_priority = (int) $_GET['param3'];
+        }
 
 
         if ($id == null) {
