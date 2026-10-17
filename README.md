@@ -25,9 +25,9 @@ En développement, donnez les permissions d'écriture aux dossiers uploads et da
 
 ### URLs deploiement
 
-* étudiant Nom Prenom : Abajtour Walid
-  * URL : http://infolab.epfc.eu:58328/prwb_2526_c05/user/login
-  * Mot de passe : luffy97531-
+* étudiant Nom Prenom : 
+  * URL : 
+  * Mot de passe : 
 * étudiant Nom Prenom :
   * URL :
   * Mot de passe :
